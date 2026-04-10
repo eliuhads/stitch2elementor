@@ -47,6 +47,99 @@ Every page preserves **100% design fidelity** because the real Stitch HTML (with
 - Node.js 18+ (for the converter script)
 - PowerShell or Bash (for downloading HTML files)
 
+## Companion Skills Ecosystem
+
+This skill orchestrates a full design-to-production pipeline. The following companion skills extend its capabilities at each phase. **Read each skill's SKILL.md before using it.**
+
+### CORE SKILLS (Required — Used in every migration)
+
+| Skill | Location | Purpose | Pipeline Phase |
+|-------|----------|---------|----------------|
+| **html-to-json** | `.agent/skills/html-to-json/` | Rules and schema for converting HTML/CSS to valid Elementor JSON. Defines widget mapping, container hierarchy, responsive keys, and validation checklists. | Phase 2: Compilation |
+| **ui-ux-pro-max** | `.agent/skills/ui-ux-pro-max/` | Design intelligence database: 67 styles, 96 palettes, 57 font pairings, 99 UX guidelines. Use to select color schemes, typography, and design direction. | Phase 0: BrandBook + Phase 1: Stitch Design |
+| **design-md** | `skills/design-md/` | Analyzes Stitch projects and synthesizes a semantic design system into `DESIGN.md` files. Extracts tokens, colors, typography, and spacing from Stitch screens. | Phase 0: BrandBook → MASTER.md |
+| **webp-optimizer** | `skills/webp-optimizer/` | Batch converts PNG/JPG images to optimized WebP using Sharp. Critical for WordPress performance and page load speed. | Phase 0: Image Preparation |
+
+### DESIGN & GENERATION SKILLS (Recommended — Improve Stitch output quality)
+
+| Skill | Location | Purpose | Pipeline Phase |
+|-------|----------|---------|----------------|
+| **enhance-prompt** | `skills/enhance-prompt/` | Transforms vague UI ideas into polished, Stitch-optimized prompts. Adds UI/UX keywords, injects design system context, structures output for better generation. | Phase 1: Before generate_screen_from_text |
+| **stitch-loop** | `skills/stitch-loop/` | Autonomous iterative site-building loop. Generates a page, integrates it, prepares instructions for the next iteration. Useful for building multi-page sites. | Phase 1: Multi-page generation |
+
+### POST-PRODUCTION SKILLS (Recommended — Quality and SEO)
+
+| Skill | Location | Purpose | Pipeline Phase |
+|-------|----------|---------|----------------|
+| **Agentic-SEO-Skill** | `skills/Agentic-SEO-Skill/` | Full SEO audit suite: 16 sub-skills, 10 specialist agents, 33 scripts. Technical SEO, Core Web Vitals, E-E-A-T, schema markup, hreflang, GEO/AEO analysis. | Phase 4: SEO + Verification |
+| **visual-tester** | `skills/visual-tester/` | Playwright-based headless browser testing. Takes desktop/mobile screenshots, detects 404/500 errors, verifies front-end rendering. | Phase 4: Visual Verification |
+
+### ADVANCED SKILLS (Optional — For specific needs)
+
+| Skill | Location | Purpose | When to Use |
+|-------|----------|---------|-------------|
+| **react-components** | `skills/react-components/` | Converts Stitch designs into modular Vite + React components with AST validation. | When building React apps instead of WordPress |
+| **remotion** | `skills/remotion/` | Generates walkthrough videos from Stitch projects using Remotion with transitions and zooming. | For marketing demos or client presentations |
+| **shadcn-ui** | `skills/shadcn-ui/` | Expert shadcn/ui component integration with Radix UI and Tailwind CSS. | When building modern React/Next.js interfaces |
+
+### How the Skills Fit in the Pipeline
+
+```
+[Phase 0: Preparation]
+  ui-ux-pro-max → Select design direction, palettes, typography
+  design-md → Analyze BrandBook → Generate DESIGN.md / MASTER.md
+  webp-optimizer → Convert all images to optimized WebP
+
+[Phase 1: Design in Stitch]
+  enhance-prompt → Polish prompts before sending to Stitch
+  stitch-loop → Automate multi-page generation iteratively
+
+[Phase 2: Compilation]
+  html-to-json → Schema, rules, widget mapping for Elementor JSON
+  compiler_v4.js → Execute the actual DOM walker conversion
+
+[Phase 3: Injection]
+  MCP servers → Upload to WordPress
+
+[Phase 4: Quality & SEO]
+  Agentic-SEO-Skill → Full SEO audit per page
+  visual-tester → Screenshot verification desktop/mobile
+
+[Optional]
+  react-components → If target is React, not WordPress
+  remotion → Client presentation videos
+  shadcn-ui → Modern React component library
+```
+
+⚠️ **READ EACH SKILL'S SKILL.md** before using it. Each contains specific instructions, prerequisites, and usage patterns.
+
+### How to Install the Skills
+
+**Google Stitch Skills** (from `google-labs-code/stitch-skills` repo):
+```bash
+# Install individual skills via npx:
+npx skills add google-labs-code/stitch-skills --skill design-md --global
+npx skills add google-labs-code/stitch-skills --skill enhance-prompt --global
+npx skills add google-labs-code/stitch-skills --skill react:components --global
+npx skills add google-labs-code/stitch-skills --skill shadcn-ui --global
+npx skills add google-labs-code/stitch-skills --skill stitch-loop --global
+npx skills add google-labs-code/stitch-skills --skill remotion --global
+```
+
+**Agentic SEO Skill** (from `Bhanunamikaze/Agentic-SEO-Skill` repo):
+```bash
+git clone https://github.com/Bhanunamikaze/Agentic-SEO-Skill.git
+cd Agentic-SEO-Skill
+bash install.sh --target antigravity --project-dir /path/to/your/project
+```
+
+**Custom Skills** (included in this repo — no external install needed):
+- `html-to-json` → Already in `.agent/skills/html-to-json/`
+- `ui-ux-pro-max` → Already in `.agent/skills/ui-ux-pro-max/`
+- `webp-optimizer` → Already in `skills/webp-optimizer/` (requires `npm install sharp`)
+- `visual-tester` → Already in `skills/visual-tester/` (requires `npx playwright install chromium`)
+- `stitch2elementor` → Already in `skills/stitch2elementor/` (this skill)
+
 ## MCP Configuration
 
 ### StitchMCP
@@ -64,8 +157,8 @@ Every page preserves **100% design fidelity** because the real Stitch HTML (with
 ```
 
 **Available tools (verified):**
-- `list_projects` → List all user projects
-- `get_project` → Get project metadata + screen list
+- `list_projects` → List all user projects (**⛔ AVOID — causes timeout. Use `get_project` with known ID instead**)
+- `get_project` → Get project metadata + screen list (**✅ PREFERRED**)
 - `get_screen` → Get screenshot URL + HTML download URL
 - `list_screens` → List all screens in a project
 - `generate_screen_from_text` → Generate new screens from a prompt
@@ -138,10 +231,10 @@ Violating this rule causes a **PHP Fatal Error** that kills the Elementor visual
 #### Step 1.1 — Find the Stitch Project
 
 ```
-StitchMCP → list_projects
+StitchMCP → get_project(projectId)   ⛔ NEVER use list_projects (causes timeout)
 ```
 
-Identify your project and save the `projectId`.
+Use a known `projectId` or create a new project with `create_project`.
 
 #### Step 1.2 — Get Screen Download URLs
 

@@ -38,11 +38,51 @@
 ### PASO -1A · Skills necesarios
 
 ```
-VERIFICAR que existen:
-  .agent/skills/html-to-json/SKILL.md   ← Reglas de conversión HTML→JSON
-  .agent/skills/ui-ux-pro-max/SKILL.md  ← Sistema de diseño y paletas
+VERIFICAR que existen TODOS los skills del ecosistema:
 
-⚠️ LEER AMBOS SKILLS COMPLETOS antes de continuar.
+  CORE (Obligatorios):
+    .agent/skills/html-to-json/SKILL.md   ← Reglas de conversión HTML→Elementor JSON
+    .agent/skills/ui-ux-pro-max/SKILL.md  ← Sistema de diseño: 67 estilos, 96 paletas, 57 font pairings
+    skills/design-md/SKILL.md             ← Genera DESIGN.md desde proyectos Stitch
+    skills/webp-optimizer/SKILL.md        ← Convierte PNG/JPG a WebP optimizado
+
+  DISEÑO & GENERACIÓN (Recomendados):
+    skills/enhance-prompt/SKILL.md        ← Optimiza prompts para mejor output de Stitch
+    skills/stitch-loop/SKILL.md           ← Loop autónomo para generar múltiples páginas
+
+  POST-PRODUCCIÓN (Recomendados):
+    skills/Agentic-SEO-Skill/SKILL.md     ← Auditoría SEO completa: 16 sub-skills, 33 scripts
+    skills/visual-tester/SKILL.md         ← Screenshots + verificación 404/500 con Playwright
+
+  AVANZADOS (Opcionales):
+    skills/react-components/SKILL.md      ← Stitch → React/Vite (si no es WordPress)
+    skills/remotion/SKILL.md              ← Videos de walkthrough desde Stitch
+    skills/shadcn-ui/SKILL.md             ← Componentes shadcn/ui para React/Next.js
+
+⚠️ LEER TODOS LOS SKILLS CORE antes de continuar.
+   Los demás skills se leen cuando se activa su fase.
+
+INSTALAR SKILLS FALTANTES:
+
+  Google Stitch Skills (repo: google-labs-code/stitch-skills):
+    npx skills add google-labs-code/stitch-skills --skill design-md --global
+    npx skills add google-labs-code/stitch-skills --skill enhance-prompt --global
+    npx skills add google-labs-code/stitch-skills --skill stitch-loop --global
+    npx skills add google-labs-code/stitch-skills --skill react:components --global
+    npx skills add google-labs-code/stitch-skills --skill shadcn-ui --global
+    npx skills add google-labs-code/stitch-skills --skill remotion --global
+
+  Agentic SEO Skill (repo: github.com/Bhanunamikaze/Agentic-SEO-Skill):
+    git clone https://github.com/Bhanunamikaze/Agentic-SEO-Skill.git
+    cd Agentic-SEO-Skill
+    bash install.sh --target antigravity --project-dir [ruta_proyecto]
+
+  Custom Skills (incluidos en este repo — no requieren instalación externa):
+    · html-to-json     → ya en .agent/skills/html-to-json/
+    · ui-ux-pro-max    → ya en .agent/skills/ui-ux-pro-max/
+    · webp-optimizer   → ya en skills/webp-optimizer/ (requiere: npm install sharp)
+    · visual-tester    → ya en skills/visual-tester/ (requiere: npx playwright install chromium)
+    · stitch2elementor → ya en skills/stitch2elementor/
 ```
 
 ---
@@ -103,7 +143,7 @@ SERVIDORES NECESARIOS:
 ### PASO -1D · Prueba de conexión
 
 ```
-PRUEBA 1 — StitchMCP → list_projects (o create_project)
+PRUEBA 1 — StitchMCP → create_project (⛔ NUNCA list_projects — causa timeout)
 PRUEBA 2 — wp-elementor-mcp → get_pages
 PRUEBA 3 — elementor-mcp → get_page (cualquier ID)
 
@@ -144,6 +184,10 @@ FORMAS:
    Stitch usa tokens Material Design (primary-container, on-primary, etc.)
    que son MÁS CLAROS que los colores reales del brandbook.
    El compilador debe forzar los colores HEX del BrandBook, NO los de Stitch.
+
+📦 SKILLS A USAR:
+   → ui-ux-pro-max: Consultar paletas, font pairings, estilos de diseño
+   → design-md: Generar DESIGN.md / MASTER.md automáticamente desde Stitch
 ```
 
 ---
@@ -166,6 +210,11 @@ PARA CADA HERO:
 
 ⚠️ REGLA: NUNCA dejar URLs temporales de Stitch (lh3.googleusercontent.com).
    Expiran en días. SIEMPRE subir a WordPress Media Library.
+
+📦 SKILL A USAR:
+   → webp-optimizer: Convertir TODAS las imágenes a WebP antes de subir.
+     Ejecutar: node skills/webp-optimizer/optimize.js [carpeta_imagenes]
+     Reduce peso 60-80% sin pérdida visible de calidad.
 ```
 
 ---
@@ -253,6 +302,12 @@ Secciones:
 
 IMPORTANTE: El hero DEBE tener una imagen de fondo con overlay oscuro.
 Los datos de contacto REALES son: [teléfono, WhatsApp, dirección, redes]."
+
+📦 SKILLS A USAR ANTES DE CADA PROMPT:
+   → enhance-prompt: Pasar el prompt borrador por este skill para optimizarlo.
+     El skill agrega keywords UI/UX, contexto de design system, y estructura.
+   → stitch-loop: Para sitios de 10+ páginas, activar el loop autónomo.
+     Genera, integra, y prepara instrucciones para la siguiente iteración.
 ```
 
 ---
@@ -288,6 +343,10 @@ DESCARGAR con curl (Mac/Linux):
 ❌ NUNCA usar read_url_content — convierte HTML a Markdown y destruye el CSS.
 
 VERIFICAR: cada .html debe pesar > 15 KB. Si pesa menos, la descarga falló.
+
+📦 SKILL A USAR EN ESTA FASE:
+   → html-to-json: LEER .agent/skills/html-to-json/SKILL.md antes de compilar.
+     Contiene el schema JSON oficial, widget mapping, y validation checklist.
 ```
 
 ---
@@ -497,6 +556,12 @@ POR CADA PÁGINA:
 
 ⚠️ WordPress NO cambia el slug al cambiar el título via API.
    Usar REST API directa: POST /wp-json/wp/v2/pages/{id} con body {"slug":"nuevo-slug"}
+
+📦 SKILL A USAR:
+   → Agentic-SEO-Skill: Ejecutar auditoría SEO completa por página.
+     Incluye: Technical SEO, Core Web Vitals, E-E-A-T, Schema Markup,
+     meta tags, hreflang, structured data, y recomendaciones priorizadas.
+     Ejecutar los scripts de análisis para obtener evidencia real.
 ```
 
 ---
@@ -514,6 +579,12 @@ VERIFICAR CADA PÁGINA:
   □ Tablet: márgenes intermedios correctos
   □ Links de navegación funcionan
   □ Imágenes cargan (no URLs temporales de Stitch)
+
+📦 SKILL A USAR:
+   → visual-tester: Automatizar verificación con Playwright headless.
+     Toma screenshots desktop y mobile de cada URL.
+     Detecta errores 404/500 automáticamente.
+     Ejecutar: node skills/visual-tester/test.js [URLs...]
 ```
 
 ---
@@ -578,6 +649,71 @@ ERROR #14 — WordPress no acepta SVG
 ERROR #15 — Stitch genera colores de tokens, no BrandBook
   bg-primary-container ≠ color del BrandBook.
   Post-procesamiento OBLIGATORIO para forzar HEX reales.
+```
+
+---
+
+## ════════════════════════════════════════════
+## REGLA DE CSS GLOBAL (NO corregir individualmente)
+## ════════════════════════════════════════════
+
+```
+⚠️ La solución correcta para forzar BrandBook es un CSS GLOBAL inyectado
+   en el converter/compilador. NO corregir botones/colores individualmente
+   en cada HTML.
+
+El CSS global usa !important para forzar BrandBook en TODOS los botones:
+  · button, a[class*="bg-primary"] → color del BrandBook, radio correcto
+  · .bg-primary-container → color primario del BrandBook
+  · .rounded-full → radio del BrandBook (ej: 4px)
+  · nav button, nav a[class*="bg-"] → color primario, 12px font
+
+Esto elimina la necesidad de scripts de fix por cada página.
+```
+
+---
+
+## ════════════════════════════════════════════
+## ARQUITECTURA: CONTAINERS, NO SECTIONS
+## ════════════════════════════════════════════
+
+```
+⛔ NUNCA usar elType: "section" al generar JSON para Elementor moderno.
+   Elementor moderno usa Flexbox Containers, no el viejo sistema Section > Column.
+
+El wrapper principal SIEMPRE debe ser:
+  {
+    "elType": "container",
+    "settings": { "content_width": "full", ... }
+  }
+
+El widgetType debe ir directamente dentro del container.
+No se necesita "column". Eliminar toda referencia a elType: "section".
+```
+
+---
+
+## ════════════════════════════════════════════
+## SCRIPTS DE MANTENIMIENTO
+## ════════════════════════════════════════════
+
+```
+| Script                        | Función                                              |
+|-------------------------------|------------------------------------------------------|
+| compiler_v4.js                | ACTUAL — Compilador HTML→Native Elementor JSON       |
+| validate_json.js              | Valida que no queden bad keys del V3                 |
+| fix_contact_data.js           | Inyecta datos de contacto reales en HTMLs             |
+| fix_nav_links.js              | Corrige links de navegación del menú                 |
+| fix_internal_links.js         | Actualiza links internos a nuevos slugs              |
+| fix_brandbook_v2.js           | Reemplaza footers y CTAs con versión BrandBook       |
+| fix_buttons.js                | Corrige colores y radios de botones                  |
+| fix_slugs.js                  | Cambia slugs via REST API directa                    |
+| convert_html_to_elementor.js  | (LEGACY V3 — reemplazado por compiler_v4)            |
+| check_old.js                  | Verifica elementos no-BrandBook remanentes           |
+
+⚠️ Los scripts de find/replace deben ser MUY específicos.
+   Separar fix de navegación y fix de redes sociales en scripts diferentes.
+   Usar el contenido del enlace (texto visible) para diferenciar.
 ```
 
 ---
@@ -652,6 +788,37 @@ FASE 4 — PUBLICACIÓN:
 | 335 | Hero Mobile Inicio             | https://evergreenvzla.com/wp-content/uploads/2026/04/.. |
 | 340 | Logo Horizontal Completo       | https://evergreenvzla.com/wp-content/uploads/2026/04/.. |
 | ... | [agregar más según se suban]   | ...                                                     |
+```
+
+---
+
+## ════════════════════════════════════════════
+## DATOS DE CONTACTO — FUENTE DE VERDAD (TEMPLATE)
+## (Completar con los datos reales de cada proyecto)
+## ════════════════════════════════════════════
+
+```
+⚠️ SIEMPRE leer este registro ANTES de generar pantallas en Stitch.
+   NUNCA confiar en que Stitch generará datos correctos.
+   Inyectar estos datos en CADA prompt de diseño.
+
+| Campo           | Valor                                                        |
+|-----------------|--------------------------------------------------------------|
+| Teléfono/WA     | +__ ___ ___ ____ | https://wa.me/__________             |
+| Instagram       | https://www.instagram.com/________                           |
+| Facebook        | https://www.facebook.com/________                            |
+| TikTok          | https://www.tiktok.com/@________                             |
+| X (Twitter)     | https://x.com/________                                       |
+| YouTube         | https://www.youtube.com/@________                            |
+| LinkedIn        | https://www.linkedin.com/company/________                    |
+| Email           | ________@________.com                                        |
+| Dirección       | ________________________________________________             |
+| Catálogos       | [URLs de catálogos digitales si aplica]                       |
+| Linktree        | https://linktr.ee/________                                   |
+
+⛔ NUNCA confiar en Material Symbols para iconos de redes sociales.
+   Stitch asigna iconos FALSOS (retweet=Instagram, social_leaderboard=Facebook).
+   SIEMPRE reemplazar con SVGs reales post-generación.
 ```
 
 ---
