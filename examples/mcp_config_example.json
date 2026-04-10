@@ -1,0 +1,79 @@
+{
+  "//": "═══════════════════════════════════════════════════════════",
+  "// EXAMPLE MCP CONFIGURATION FOR stitch2elementor": "",
+  "//": "Copy the relevant sections into your Antigravity mcp_config.json",
+  "// ═══════════════════════════════════════════════════════════": "",
+
+  "mcpServers": {
+
+    "// ─── REQUIRED: Stitch MCP (reads AI designs from Google Stitch) ───": "",
+    "StitchMCP": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://stitch.googleapis.com/mcp",
+        "--header", "X-Goog-Api-Key: YOUR_GOOGLE_API_KEY_HERE"
+      ],
+      "env": {},
+      "disabled": false
+    },
+
+    "// ─── REQUIRED: WP Elementor MCP (WordPress page management) ───": "",
+    "wp-elementor-mcp": {
+      "command": "wp-elementor-mcp",
+      "args": [],
+      "env": {
+        "WORDPRESS_BASE_URL": "https://your-domain.com",
+        "WORDPRESS_USERNAME": "your_wp_username",
+        "WORDPRESS_APPLICATION_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx",
+        "WP_MCP_MODE": "advanced"
+      },
+      "disabled": false
+    },
+
+    "// ─── REQUIRED: Elementor MCP (file-based Elementor injection) ───": "",
+    "elementor-mcp": {
+      "command": "elementor-mcp",
+      "args": [],
+      "env": {
+        "WP_URL": "https://your-domain.com",
+        "WP_APP_USER": "your_wp_username",
+        "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
+      },
+      "disabled": false
+    },
+
+    "// ─── OPTIONAL: Disable these if not needed (improves performance) ───": "",
+    "figma": {
+      "command": "figma-mcp",
+      "disabled": true,
+      "//": "Enable only if your designs are in Figma, not Stitch"
+    },
+    "playwright": {
+      "command": "playwright-mcp",
+      "disabled": true,
+      "//": "Enable only if you need automated browser testing"
+    },
+    "context7": {
+      "command": "context7-mcp",
+      "disabled": true,
+      "//": "Enable only if you need to look up library documentation"
+    },
+    "firebase-mcp-server": {
+      "command": "firebase-mcp",
+      "disabled": true,
+      "//": "Enable only for Firebase projects (not WordPress)"
+    }
+  },
+
+  "// ═══════════════════════════════════════════════════════════": "",
+  "// IMPORTANT NOTES": "",
+  "// ═══════════════════════════════════════════════════════════": "",
+  "//notes": {
+    "credentials": "Use the SAME username and Application Password across all 3 required servers AND your Node.js scripts. Mismatched credentials cause HTTP 401 errors.",
+    "app_password_format": "WordPress Application Passwords use spaces: 'xxxx xxxx xxxx xxxx xxxx xxxx'. Create one at: WP Admin → Users → Profile → Application Passwords.",
+    "api_key": "Get your Google API key from: https://console.cloud.google.com/apis/credentials. Enable the Stitch API.",
+    "global_install": "For best performance, install MCP servers globally: npm install -g wp-elementor-mcp elementor-mcp. Using npx causes startup timeouts.",
+    "never_edit_from_agent": "NEVER let the AI agent edit mcp_config.json — it will freeze the IDE. Always edit manually."
+  }
+}
