@@ -37,8 +37,8 @@ intenta descargar las cosas, instala los paquetes de npm globalmente.
 
 Abre tu consola (PowerShell, CMD o Terminal) e instala estos dos:
 
-npm install -g wp-elementor-mcp
-npm install -g elementor-mcp
+npm install -g wp-elementor-mcp   # Repo: https://github.com/eliuhads/wp-elementor-mcp
+npm install -g elementor-mcp      # Repo: https://github.com/eliuhads/elementor-mcp
 
 (No necesitas instalar StitchMCP, se ejecutara usando npx -y mcp-remote)
 

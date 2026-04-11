@@ -93,8 +93,8 @@ INSTALAR SKILLS FALTANTES:
 Los MCP son "enchufes" que conectan tu agente con servicios externos.
 
 INSTALACIÓN GLOBAL (obligatorio — evita timeouts):
-  npm install -g wp-elementor-mcp
-  npm install -g elementor-mcp
+  npm install -g wp-elementor-mcp   # https://github.com/eliuhads/wp-elementor-mcp
+  npm install -g elementor-mcp      # https://github.com/eliuhads/elementor-mcp
   (StitchMCP se conecta via mcp-remote, no necesita npm install)
 
 ⚠️ REGLA DE ORO: NUNCA edites mcp_config.json desde el agente.

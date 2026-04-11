@@ -75,8 +75,8 @@ Este pipeline usa un ecosistema de skills especializados. **Leer cada SKILL.md a
 
 ### Instalar Servidores MCP (una sola vez)
 ```
-npm install -g wp-elementor-mcp
-npm install -g elementor-mcp
+npm install -g wp-elementor-mcp   # https://github.com/eliuhads/wp-elementor-mcp
+npm install -g elementor-mcp      # https://github.com/eliuhads/elementor-mcp
 (StitchMCP se conecta via mcp-remote, no necesita npm install)
 ```
 

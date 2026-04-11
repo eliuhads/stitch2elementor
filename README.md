@@ -40,8 +40,8 @@ See `examples/mcp_config_example.json` for the full configuration. You need:
 | Server | Purpose |
 |--------|---------|
 | **StitchMCP** | Read your designs from Google Stitch |
-| **wp-elementor-mcp** | Manage WordPress pages & Elementor data |
-| **elementor-mcp** | File-based Elementor data injection |
+| **wp-elementor-mcp** | Manage WordPress pages & Elementor data | [Repo](https://github.com/eliuhads/wp-elementor-mcp) |
+| **elementor-mcp** | File-based Elementor data injection | [Repo](https://github.com/eliuhads/elementor-mcp) |
 
 ### 3. Design your pages in Google Stitch
 

@@ -33,8 +33,8 @@ Every page preserves **100% design fidelity** because the real Stitch HTML (with
 | Server | Purpose | Install |
 |--------|---------|---------|
 | **StitchMCP** | Read designs from Google Stitch | `mcp-remote` pointing to `stitch.googleapis.com/mcp` |
-| **wp-elementor-mcp** | Manage WordPress pages + Elementor data | `npm install -g wp-elementor-mcp` |
-| **elementor-mcp** | File-based Elementor injection | `npm install -g elementor-mcp` |
+| **wp-elementor-mcp** | Manage WordPress pages + Elementor data | `npm install -g wp-elementor-mcp` | [Repo](https://github.com/eliuhads/wp-elementor-mcp) |
+| **elementor-mcp** | File-based Elementor injection | `npm install -g elementor-mcp` | [Repo](https://github.com/eliuhads/elementor-mcp) |
 
 ### Required WordPress Setup
 
