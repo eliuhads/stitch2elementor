@@ -52,7 +52,7 @@ VERIFICAR que existen TODOS los skills del ecosistema:
 
   POST-PRODUCCIÓN (Recomendados):
     skills/Agentic-SEO-Skill/SKILL.md     ← Auditoría SEO completa: 16 sub-skills, 33 scripts
-    skills/visual-tester/SKILL.md         ← Screenshots + verificación 404/500 con Playwright
+    skills/visual-tester/SKILL.md         ← Auditoría visual 100% remota sin Playwright (solo Navegador Satélite o read_url_content)
 
   AVANZADOS (Opcionales):
     skills/react-components/SKILL.md      ← Stitch → React/Vite (si no es WordPress)
@@ -81,7 +81,7 @@ INSTALAR SKILLS FALTANTES:
     · html-to-json     → ya en .agent/skills/html-to-json/
     · ui-ux-pro-max    → ya en .agent/skills/ui-ux-pro-max/
     · webp-optimizer   → ya en skills/webp-optimizer/ (requiere: npm install sharp)
-    · visual-tester    → ya en skills/visual-tester/ (requiere: npx playwright install chromium)
+    · visual-tester    → ya en skills/visual-tester/ (Prohibido instalar playwright local. Usar backend satélite).
     · stitch2elementor → ya en skills/stitch2elementor/
 ```
 
@@ -179,6 +179,10 @@ FORMAS:
   · Border radius: ___px (BrandBook override — NO usar rounded-full de Stitch)
   · Sombras: sí/no
   · Estilo: [premium/industrial/orgánico/etc.]
+
+ESTRUCTURA Y SLUGS (NUEVA REGLA):
+  · Se utilizará el archivo `page_manifest.json` y el script `fix_slugs.js` para asegurar que el número de páginas, los slugs y la estructura de la web estén alineados 100% con las sugerencias del BrandBook. El BrandBook es la única fuente de verdad para la arquitectura de información.
+
 
 ⚠️ REGLA CRÍTICA: Los colores de Stitch NO coinciden con el BrandBook.
    Stitch usa tokens Material Design (primary-container, on-primary, etc.)
@@ -708,6 +712,14 @@ El wrapper principal SIEMPRE debe ser:
 
 El widgetType debe ir directamente dentro del container.
 No se necesita "column". Eliminar toda referencia a elType: "section".
+
+⚠️ REGLA DE LOGOS Y NAVEGACIÓN (V4.3):
+   El compilador V4.3 incluye un "Logo Override".
+   Si detecta el texto primario de la marca (ej. "EVERGREEN" o "LUMEN") en el header,
+   lo sustituirá automáticamente por un widget de Imagen con un ancho forzado (ej. 192px)
+   para prevenir "logos gigantes". Además, el compilador debe inyectar el <nav> y <footer>
+   directamente en la página para integraciones Canvas (Elementor Canvas).
+
 ```
 
 ---

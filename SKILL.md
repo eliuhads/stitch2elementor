@@ -72,7 +72,7 @@ This skill orchestrates a full design-to-production pipeline. The following comp
 | Skill | Location | Purpose | Pipeline Phase |
 |-------|----------|---------|----------------|
 | **Agentic-SEO-Skill** | `skills/Agentic-SEO-Skill/` | Full SEO audit suite: 16 sub-skills, 10 specialist agents, 33 scripts. Technical SEO, Core Web Vitals, E-E-A-T, schema markup, hreflang, GEO/AEO analysis. | Phase 4: SEO + Verification |
-| **visual-tester** | `skills/visual-tester/` | Playwright-based headless browser testing. Takes desktop/mobile screenshots, detects 404/500 errors, verifies front-end rendering. | Phase 4: Visual Verification |
+| **visual-tester** | `skills/visual-tester/` | Auditoría visual remota. Usa el **Navegador Satélite** (`browser_subagent`) o `read_url_content` para verificar 404/500 y comprobar rendering, protegiendo los recursos locales (PROHIBIDO usar Playwright local). | Phase 4: Visual Verification |
 
 ### ADVANCED SKILLS (Optional — For specific needs)
 

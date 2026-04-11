@@ -38,7 +38,7 @@ Este pipeline usa un ecosistema de skills especializados. **Leer cada SKILL.md a
 | Skill | Ubicación | Propósito | Fase |
 |-------|-----------|-----------|------|
 | **Agentic-SEO-Skill** | `skills/Agentic-SEO-Skill/` | Auditoría SEO: 16 sub-skills, 33 scripts | Fase 6: SEO |
-| **visual-tester** | `skills/visual-tester/` | Screenshots + verificación 404/500 con Playwright | Fase 6: Verificación |
+| **visual-tester** | `skills/visual-tester/` | Auditoría visual remota. Usa el **Navegador Satélite** (`browser_subagent`) o `read_url_content` (Prohibido Playwright local) | Fase 6: Verificación |
 
 ### AVANZADOS (Opcionales)
 | Skill | Ubicación | Propósito | Fase |
