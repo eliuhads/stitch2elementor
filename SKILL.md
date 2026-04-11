@@ -1,7 +1,7 @@
 ---
 name: stitch2elementor
 description: Migrates Google Stitch AI designs to WordPress Elementor pages via HTML parsing and WP REST API injection. 100% free, no premium plugins required.
-version: 1.0.0
+version: 2.0.0
 author: "@eliuhads"
 allowed-tools:
   - "stitch*:*"
@@ -294,7 +294,7 @@ Every Stitch HTML export has this structure:
 
 #### Step 2.2 — Run the Converter Script
 
-Use the provided `scripts/stitch_to_elementor_template.js` as a template. The script:
+Use the provided `scripts/compiler_v4_template.js` (V4.1 production-hardened). The script:
 
 1. Reads each `.html` file from `stitch_html/`
 2. Extracts shared dependencies:
@@ -408,18 +408,36 @@ your-project/
 │   ├── about.html
 │   ├── services.html
 │   └── contact.html
-├── elementor_output/               ← Converted JSONs (local backup)
+├── elementor_json/                 ← Compiled Elementor JSONs
 │   ├── homepage.json
 │   ├── header.json
 │   ├── footer.json
 │   └── ...
-├── stitch_to_elementor.js          ← Main converter script
-├── update_header_footer.js         ← Header/Footer updater
-└── SKILLS/stitch2elementor/        ← This skill
-    ├── SKILL.md                    ← You are here
-    └── scripts/
-        ├── stitch_to_elementor_template.js
-        └── update_header_footer_template.js
+├── compiler_v4.js                  ← Production compiler (copy from template)
+├── page_manifest.json              ← Page registry + media IDs + hero pairs
+├── design-system/
+│   └── MASTER.md                   ← Extracted BrandBook tokens
+├── .agent/skills/stitch2elementor/ ← This skill
+│   ├── SKILL.md                    ← You are here
+│   ├── PROMPT_WEB_MAESTRO_v2.md    ← Full workflow prompt
+│   ├── Stitch_Elementor_Guide.md   ← Quick reference guide
+│   ├── scripts/
+│   │   ├── compiler_v4_template.js ← ⭐ Production compiler (V4.1, 1600+ lines)
+│   │   ├── push_all_to_wp_template.js
+│   │   ├── stitch_to_elementor_template.js  (legacy V3 — reference only)
+│   │   ├── update_header_footer_template.js
+│   │   ├── fix_material_symbols.js ← Cleans Material Symbols text in buttons/html
+│   │   ├── fix_slugs.js ← WP REST API Slug Synchronizer
+│   │   ├── audit_stitch_images.js ← Audits temporary Stitch images
+│   │   ├── replace_stitch_images.js ← Uploads and prepares image replacement mapping
+│   │   └── apply_image_replacements.js ← Applies custom image mapping to Elementor JSONs
+│   ├── docs/                       ← Reference documentation
+│   │   ├── elementor-json-schema.md
+│   │   ├── widget-mapping.md
+│   │   ├── examples.md
+│   │   └── gotchas.md
+│   └── examples/
+│       └── mcp_config_example.json
 ```
 
 ## Fatal Errors to Avoid
@@ -498,8 +516,13 @@ If ANY of these differ, you'll get 401 errors in some tools but not others — e
 | Header/Footer not showing on all pages | Set Display Conditions to "Entire Site" in Theme Builder |
 | Agent is very slow | Disable unused MCP servers to reduce tool injection overhead |
 
-## NEW IN V4: Native Elementor Migration Workflow
+## NEW IN V4.1: Native Elementor Migration Workflow (Production-Hardened)
+
 The legacy V3 workflow used the monolithic Elementor `html` widget. The V4 compiler parses the HTML and maps UI elements natively to Elementor widgets (e.g., Headings, Buttons, TextEditor) utilizing Elementor's Flexbox Container system for maximum responsiveness and client editability without touching code.
+
+**V4.1** (April 2026) adds 16 production bugfixes discovered during a 20-page
+migration. The `scripts/compiler_v4_template.js` in this skill IS the production
+compiler — copy it to your project root and customize the CONFIG block.
 
 **Boxed Layout Requirement:** When generating containers, DO NOT use `content_width: "full"` exclusively as it breaks layout paddings. Always adhere to the **FULL + BOXED Pattern**:
 - Outer Container (`content_width: "full"`, background and heavy padding)
@@ -512,7 +535,17 @@ The legacy V3 workflow used the monolithic Elementor `html` widget. The V4 compi
 - Use `flex_align_items` instead of `align_items`.
 - Use `align` on Headings instead of `text_align`.
 
-**Hero Images:** V4 compiler cannot extract absolute positioning images. They MUST be manually injected into the JSON representation of the Hero Container utilizing the properties `background_image`, `background_overlay_color`, and `min_height`. Always use actual WordPress Media Library image IDs/URLs, never Stitch temporary images.
+**Hero Images:** The compiler auto-injects hero backgrounds from `page_manifest.json`
+media.hero_pairs. Each page entry can specify `"hero_pair": 1` to automatically get
+desktop/mobile background images with gradient overlay. You MUST upload
+images to WP Media Library first and record their IDs in the manifest.
+
+**Post-Compiler Automations provided in `scripts/`**:
+- **Image Replacement**: Use `audit_stitch_images.js`, `replace_stitch_images.js`, and `apply_image_replacements.js` to automatically replace expiring `lh3.googleusercontent.com` URLs with permanent Media Library WebP assets via the MCP tools and JSON modification.
+- **Material Symbols Cleanup**: Run `fix_material_symbols.js` on Elementor JSONs to find text nodes containing material symbol identifiers (e.g., `arrow_forward`) and replace or remove them, correcting buttons and span tags.
+- **Slug synchronization**: Use `fix_slugs.js` to automatically match WordPress post slugs to your `page_manifest.json` utilizing native WP REST API `PUT` endpoints.
+
+This solidifies the pipeline to completely free human intervention from manual asset migrations and symbol-cleaning!
 
 ## License
 
@@ -819,3 +852,100 @@ OUTER CONTAINER (content_width: "full"):
 ```
 
 This ensures backgrounds span the viewport while content stays centered with breathing room.
+
+## 17. V4.1 PRODUCTION CHANGELOG — All Fixes from Real Migrations
+
+These are the battle-tested fixes discovered during 8+ conversations and a full 20-page production migration (Evergreen Venezuela, April 2026). **If you are building a new compiler or modifying the template, read ALL of these.**
+
+The production-hardened compiler is at `scripts/compiler_v4_template.js` — copy to your project root as `compiler_v4.js`, update CONFIG, and run.
+
+### Fix #1 — Tailwind Mobile-First ≠ Elementor Desktop-First
+**Problem:** Tailwind is mobile-first (`flex-col sm:flex-row`). Elementor is desktop-first.
+**Impact:** Side-by-side layouts rendered as stacked columns on desktop.
+**Solution:** The compiler now correctly maps:
+```
+flex-col sm:flex-row  → desktop: row, mobile: column
+flex-col md:flex-row  → desktop: row, mobile: column
+flex-col lg:flex-row  → desktop: row, tablet: column, mobile: column
+```
+This is the **#1 most impactful fix**. Without it, your entire site looks wrong.
+
+### Fix #2 — `bg-[#hex]/opacity` Patterns
+**Problem:** Tailwind arbitrary values like `bg-[#0B0F1A]/80` were ignored.
+**Solution:** Regex extracts hex + opacity, converts to `rgba(r,g,b,opacity)`.
+Also fixes `text-[#28B5E1]` and `border-[#368A39]` arbitrary values.
+
+### Fix #3 — `space-y-*` / `space-x-*` → flex_gap
+**Problem:** `space-y-4` creates vertical spacing but the compiler didn't capture it.
+**Solution:** Maps to `flex_gap` + forces `flex_direction: column` (for space-y) or `row` (for space-x).
+
+### Fix #4 — `h-screen` → min_height: 100vh
+**Problem:** `h-screen` was not mapped. Old template used `min-h-screen → 800px` (wrong).
+**Solution:** Both `h-screen` and `min-h-screen` now map to `{unit: 'vh', size: 100}`.
+
+### Fix #5 — `border-l-4` + Arbitrary Border Colors
+**Problem:** Left/right/bottom borders were ignored. Only `border-t-4` worked.
+**Solution:** Added handlers for `border-l-4`, `border-r-4`, `border-b-4`, `border-t`, and arbitrary `border-[#hex]` colors.
+
+### Fix #6 — Width Classes (`w-1/2`, `w-1/3`, `md:w-1/2`)
+**Problem:** Tailwind fractional widths weren't translated. Side-by-side containers both took 100%.
+**Impact:** Critical for 2-column and 3-column layouts.
+**Solution:** Maps `w-1/2` → `width: {unit:'%', size:50}` + `width_mobile: {unit:'%', size:100}`.
+
+### Fix #7 — Text-Only Divs → text-editor Widgets
+**Problem:** Divs with only text (no child elements) were wrapped in containers with no widget inside. The text was invisible.
+**Impact:** Stats banners ("15+ Years", "5000+ Clients") showed as empty dark bars.
+**Solution:** Detect `$(el).children().length === 0 && text` → emit `text-editor` widget with inline styling.
+
+### Fix #8 — Captured Background Images from `absolute inset-0`
+**Problem:** Stitch uses `<div class="absolute inset-0"><img src="..." class="object-cover"></div>` for section backgrounds. These were being skipped as decorative.
+**Solution:** `processSection()` now scans for `absolute inset-0` children with `<img>` tags and captures the src as `background_image` on the outer container.
+
+### Fix #9 — Default Dark Background on ALL Sections
+**Problem:** Sections without explicit `bg-*` classes rendered as white.
+**Impact:** The entire page looked like a broken light-theme site.
+**Solution:** `processSection()` defaults to `CONFIG.colors.background` if no bg is found.
+
+### Fix #10 — Smarter Tree Pruning
+**Problem:** Over-aggressive tree pruning collapsed containers that had `flex_direction`, `background`, `flex_gap`, `width`, `border`, `min_height`, or `padding`.
+**Impact:** Layout structures were destroyed.
+**Solution:** Check for "structural role" before flattening:
+```js
+const hasStructuralRole = containerSettings.flex_direction ||
+  containerSettings.background_background ||
+  containerSettings.flex_gap ||
+  containerSettings.width ||
+  containerSettings.border_border ||
+  containerSettings.min_height ||
+  containerSettings.padding;
+```
+
+### Fix #11 — Hero Image Auto-Injection from Manifest
+**Problem:** Manually editing hero JSONs for 20 pages was tedious and error-prone.
+**Solution:** `page_manifest.json` now has `hero_pairs` with WP Media Library IDs. The compiler auto-injects `background_image + background_image_mobile + overlay` on the first section.
+
+### Fix #12 — `border-white/XX` Opacity Patterns
+**Problem:** `border-white/20` was treated as a class name, not parsed.
+**Solution:** Regex extracts the opacity number, converts to `rgba(255,255,255,opacity)`.
+
+### Fix #13 — `text-white/70` Opacity Text Colors
+**Problem:** Like border-white, text opacity variants weren't parsed.
+**Solution:** `extractTextColor()` handles `text-white/XX` → `rgba(255,255,255,opacity)`.
+
+### Fix #14 — `flex-shrink-0` Empty Containers
+**Problem:** Icon placeholder divs with `flex-shrink-0` produced empty dark bars after Material Symbols were stripped.
+**Solution:** Skip containers with `flex-shrink-0` if they have zero children after processing.
+
+### Fix #15 — `flex` Class Without Direction → Default Row
+**Problem:** A `<div class="flex">` without explicit `flex-row` defaulted to no direction.
+**Solution:** If `flex` class is present and no `flex_direction` was set, default to `row`.
+
+### Fix #16 — Flex Row Containers Get Auto Mobile Stacking
+**Problem:** Row containers without explicit responsive classes didn't stack on mobile.
+**Solution:** All `flex_direction: 'row'` containers automatically get `flex_direction_mobile: 'column'` and `flex_wrap: 'nowrap'`.
+
+---
+
+**These fixes are ALL included in `scripts/compiler_v4_template.js`.** Copy it to your project root, update CONFIG, and run.
+
+*V2.0.0 — Production-hardened, April 2026 — Verified with 20-page Evergreen Venezuela migration*

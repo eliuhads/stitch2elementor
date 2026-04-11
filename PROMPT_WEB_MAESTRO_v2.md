@@ -1,6 +1,6 @@
 # 🚀 PROMPT MAESTRO V2 — SITIO WEB COMPLETO CON IA
-### Motor: Antigravity + Claude | Stack: Google Stitch → HTML → Compiler V4 → Native Elementor JSON → MCP → WordPress
-### Workflow verificado en producción (22 páginas, Evergreen Venezuela, Abril 2026)
+### Motor: Antigravity + Claude | Stack: Google Stitch → HTML → Compiler V4.1 → Native Elementor JSON → MCP → WordPress
+### Workflow verificado en producción (20+ páginas, Evergreen Venezuela, Abril 2026)
 
 ---
 
@@ -415,42 +415,48 @@ El Compiler V4 es el corazón del pipeline. Un DOM walker recursivo que:
 
 ---
 
-### ⭐ PASO 2D · HERO SECTIONS — REQUIERE EDICIÓN MANUAL
+### ⭐ PASO 2D · HERO SECTIONS — AUTO-INYECCIÓN DESDE MANIFEST (V4.1)
 
 ```
-⚠️ LIMITACIÓN CRÍTICA DEL COMPILER V4:
-El compiler NO puede extraer background images del HTML de Stitch.
-Stitch usa <img class="absolute inset-0 object-cover"> para heroes,
-pero el compiler las descarta como imágenes posicionales.
+✅ V4.1 FIX: El compiler ahora extrae background images automáticamente:
+  1. Imágenes en <div class="absolute inset-0"><img src="..."></div>
+     → Se capturan como background_image del outer container
+  2. Hero images desde page_manifest.json → media.hero_pairs
+     → Se inyectan automáticamente en la primera sección
 
-SOLUCIÓN — EDITAR EL JSON DEL HERO A MANO:
-Para cada página con hero section, editar el JSON generado y:
+CONFIGURACIÓN EN page_manifest.json:
+  {
+    "pages": [
+      { "html": "homepage.html", "json": "homepage.json", "hero_pair": 1 }
+    ],
+    "media": {
+      "hero_pairs": {
+        "1": {
+          "name": "Familia Casa Segura",
+          "desktop": { "id": 333, "url": "https://tu-sitio.com/wp-content/.../hero-desktop.webp" },
+          "mobile": { "id": 335, "url": "https://tu-sitio.com/wp-content/.../hero-mobile.webp" }
+        }
+      }
+    }
+  }
 
-1. BACKGROUND IMAGE en el container del hero:
-   "background_background": "classic",
-   "background_image": {"url":"[URL DE WP MEDIA]","id":"[MEDIA ID]","size":"","alt":"[desc]","source":"library"},
-   "background_image_mobile": {"url":"[URL MOBILE]","id":"[ID]","size":"","alt":"","source":"library"},
-   "background_position": "center center",
-   "background_size": "cover",
+⚠️ REQUISITOS:
+  1. Las imágenes DEBEN estar subidas a WP Media Library ANTES de compilar
+  2. Los IDs del Media Library deben ser numéricos reales
+  3. El compiler auto-configura:
+     · background_image + background_image_mobile
+     · background_overlay (gradient rgba)
+     · min_height: 100vh (desktop), 85vh (tablet), 90vh (mobile)
+     · Inner container: boxed 1200px + padding 60px lateral
 
-2. GRADIENT OVERLAY encima de la imagen:
-   "background_overlay_background": "gradient",
-   "background_overlay_color": "rgba(14,19,32,0.85)",
-   "background_overlay_color_b": "rgba(14,19,32,0.55)",
-   "background_overlay_gradient_angle": {"unit":"deg","size":135},
-
-3. HERO HEIGHT:
-   "min_height": {"unit":"vh","size":100},
-   "min_height_tablet": {"unit":"vh","size":85},
-   "min_height_mobile": {"unit":"vh","size":90},
-
-4. LAYOUT BOXED (márgenes correctos):
-   Usar un inner container con:
-   "content_width": "boxed",
-   "boxed_width": {"unit":"px","size":1200},
-   "padding": {"unit":"px","top":"0","right":"60","bottom":"0","left":"60","isLinked":false},
-   "padding_tablet": {"...","right":"40","...","left":"40"},
-   "padding_mobile": {"...","right":"20","...","left":"20"},
+Si NO tienes hero_pairs en el manifest, puedes editar el JSON manualmente:
+  "background_background": "classic",
+  "background_image": {"url":"...","id":"...","size":"","alt":"hero","source":"library"},
+  "background_position": "center center",
+  "background_size": "cover",
+  "background_overlay_background": "gradient",
+  "background_overlay_color": "rgba(14,19,32,0.85)",
+  "background_overlay_color_b": "rgba(14,19,32,0.55)",
 ```
 
 ---
@@ -590,8 +596,8 @@ VERIFICAR CADA PÁGINA:
 ---
 
 ## ════════════════════════════════════════════
-## LOS 15 ERRORES FATALES
-## (Documentados en migraciones reales — V2 actualizado)
+## LOS 16 ERRORES FATALES
+## (Documentados en migraciones reales — V2.1 actualizado Abril 2026)
 ## ════════════════════════════════════════════
 
 ```
@@ -619,6 +625,8 @@ ERROR #7 — Endpoints que no existen
 
 ERROR #8 — URLs temporales de Stitch en producción
   Las lh3.googleusercontent.com EXPIRAN. Subir a WP Media Library.
+  Solución Automatizada: `audit_stitch_images.js` + `replace_stitch_images.js` + `apply_image_replacements.js`.
+  NUNCA inyectes el sitio final sin haber pasado la herramienta de reemplazo y limpieza de assets.
 
 ERROR #9 — Usar npx para servidores MCP
   npm install -g evita timeouts de descarga.
@@ -635,13 +643,14 @@ ERROR #11 — Content_width: full en todo
   Usar patrón FULL + BOXED (outer full, inner boxed 1200px).
 
 ERROR #12 — No incluir background images en heroes
-  El compiler no extrae <img> posicionales de Stitch.
-  EDITAR MANUALMENTE el JSON del hero con background_image + overlay.
+  V4.1 FIX: Ahora el compiler extrae <img> de absolute inset-0 como backgrounds.
+  También auto-inyecta hero_pairs desde page_manifest.json.
+  Si falta un hero, editar manualmente con background_image + overlay.
 
 ERROR #13 — Material Symbols como texto
   Stitch genera "arrow_forward", "factory", etc. como TEXTO.
-  El compiler debe reemplazarlos: "arrow_forward" → "→"
-  Para iconos de redes sociales: usar SVG inline, NO Material Symbols.
+  El compiler corrige algunos y el script `fix_material_symbols.js` debe utilizarse POST-CÓMPUTO para limpiar el resto directo de los Elementor JSON de los Span e Input elements.
+  Para iconos integrados completos: usar SVG inline.
 
 ERROR #14 — WordPress no acepta SVG
   Instalar plugin "Safe SVG" o usar PNG.
@@ -649,6 +658,16 @@ ERROR #14 — WordPress no acepta SVG
 ERROR #15 — Stitch genera colores de tokens, no BrandBook
   bg-primary-container ≠ color del BrandBook.
   Post-procesamiento OBLIGATORIO para forzar HEX reales.
+
+ERROR #16 — Tailwind es MOBILE-FIRST, Elementor es DESKTOP-FIRST ⭐ NUEVO
+  Tailwind: flex-col sm:flex-row = "column by default, row on small+"
+  Elementor: flex_direction = "desktop first, overrides for tablet/mobile"
+  MAPEO CORRECTO:
+    flex-col sm:flex-row  → desktop: row, mobile: column
+    flex-col md:flex-row  → desktop: row, mobile: column
+    flex-col lg:flex-row  → desktop: row, tablet: column, mobile: column
+  SIN ESTO: todos los layouts de 2 columnas se ven apilados en desktop.
+  Este es el ERROR MÁS COMÚN y MÁS DESTRUCTIVO.
 ```
 
 ---
@@ -694,6 +713,46 @@ No se necesita "column". Eliminar toda referencia a elType: "section".
 ---
 
 ## ════════════════════════════════════════════
+## MAPEO RESPONSIVE: TAILWIND → ELEMENTOR (REFERENCIA RÁPIDA)
+## ════════════════════════════════════════════
+
+```
+⚠️ REGLA DE ORO: Tailwind es MOBILE-FIRST, Elementor es DESKTOP-FIRST.
+   El compilador V4.1 maneja esto automáticamente, pero al editar JSON
+   a mano, usa esta tabla:
+
+   TAILWIND CLASS           → ELEMENTOR SETTINGS
+   ─────────────────────────────────────────────────
+   flex-col                 → flex_direction: "column"
+   flex-row                 → flex_direction: "row"
+   flex-col sm:flex-row     → flex_direction: "row",
+                              flex_direction_mobile: "column"
+   flex-col md:flex-row     → flex_direction: "row",
+                              flex_direction_mobile: "column"
+   flex-col lg:flex-row     → flex_direction: "row",
+                              flex_direction_tablet: "column",
+                              flex_direction_mobile: "column"
+   space-y-4                → flex_gap: {unit:"px",size:16,...},
+                              flex_direction: "column"
+   space-x-4                → flex_gap: {unit:"px",size:16,...},
+                              flex_direction: "row"
+   w-1/2                    → width: {unit:"%",size:50},
+                              width_mobile: {unit:"%",size:100}
+   w-1/3                    → width: {unit:"%",size:33},
+                              width_mobile: {unit:"%",size:100}
+   gap-6                    → flex_gap: {unit:"px",size:24,...}
+   items-center             → flex_align_items: "center"
+   justify-between          → flex_justify_content: "space-between"
+   h-screen / min-h-screen  → min_height: {unit:"vh",size:100}
+   bg-[#hex]/80             → background_color: "rgba(r,g,b,0.8)"
+   text-[#hex]              → color en inline style
+   border-l-4               → border_border: "solid",
+                              border_width: {top:0,right:0,bottom:0,left:4}
+```
+
+---
+
+## ════════════════════════════════════════════
 ## SCRIPTS DE MANTENIMIENTO
 ## ════════════════════════════════════════════
 
@@ -707,7 +766,11 @@ No se necesita "column". Eliminar toda referencia a elType: "section".
 | fix_internal_links.js         | Actualiza links internos a nuevos slugs              |
 | fix_brandbook_v2.js           | Reemplaza footers y CTAs con versión BrandBook       |
 | fix_buttons.js                | Corrige colores y radios de botones                  |
-| fix_slugs.js                  | Cambia slugs via REST API directa                    |
+| fix_slugs.js                  | Cambia slugs via REST API directa leyendo el manifest|
+| fix_material_symbols.js       | Limpia palabras fantasma (arrow_forward, search).    |
+| audit_stitch_images.js        | Mapea en consola IDs y Widgets que usan Google URLs. |
+| replace_stitch_images.js      | Script maestro sube assets a WP y prepara el mapping.|
+| apply_image_replacements.js   | Inyecta recursivamente URLs permanentes de WP.       |
 | convert_html_to_elementor.js  | (LEGACY V3 — reemplazado por compiler_v4)            |
 | check_old.js                  | Verifica elementos no-BrandBook remanentes           |
 
@@ -763,14 +826,17 @@ FASE 3 — INYECCIÓN:
   □ JSONs inyectados via update_page_from_file
   □ Todos returnaron true ✅
 
-FASE 4 — PUBLICACIÓN:
+FASE 4 — PUBLICACIÓN Y SANITIZACIÓN:
   □ SEO: meta titles + descriptions + slugs + schema
+  □ Slugs estandarizados usando `fix_slugs.js` (Rest API Directa)
+  □ Sanear "Material Symbols" remanentes usando `fix_material_symbols.js`
+  □ Sustitución Definitiva Imágenes Google `lh3` a URLs Permanentes WP con `replace_stitch_images.js`
+  □ Reinyectar JSONs en WP.
   □ Responsive verificado (desktop/tablet/mobile)
   □ Hero images visibles con overlay
   □ Contenido centrado (no pegado a bordes)
   □ Links de navegación funcionan
   □ WhatsApp CTA funciona
-  □ Imágenes permanentes (no URLs temporales)
   □ Pages publicadas (draft → publish) ✅
 ```
 
@@ -823,6 +889,7 @@ FASE 4 — PUBLICACIÓN:
 
 ---
 
-*PROMPT MAESTRO V2 — Sitio Web Completo con IA*
-*Motor: Antigravity + Claude | Google Stitch → HTML → Compiler V4 → Native Elementor JSON → MCP → WordPress*
-*Flujo verificado en producción · 22pp Evergreen Venezuela · Abril 2026*
+*PROMPT MAESTRO V2.1 — Sitio Web Completo con IA*
+*Motor: Antigravity + Claude | Google Stitch → HTML → Compiler V4.1 → Native Elementor JSON → MCP → WordPress*
+*Flujo verificado en producción · 20+ páginas Evergreen Venezuela · Abril 2026*
+*Incluye 16 errores fatales + mapeo responsivo Tailwind↔Elementor*

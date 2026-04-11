@@ -1,12 +1,12 @@
-# Stitch → Elementor Workflow Guide (V2 - NATIVE COMPILER EDITION)
-## Motor: Antigravity + Claude | Stack: Google Stitch → Node.js (Compiler V4) → WP REST API → Elementor Native
+# Stitch → Elementor Workflow Guide (V2.1 - NATIVE COMPILER EDITION)
+## Motor: Antigravity + Claude | Stack: Google Stitch → Node.js (Compiler V4.1) → WP REST API → Elementor Native
 
 ---
 
 ## INTRODUCCIÓN - LA REVOLUCIÓN V4
 
 Esta guía documenta el flujo definitivo para migrar diseños de Google Stitch a WordPress Elementor.
-A diferencia de versiones anteriores que usaban un "HTML Widget" monolítico, la Versión 4 (V4) nativiza completamente el código. El HTML de Stitch se desglosa recursivamente y se convierte en:
+A diferencia de versiones anteriores que usaban un "HTML Widget" monolítico, la Versión 4.1 (V4.1) nativiza completamente el código. El HTML de Stitch se desglosa recursivamente y se convierte en:
   - Containers de Flexbox nativos
   - Headings nativos (H1-H6)
   - Text-editors nativos para párrafos
@@ -60,14 +60,16 @@ Este pipeline usa un ecosistema de skills especializados. **Leer cada SKILL.md a
 7. FIX BrandBook: footers, botones, iconos sociales (fix_brandbook_v2.js + fix_buttons.js)
 8. Convertir HTML → Elementor JSON (compiler_v4.js - DOM Walker nativo)
 9. Validar JSONs (validate_json.js - 0 issues requerido)
-10. Editar manualmente Hero JSONs (background image + overlay)
+10. Hero images: auto-inyectados desde page_manifest.json hero_pairs (V4.1) — o edición manual si no hay manifest
 11. Crear páginas en WordPress via MCP (create_page)
 12. **INTERVENCIÓN MANUAL: Convertir cada página a Elementor Canvas**
 13. Inyectar Elementor data via MCP (update_page_from_file)
-14. Limpiar slugs via REST API (fix_slugs.js)
-15. Actualizar links internos a nuevos slugs (fix_internal_links.js)
-16. Re-inyectar contenido final
-17. Verificar renderizado en browser
+14. Limpiar slugs via REST API (`fix_slugs.js`)
+15. Limpiar remanentes de Material Symbols en texto (`fix_material_symbols.js`)
+16. Sustitución de Imágenes Temporales de Stitch (`replace_stitch_images.js` + `apply_image_replacements.js`)
+17. Actualizar links internos a nuevos slugs (`fix_internal_links.js`)
+18. Re-inyectar contenido final a Elementor
+19. Verificar renderizado visual en browser
 
 ---
 
@@ -191,28 +193,37 @@ Anotar IDs en un registro.
 
 ---
 
-## FASE 3: COMPILACIÓN V4 A NATIVO (LA MAGIA)
+## FASE 3: COMPILACIÓN V4.1 A NATIVO (LA MAGIA)
 
-1. Ejecuta el compilador V4:
+1. Copia el template del skill a tu proyecto:
+   ```
+   copy .agent/skills/stitch2elementor/scripts/compiler_v4_template.js compiler_v4.js
+   ```
+2. Edita el CONFIG block en `compiler_v4.js` con tus colores, fuentes y rutas del BrandBook.
+
+3. Ejecuta el compilador V4.1:
    ```
    node compiler_v4.js
    ```
-2. El compilador V4 toma el HTML y lo parsea a Elementor JSON nativo (elementor_json/).
-   Ajusta automáticamente gaps, márgenes reactivos (tablet/mobile), border-radius, tipografía.
+4. El compilador toma cada HTML y lo parsea a Elementor JSON nativo (elementor_json/).
+   Ajusta automáticamente: gaps, márgenes reactivos (tablet/mobile), border-radius, tipografía,
+   responsive flex-direction (Tailwind mobile-first → Elementor desktop-first), width fractions,
+   arbitrary Tailwind colors, space-y/x gaps, y background image capture.
 
-3. Validar JSONs:
+5. Validar JSONs (el compiler V4.1 tiene validación integrada, pero opcionalmente):
    ```
    node validate_json.js
    ```
    Resultado esperado: 0 issues en todos los archivos.
 
-4. **AJUSTES MANUALES OBLIGATORIOS (HERO SECTIONS):**
-   El compiler V4 descarta las imágenes de fondo absolutas de Stitch (nodos `<img class="absolute inset-0 object-cover">`).
-   En cada JSON de un Hero, debes editar:
-   - `background_image`: ID de la WP Media Library (subir previamente a WP)
-   - `background_overlay_background`: "gradient" (para legibilidad)
-   - `min_height`: 100vh
-   - Inner container: boxed 1200px + padding 60px lateral
+6. **HERO SECTIONS (V4.1 — Ahora semi-automático):**
+   - **Auto-capture:** V4.1 extrae `<img>` dentro de `<div class="absolute inset-0">` como `background_image`.
+   - **Manifest injection:** Si `page_manifest.json` tiene `hero_pairs` con IDs de WP Media Library, el compiler inyecta automáticamente `background_image + background_image_mobile + gradient overlay + min_height`.
+   - **Manual fallback:** Si no tienes manifest, edita el JSON del hero a mano con:
+     - `background_image`: URL + ID de WP Media Library
+     - `background_overlay_background`: "gradient"
+     - `min_height`: 100vh
+     - Inner container: boxed 1200px + padding 60px lateral
 
 ---
 
@@ -258,7 +269,23 @@ WordPress NO cambia el slug al cambiar título via API.
 Para cambiar slugs, usar REST API directa:
 ```
 POST /wp-json/wp/v2/pages/{id} con body {"slug":"nueva-url"} y autenticación Basic + App Password.
-Solución: fix_slugs.js
+Solución: fix_slugs.js (Lee el `page_manifest.json` y sincroniza las URLs automáticamente).
+```
+
+### Sustitución de Imágenes (Crucial)
+Las URLs de imágenes nativas generadas por Stitch (`lh3.googleusercontent.com`) expiran en días.
+**LA REGAL DE ORO:** Se deben reemplazar por fuentes permanentes desde WP Media Library.
+```
+Flujo de automatización:
+1. audit_stitch_images.js -> Genera un listado de todas las imágenes temporales.
+2. replace_stitch_images.js -> Sube masivamente a WP usando WP-Elementor-MCP.
+3. apply_image_replacements.js -> Inyecta las URLs permanentes a los JSON de Elementor.
+```
+
+### Limpieza de Artefactos Visuales (Material Symbols)
+Stitch introduce frecuentemente nombres de íconos en puro texto dentro de botones (`arrow_forward`, `bolt`, etc).
+```
+Solución: fix_material_symbols.js -> Limpia spans y texto en los JSON Elementor, convirtiéndolos en Unicode limpio o eliminando texto huérfano.
 ```
 
 ### Links internos
@@ -341,20 +368,24 @@ El JSON pasa validación y la inyección da `true`, pero el layout **NO funciona
 
 | Script | Función |
 |--------|---------|
-| compiler_v4.js | **ACTUAL** - Compilador HTML→Native Elementor JSON (DOM Walker) |
+| compiler_v4.js | **ACTUAL V4.1** - Compilador HTML→Native Elementor JSON (1600+ líneas, 16 production fixes) |
 | validate_json.js | Valida que no queden bad keys del V3 |
 | fix_contact_data.js | Inyecta datos de contacto reales en HTMLs |
 | fix_nav_links.js | Corrige links de navegación del menú |
 | fix_internal_links.js | Actualiza links internos a nuevos slugs |
 | fix_brandbook_v2.js | Reemplaza footers y CTAs con versión BrandBook |
 | fix_buttons.js | Corrige colores y radios de botones |
-| fix_slugs.js | Cambia slugs via REST API directa |
+| fix_slugs.js | Cambia slugs via REST API directa leyendo el manifest |
+| fix_material_symbols.js | NUEVO ✨ Limpia palabras fantasma (arrow_forward, search) generadas por Google Stitch en JSON. |
+| audit_stitch_images.js | NUEVO ✨ Mapea en consola IDs y Widgets que usan lh3.googleusercontent.com |
+| replace_stitch_images.js | NUEVO ✨ Script maestro que sube assets locales a WP y prepara el mapping. |
+| apply_image_replacements.js | NUEVO ✨ Inyecta recursivamente URLs permanentes de WP a los Elementor JSON. |
 | convert_html_to_elementor.js | (LEGACY V3 - reemplazado por compiler_v4) |
 | check_old.js | Verifica elementos no-BrandBook remanentes |
 
 ---
 
-## LOS 15 ERRORES FATALES (Resumen Rápido)
+## LOS 16 ERRORES FATALES (Resumen Rápido)
 
 1. JSON wrapper vs array puro → `_elementor_data = '[{...}]'` CORRECTO
 2. Credenciales inconsistentes → Un solo usuario Admin en TODOS los MCPs
@@ -367,13 +398,31 @@ El JSON pasa validación y la inyección da `true`, pero el layout **NO funciona
 9. Usar npx para servidores MCP → npm install -g evita timeouts
 10. Settings keys incorrectos → flex_gap, flex_align_items, _margin, align
 11. Content_width full en todo → Patrón FULL + BOXED
-12. No incluir background images en heroes → Editar manualmente el JSON
+12. No incluir background images en heroes → V4.1 auto-captura + manifest injection
 13. Material Symbols como texto → Reemplazar con SVG o unicode (→)
 14. WordPress no acepta SVG → Instalar "Safe SVG" o usar PNG
 15. Stitch genera colores de tokens, no BrandBook → Post-procesamiento obligatorio
+16. **⭐ NUEVO: Tailwind es MOBILE-FIRST, Elementor es DESKTOP-FIRST** → `flex-col sm:flex-row` = desktop: row, mobile: column (el error más destructivo)
+
+---
+
+## MAPEO RESPONSIVE RÁPIDO: TAILWIND → ELEMENTOR
+
+| Tailwind | Elementor |
+|----------|----------|
+| `flex-col sm:flex-row` | `flex_direction: "row"`, `flex_direction_mobile: "column"` |
+| `flex-col lg:flex-row` | `flex_direction: "row"`, `flex_direction_tablet: "column"`, `flex_direction_mobile: "column"` |
+| `space-y-4` | `flex_gap: {unit:"px",size:16}`, `flex_direction: "column"` |
+| `w-1/2` | `width: {unit:"%",size:50}`, `width_mobile: {unit:"%",size:100}` |
+| `h-screen` | `min_height: {unit:"vh",size:100}` |
+| `bg-[#hex]/80` | `background_color: "rgba(r,g,b,0.8)"` |
+| `border-l-4` | `border_border: "solid"`, `border_width: {top:0,right:0,bottom:0,left:4}` |
+| `items-center` | `flex_align_items: "center"` |
+| `justify-between` | `flex_justify_content: "space-between"` |
 
 ---
 
 ¡SIGUIENDO ESTA GUÍA, TU SITIO WEB SERÁ 100% PROFESIONAL, VELOZ Y EDITABLE POR EL CLIENTE FINAL!
 
-*Flujo verificado en producción — 22pp Evergreen Venezuela — Abril 2026*
+*Flujo verificado en producción — 20+ páginas Evergreen Venezuela — Abril 2026*
+*Compiler V4.1 — 16 production fixes — Template en scripts/compiler_v4_template.js*
