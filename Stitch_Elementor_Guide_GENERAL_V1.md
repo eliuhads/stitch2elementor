@@ -246,19 +246,23 @@ RESPONSIVE:
 
 ---
 
-## FASE 5: INYECCIÓN DIRECTA
+## FASE 5: INYECCIÓN DIRECTA Y THEME BUILDER
 
-1. Crea la página en WordPress primero (estado draft).
-2. **CONVIERTE LA PÁGINA A ELEMENTOR CANVAS.** Esto es un paso MANUAL.
-   - WordPress Admin → Páginas → Editar con Elementor
-   - Configuración → Layout → "Elementor Canvas"
-   - Publicar
-   > ⚠️ Este paso es OBLIGATORIO antes de inyectar contenido. MCP no puede activar Elementor Canvas programáticamente.
-3. Inyecta el JSON usando el MCP local:
+1. **COMPILACIÓN:** (V4.4+) El compiler omite `nav` y `footer` por defecto en las páginas para evitar duplicados, y genera archivos `header.json` y `footer.json` independientes.
+2. Inyecta los JSON correspondientes a tus páginas usando el MCP local:
    ```
-   elementor-mcp → update_page_from_file (evita errores 406 WAF de seguridad)
+   elementor-mcp → update_page_from_file
    ```
-4. Sube las imágenes a tu Biblioteca WP. No dejes refs de Google (lh3.google...).
+3. **INTERVENCIÓN MANUAL 1: Elementor Full Width**
+   - Para que tus páginas usen el Header y Footer global pero a ancho completo, debes ir a la configuración de WordPress y asegurarte de que estén configuradas bajo la plantilla de **"Elementor Full Width" (Elementor Ancho Completo)**. NOTA: Por ahora, si pruebas standalone y la Navbar/Footer está compilada dentro del Body, usarías "Elementor Canvas", pero en la V4.4+ nuestro estándar es Theme Builder.
+
+4. **INTERVENCIÓN MANUAL 2: Global Header & Footer (Theme Builder)**
+   - Crea una página o solicita al agente crear dos páginas contenedoras (ej. `[TEMPLATE] Global Header` y `[TEMPLATE] Global Footer`).
+   - El agente inyecta el `header.json` y `footer.json` en esas páginas transitorias.
+   - Entra a esas páginas en Elementor y guárdalas como "Template" (Plantilla).
+   - Ve a **Theme Builder**, asigna estas nuevas Plantillas como el "Header" y "Footer" oficiales, y dales condición de mostrarse en `Entire Site`.
+
+5. Sube las imágenes a tu Biblioteca WP. No dejes refs de Google (`lh3.google...`).
 
 ---
 

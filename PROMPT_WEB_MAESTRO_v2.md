@@ -498,26 +498,27 @@ Este patrón garantiza:
 ---
 
 ## ══════════════════════════════════════════════════
-## FASE 3 · INYECCIÓN EN WORDPRESS
+## FASE 3 · INYECCIÓN EN WORDPRESS Y THEME BUILDER
 ## ══════════════════════════════════════════════════
 
-### PASO 3A · Crear páginas en WordPress (si no existen)
+### PASO 3A · Compilación Limpia y Configuración de Theme Builder (V4.4+)
 
 ```
-wp-elementor-mcp → create_page(title, content, status: "draft")
+El compiler V4.4 omite automáticamente <nav> y <footer> de las páginas, creando `header.json` y `footer.json` independientes.
 
-DESPUÉS de crear, el USUARIO debe manualmente:
-  WordPress Admin → Páginas → cada página → Editar con Elementor
-  → Configuración → Layout → "Elementor Canvas"
-  → Publicar
-
-⚠️ Este paso es OBLIGATORIO antes de inyectar contenido.
-   MCP no puede activar Elementor Canvas programáticamente.
+PARA ESTABLECER EL HEADER Y FOOTER GLOBAL:
+  1. Crear dos páginas transitorias con el MCP:
+     mcp_elementor-mcp-EVERGREEN_create_page(title: "[TEMPLATE] Global Header", elementor_data: "[]", status: "draft")
+     mcp_elementor-mcp-EVERGREEN_create_page(title: "[TEMPLATE] Global Footer", elementor_data: "[]", status: "draft")
+  2. Inyectar `header.json` y `footer.json` en esas páginas usando `update_page_from_file`.
+  3. INTERVENCIÓN MANUAL DEL USUARIO:
+     - Entrar a esas páginas en Elementor y "Guardar como Plantilla".
+     - Ir a `Theme Builder` -> Header/Footer -> Insertar plantilla -> Condición: Entire Site.
 ```
 
 ---
 
-### PASO 3B · Inyectar JSONs con MCP
+### PASO 3B · Elementor Full Width Y Páginas Individuales
 
 ```
 Para CADA página:
@@ -531,23 +532,11 @@ RESULTADO ESPERADO: true (por cada página)
 
 ⚠️ Si el JSON es muy grande (>100KB), puede disparar ModSecurity (error 406).
    Solución: usar update_page_from_file (lee directo del filesystem, evita WAF).
-```
 
----
-
-### PASO 3C · Header y Footer
-
-```
-⚠️ LECCIÓN APRENDIDA: Los templates del Theme Builder (Header/Footer) NO son
-   editables via MCP. Solo operan sobre pages/posts, no elementor_library.
-
-OPCIONES:
-  A) Elementor Canvas: cada página tiene su propio nav/footer embebido
-     (el compiler lo incluye automáticamente)
-  B) Theme Builder: editar manualmente en Elementor
-     WordPress Admin → Elementor → Theme Builder → Header/Footer
-     → Display Conditions → "Entire Site"
-```
+INTERVENCIÓN MANUAL POST-INYECCIÓN:
+   - WordPress Admin → Páginas → Editar (Bulk Edit) 
+   - Cambiar Template a "Elementor Full Width" (Ancho Completo).
+   - Esto empata el Header/Footer de Theme Builder con nuestras páginas.
 
 ---
 
@@ -713,12 +702,10 @@ El wrapper principal SIEMPRE debe ser:
 El widgetType debe ir directamente dentro del container.
 No se necesita "column". Eliminar toda referencia a elType: "section".
 
-⚠️ REGLA DE LOGOS Y NAVEGACIÓN (V4.3):
-   El compilador V4.3 incluye un "Logo Override".
-   Si detecta el texto primario de la marca (ej. "EVERGREEN" o "LUMEN") en el header,
-   lo sustituirá automáticamente por un widget de Imagen con un ancho forzado (ej. 192px)
-   para prevenir "logos gigantes". Además, el compilador debe inyectar el <nav> y <footer>
-   directamente en la página para integraciones Canvas (Elementor Canvas).
+⚠️ REGLA DE LOGOS Y NAVEGACIÓN (V4.4+):
+   El compilador V4.4 incluye un "Logo Override" que ubica el texto de logo ("EVERGREEN") recursivamente en el DOM y lo sustituye por una imagen nativa (192px width).
+   Además, el compilador debe OMITIR el `<nav>` y `<footer>` de los arrays de las páginas individuales.
+   Dichos elementos se guardan en `.json` separados (`header.json`, `footer.json`) y se inyectan en plantillas independientes ("Global Header/Footer") para ser activados en el **Theme Builder** usando **Elementor Full Width**.
 
 ```
 
