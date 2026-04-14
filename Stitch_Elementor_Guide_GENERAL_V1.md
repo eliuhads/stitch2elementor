@@ -53,6 +53,7 @@ Propiedades prohibidas (legacy): `gap`, `margin` en su forma estandarizada antig
 |---|---|---|
 | `compiler_v4.js` | Transpiler principal HTML → Elementor JSON | Fase 2 |
 | `fix_slugs.js` | Regulariza rutas REST según el manifest | Fase 4, paso 1 |
+| `audit_stitch_images.js` | Escanea JSONs y reporta todas las URLs lh3 pendientes de migrar | Fase 4, paso 3 (antes de replace) |
 | `replace_stitch_images.js` | Detecta URLs `lh3` y genera mapa de reemplazos | Fase 4, paso 3 |
 | `apply_image_replacements.js` | Aplica el mapa de reemplazos al JSON final | Fase 4, paso 3 |
 | `fix_material_symbols.js` | Purga spans textuales de iconos | Fase 4, paso 2 |

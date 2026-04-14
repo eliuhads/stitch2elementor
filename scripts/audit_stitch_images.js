@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const JSON_DIR = path.join(__dirname, 'elementor_json');
+const JSON_DIR = path.join(__dirname, '..', 'elementor_json');
 const report = [];
 let totalImages = 0;
 

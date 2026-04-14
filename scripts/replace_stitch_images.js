@@ -1,19 +1,27 @@
 /**
  * replace_stitch_images.js
+ * Scans Elementor JSON files, uploads lh3.googleusercontent.com images to WP Media Library,
+ * and writes stitch_images_report.json with the replacement map.
  * 
- * 1. Uploads a curated pool of local IMAGENES_FUENTES to WordPress.
- * 2. Maps the 71 temporary Stitch images to these new permanent URLs based on keywords.
- * 3. Updates the Elementor JSONs.
+ * Usage: WP_URL=https://your-domain.com WP_USER=admin WP_APP_PASSWORD="xxxx xxxx xxxx" node replace_stitch_images.js
  */
+const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 
-const WP_URL = 'https://evergreenvzla.com';
-const AUTH = Buffer.from('eliu.h.ads:2Gcx siE4 JGD0 72UK B3u1 5tlM').toString('base64');
+const WP_URL = process.env.WP_URL;
+const WP_USER = process.env.WP_USER;
+const WP_APP_PASSWORD = process.env.WP_APP_PASSWORD;
 
-const REPORT_PATH = path.join(__dirname, 'stitch_images_report.json');
-const JSON_DIR = path.join(__dirname, 'elementor_json');
+if (!WP_URL || !WP_USER || !WP_APP_PASSWORD) {
+  console.error('ERROR: Required env vars missing: WP_URL, WP_USER, WP_APP_PASSWORD');
+  process.exit(1);
+}
+
+const AUTH = Buffer.from(`${WP_USER}:${WP_APP_PASSWORD}`).toString('base64');
+const JSON_DIR = path.join(__dirname, '..', 'elementor_json');
+const REPORT_PATH = path.join(__dirname, '..', 'stitch_images_report.json');
 
 // Curated pool of images to use for replacements
 const LOCAL_POOL = [
@@ -167,7 +175,6 @@ async function main() {
       console.log(`     ✅ ${uploadedUrl}`);
     } else {
       console.log(`     ⚠ Failed. Using generic fallback.`);
-      POOL_URLS[media.id] = 'https://evergreenvzla.com/wp-content/uploads/2026/04/hero_escena_familia_casa_segura_iluminada.webp';
     }
   }
 

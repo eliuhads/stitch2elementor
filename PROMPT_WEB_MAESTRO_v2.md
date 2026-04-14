@@ -4,7 +4,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ---
 
-### FASE 0: PREPARACIÓN BRANDBOOK E IMÁGENES
+### FASE 1: PREPARACIÓN BRANDBOOK E IMÁGENES
 
 1. **Lee BrandBook**: Lee todos los archivos en `INFO_BrandBook/`. Extrae colores HEX exactos y tipografías. Genera `design-system/[Nombre]/MASTER.md`. Descarta colores "Material" temporales de Stitch.
 2. **Optimiza imágenes**: Toma exclusivamente el contenido de `IMAGENES_FUENTES/`. Convierte a WebP usando `webp-optimizer`.
@@ -13,7 +13,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ---
 
-### FASE 1: GENERACIÓN EN GOOGLE STITCH
+### FASE 2: GENERACIÓN EN GOOGLE STITCH
 
 1. Define los datos de contacto del proyecto (teléfonos, RRSS, URLs finales).
 2. Crea proyecto en Stitch via `create_project`. Asigna el sistema de diseño con los colores HEX del MASTER.md.
@@ -22,7 +22,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ---
 
-### FASE 2: COMPILACIÓN V4.1
+### FASE 3: COMPILACIÓN V4.1
 
 1. **Descarga HTML**: Usa `curl` (bash) o `Invoke-WebRequest` (PowerShell) para descargar el HTML completo. Nunca uses `read_url_content` — reduce el HTML a Markdown y pierde clases Tailwind.
 2. **Compila JSON**: Ejecuta `node compiler_v4.js`. Aplica el patrón FULL+BOXED según `Stitch_Elementor_Guide_GENERAL_V1.md` Sección 1.
@@ -30,7 +30,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ---
 
-### FASE 3: INYECCIÓN ELEMENTOR
+### FASE 4: INYECCIÓN ELEMENTOR
 
 1. Crea las páginas en borrador con `create_page` de `wp-elementor-mcp` (si no existen).
 2. Notifica al usuario: debe configurar manualmente el layout de cada página destino como "Elementor Full Width" o "Elementor Canvas" desde el UI de WordPress antes de continuar.
@@ -38,11 +38,13 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ---
 
-### FASE 4: POST-PROCESAMIENTO Y SEO
+### FASE 5: POST-PROCESAMIENTO Y SEO
 
 1. Ejecuta `fix_slugs.js` para adaptar los REST slugs al manifest.
 2. Ejecuta `fix_material_symbols.js` para eliminar spans textuales de iconos.
-3. Ejecuta `replace_stitch_images.js` y luego `apply_image_replacements.js` para reemplazar assets temporales de Stitch por IDs permanentes de WP Media Library.
+3. Ejecuta `audit_stitch_images.js` para generar el reporte de URLs lh3 presentes.
+   Luego ejecuta `replace_stitch_images.js` para subir esas imágenes a WP Media Library.
+   Luego ejecuta `apply_image_replacements.js` para aplicar el mapa de reemplazos al JSON.
 4. Ejecuta `fix_buttons.js` para aplicar códigos de color del BrandBook a los botones.
 5. Ejecuta `fix_internal_links.js` para actualizar enlaces internos al dominio final.
 6. Delega validación final a `Agentic-SEO-Skill` (meta titles, Schema, meta descriptions).

@@ -1,13 +1,11 @@
 {
-  "//": "═══════════════════════════════════════════════════════════",
-  "// EXAMPLE MCP CONFIGURATION FOR stitch2elementor": "",
-  "//": "Copy the relevant sections into your Antigravity mcp_config.json",
-  "// ═══════════════════════════════════════════════════════════": "",
+  "_comment_1": "MCP CONFIGURATION EXAMPLE FOR stitch2elementor",
+  "_comment_2": "Copy the relevant blocks into your agent's mcp_config.json. Edit manually — never let the agent edit this file.",
 
   "mcpServers": {
 
-    "// ─── REQUIRED: Stitch MCP (reads AI designs from Google Stitch) ───": "",
     "StitchMCP": {
+      "_comment": "REQUIRED — reads AI designs from Google Stitch",
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
@@ -18,8 +16,8 @@
       "disabled": false
     },
 
-    "// ─── REQUIRED: WP Elementor MCP (WordPress page management) ───": "",
     "wp-elementor-mcp": {
+      "_comment": "REQUIRED — WordPress page management via REST API",
       "command": "wp-elementor-mcp",
       "args": [],
       "env": {
@@ -31,8 +29,8 @@
       "disabled": false
     },
 
-    "// ─── REQUIRED: Elementor MCP (file-based Elementor injection) ───": "",
     "elementor-mcp": {
+      "_comment": "REQUIRED — file-based Elementor JSON injection",
       "command": "elementor-mcp",
       "args": [],
       "env": {
@@ -44,14 +42,13 @@
     }
   },
 
-  "// ═══════════════════════════════════════════════════════════": "",
-  "// IMPORTANT NOTES": "",
-  "// ═══════════════════════════════════════════════════════════": "",
-  "//notes": {
-    "credentials": "Use the SAME username and Application Password across all 3 required servers AND your Node.js scripts. Mismatched credentials cause HTTP 401 errors.",
-    "app_password_format": "WordPress Application Passwords use spaces: 'xxxx xxxx xxxx xxxx xxxx xxxx'. Create one at: WP Admin → Users → Profile → Application Passwords.",
-    "api_key": "Get your Google API key from: https://console.cloud.google.com/apis/credentials. Enable the Stitch API.",
-    "global_install": "For best performance, install MCP servers globally: npm install -g wp-elementor-mcp elementor-mcp. Using npx causes startup timeouts.",
-    "never_edit_from_agent": "NEVER let the AI agent edit mcp_config.json — it will freeze the IDE. Always edit manually."
+  "_notes": {
+    "credentials": "Use the SAME username and Application Password in all 3 servers AND your Node.js scripts. Mismatched credentials cause HTTP 401 errors.",
+    "app_password_format": "WordPress Application Passwords use spaces: 'xxxx xxxx xxxx xxxx xxxx xxxx'. Create at: WP Admin → Users → Profile → Application Passwords.",
+    "api_key": "Get Google API key at: https://console.cloud.google.com/apis/credentials. Enable the Stitch API.",
+    "global_install": "Install MCP servers globally: npm install -g wp-elementor-mcp elementor-mcp. Using npx causes startup timeouts.",
+    "never_edit_from_agent": "NEVER let the agent edit mcp_config.json — it will freeze the IDE.",
+    "disable_unused_mcps": "Set 'disabled: true' on all MCPs not needed for this project (Puppeteer, Figma, etc.) to prevent context dispersion.",
+    "scripts_credentials": "Scripts (fix_slugs.js, replace_stitch_images.js) read credentials from env vars WP_URL, WP_USER, WP_APP_PASSWORD. Never hardcode them."
   }
 }

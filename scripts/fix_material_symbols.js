@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const JSON_DIR = path.join(__dirname, 'elementor_json');
+const JSON_DIR = path.join(__dirname, '..', 'elementor_json');
 
 // Material Symbol names commonly found in the compiled JSONs
 const MATERIAL_SYMBOLS = [
