@@ -5,21 +5,9 @@
  * 
  * Usage: WP_URL=https://your-domain.com WP_USER=admin WP_APP_PASSWORD="xxxx xxxx xxxx" node replace_stitch_images.js
  */
-const https = require('https');
-const http = require('http');
 const fs = require('fs');
 const path = require('path');
-
-const WP_URL = process.env.WP_URL;
-const WP_USER = process.env.WP_USER;
-const WP_APP_PASSWORD = process.env.WP_APP_PASSWORD;
-
-if (!WP_URL || !WP_USER || !WP_APP_PASSWORD) {
-  console.error('ERROR: Required env vars missing: WP_URL, WP_USER, WP_APP_PASSWORD');
-  process.exit(1);
-}
-
-const AUTH = Buffer.from(`${WP_USER}:${WP_APP_PASSWORD}`).toString('base64');
+const { WP_URL, AUTH, https } = require('./utils/wp-api');
 const JSON_DIR = path.join(__dirname, '..', 'elementor_json');
 const REPORT_PATH = path.join(__dirname, '..', 'stitch_images_report.json');
 

@@ -25,12 +25,15 @@ const cheerio = require('cheerio');
 const crypto = require('crypto');
 
 // ============================================================
-// CONFIG — BrandBook V8 Source of Truth
+// CONFIG — Dynamic Design System
 // ============================================================
 const CONFIG = {
   inputDir: path.join(__dirname, 'stitch_html'),
   outputDir: path.join(__dirname, 'elementor_json'),
   manifestPath: path.join(__dirname, 'page_manifest.json'),
+  designSystemPath: path.join(__dirname, 'design_system.json'),
+  
+  // Default values that will be overwritten if design_system.json exists
   colors: {
     background: '#0B0F1A',
     paper: '#F5F3ED',
@@ -55,12 +58,13 @@ const CONFIG = {
     outlineVariant: '#40493d',
   },
   fonts: {
-    headline: 'Barlow Condensed',
-    body: 'Barlow',
+    headline: 'Inter',
+    body: 'Inter',
     label: 'Inter',
-    cta: 'Barlow Condensed',
-    tech: 'JetBrains Mono',
+    cta: 'Inter',
+    tech: 'monospace',
   },
+  googleFontsLink: '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">',
   // Typography scale per heading level
   typoScale: {
     h1: { desktop: 48, tablet: 36, mobile: 28, weight: '800' },
@@ -71,6 +75,20 @@ const CONFIG = {
     h6: { desktop: 14, tablet: 13, mobile: 12, weight: '600' },
   }
 };
+
+// Auto-load dynamic design system if exists
+if (fs.existsSync(CONFIG.designSystemPath)) {
+  try {
+    const ds = JSON.parse(fs.readFileSync(CONFIG.designSystemPath, 'utf8'));
+    if (ds.colors) Object.assign(CONFIG.colors, ds.colors);
+    if (ds.fonts) Object.assign(CONFIG.fonts, ds.fonts);
+    if (ds.typoScale) Object.assign(CONFIG.typoScale, ds.typoScale);
+    if (ds.googleFontsLink) CONFIG.googleFontsLink = ds.googleFontsLink;
+    console.log('✅ Custom Design System Loaded');
+  } catch (e) {
+    console.error('⚠️ Could not parse design_system.json. Using defaults.');
+  }
+}
 
 if (!fs.existsSync(CONFIG.outputDir)) {
   fs.mkdirSync(CONFIG.outputDir, { recursive: true });
@@ -254,7 +272,7 @@ function buildFontLoader() {
       widgetType: 'html',
       isInner: false,
       settings: {
-        html: '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer"><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"><style>html{scroll-behavior:smooth;}.text-glow{text-shadow:0 0 15px rgba(143,218,62,0.4);}.barlow-condensed{font-family:Barlow Condensed,sans-serif;}.barlow{font-family:Barlow,sans-serif;}</style>'
+        html: '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">' + CONFIG.googleFontsLink + '<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"><style>html{scroll-behavior:smooth;} /* Auto-generated design styles */</style>'
       },
       elements: []
     }]
@@ -412,18 +430,19 @@ function extractContainerSettings($, el) {
 
   // --- Background ---
   let bgColor = null;
+  let bgHoverColor = null;
+  
   for (const cls of classes) {
-    if (TW_COLORS[cls] && cls.startsWith('bg-')) {
-      bgColor = TW_COLORS[cls];
-    }
+    // Normal bg
+    if (TW_COLORS[cls] && cls.startsWith('bg-')) bgColor = TW_COLORS[cls];
     const bgMatch = cls.match(/^bg-\[([^\]]+)\]/);
     if (bgMatch) bgColor = bgMatch[1];
-    // Handle bg-[#hex]/opacity patterns like bg-[#0B0F1A]/80
+    
+    // Complex bg match: bg-[#hex]/opacity
     const bgOpacityMatch = cls.match(/^bg-\[([^\]]+)\]\/(\d+)$/);
     if (bgOpacityMatch) {
       const hex = bgOpacityMatch[1];
       const opacity = parseInt(bgOpacityMatch[2]) / 100;
-      // Convert hex to rgba
       if (hex.startsWith('#') && hex.length === 7) {
         const r = parseInt(hex.slice(1,3), 16);
         const g = parseInt(hex.slice(3,5), 16);
@@ -431,19 +450,49 @@ function extractContainerSettings($, el) {
         bgColor = `rgba(${r},${g},${b},${opacity})`;
       }
     }
+
+    // Hover bg (e.g., hover:bg-primary, hover:bg-[#hex], group-hover:bg-[#hex]/50)
+    if (cls.match(/^(?:group-)?hover:bg-/)) {
+      const hoverCls = cls.replace(/^(?:group-)?hover:/, '');
+      if (TW_COLORS[hoverCls]) {
+        bgHoverColor = TW_COLORS[hoverCls];
+      }
+      
+      const hoverBgMatch = cls.match(/^(?:group-)?hover:bg-\[([^\]]+)\]$/);
+      if (hoverBgMatch) bgHoverColor = hoverBgMatch[1];
+      
+      const hoverBgOpacityMatch = cls.match(/^(?:group-)?hover:bg-\[([^\]]+)\]\/(\d+)$/);
+      if (hoverBgOpacityMatch) {
+        const hex = hoverBgOpacityMatch[1];
+        const opacity = parseInt(hoverBgOpacityMatch[2]) / 100;
+        if (hex.startsWith('#') && hex.length === 7) {
+          const r = parseInt(hex.slice(1,3), 16);
+          const g = parseInt(hex.slice(3,5), 16);
+          const b = parseInt(hex.slice(5,7), 16);
+          bgHoverColor = `rgba(${r},${g},${b},${opacity})`;
+        }
+      }
+    }
   }
+  
   if (inlineStyles['background-color']) bgColor = inlineStyles['background-color'];
   if (inlineStyles['background']) {
     const bgStr = inlineStyles['background'];
     if (bgStr.startsWith('#')) bgColor = bgStr;
-    else if (bgStr.startsWith('rgb')) bgColor = bgStr;
+    else if (bgStr.startsWith('rgb') || bgStr.startsWith('rgba')) bgColor = bgStr;
     else if (bgStr.includes('gradient')) {
       s.background_background = 'gradient';
     }
   }
+
   if (bgColor && bgColor !== 'transparent') {
     s.background_background = s.background_background || 'classic';
     s.background_color = bgColor;
+  }
+  
+  if (bgHoverColor && bgHoverColor !== 'transparent') {
+    s.background_hover_background = 'classic';
+    s.background_hover_color = bgHoverColor;
   }
 
   // --- Flex Direction (CORRECT PREFIX: flex_direction) ---
@@ -763,11 +812,26 @@ function extractTextColor(classes, inlineStyles = {}) {
     // Arbitrary text color: text-[#28B5E1]
     const colorMatch = cls.match(/^text-\[([^\]]+)\]/);
     if (colorMatch) return colorMatch[1];
-    // Opacity text colors: text-white/70
-    const opacityMatch = cls.match(/^text-white\/(\d+)$/);
+    
+    // Opacity text colors: text-white/70, text-[#hex]/50, text-primary/80
+    const opacityMatch = cls.match(/^text-([^/]+)\/(\d+)$/);
     if (opacityMatch) {
-      const opacity = parseInt(opacityMatch[1]) / 100;
-      return `rgba(255,255,255,${opacity})`;
+      const colorKey = 'text-' + opacityMatch[1];
+      const opacity = parseInt(opacityMatch[2]) / 100;
+      
+      let baseHex = null;
+      if (TW_COLORS[colorKey]) {
+        baseHex = TW_COLORS[colorKey];
+      } else if (opacityMatch[1].startsWith('[#')) {
+        baseHex = opacityMatch[1].replace('[', '').replace(']', '');
+      }
+
+      if (baseHex && baseHex.startsWith('#') && baseHex.length === 7) {
+        const r = parseInt(baseHex.slice(1,3), 16), g = parseInt(baseHex.slice(3,5), 16), b = parseInt(baseHex.slice(5,7), 16);
+        return `rgba(${r},${g},${b},${opacity})`;
+      } else if (baseHex) {
+        return baseHex; // Fallback to raw value
+      }
     }
   }
   if (inlineStyles['color']) return inlineStyles['color'];
@@ -906,6 +970,34 @@ function processElement($, el) {
     const textColor = inlineStyles['color'] || extractTextColor(classes, inlineStyles);
     if (textColor) btnSettings.button_text_color = textColor;
     else if (btnSettings.background_color === CONFIG.colors.primaryDark) btnSettings.button_text_color = '#FFFFFF';
+    
+    // Extract hover states
+    for (const cls of classes) {
+      if (cls.match(/^(?:group-)?hover:bg-/)) {
+        const hoverBgCls = cls.replace(/^(?:group-)?hover:/, '');
+        if (TW_COLORS[hoverBgCls]) btnSettings.button_background_hover_color = TW_COLORS[hoverBgCls];
+        
+        const hMatch = cls.match(/^(?:group-)?hover:bg-\[([^\]]+)\]/);
+        if (hMatch) btnSettings.button_background_hover_color = hMatch[1];
+        
+        const hopMatch = cls.match(/^(?:group-)?hover:bg-\[([^\]]+)\]\/(\d+)$/);
+        if (hopMatch) {
+          const hex = hopMatch[1];
+          const opacity = parseInt(hopMatch[2]) / 100;
+          if (hex.startsWith('#') && hex.length === 7) {
+            const r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
+            btnSettings.button_background_hover_color = `rgba(${r},${g},${b},${opacity})`;
+          }
+        }
+      }
+      if (cls.match(/^(?:group-)?hover:text-/)) {
+        const hoverTextCls = cls.replace(/^(?:group-)?hover:/, '');
+        if (TW_COLORS[hoverTextCls]) btnSettings.hover_color = TW_COLORS[hoverTextCls];
+        
+        const hMatch = cls.match(/^(?:group-)?hover:text-\[([^\]]+)\]/);
+        if (hMatch) btnSettings.hover_color = hMatch[1];
+      }
+    }
     
     return buildButton(btnText, href, btnSettings);
   }
