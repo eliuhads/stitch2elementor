@@ -1,0 +1,30 @@
+**comando: segment!** (Activa el Modo Modular / Web Maestro para corrección minuciosa).
+
+**OBJETIVO ESTRICTO:** 
+Ejecutar una migración de **fidelidad absoluta (100%)** ÚNICAMENTE para la página **Homepage** desde Google Stitch hacia WordPress Elementor. La exportación anterior tuvo diferencias con el modelo HTML original, por lo que requiero una conversión impecable por partes.
+
+**FASES DE EJECUCIÓN AUTÓNOMA Y SECUENCIAL:**
+
+1. **Pre-Flight Check & Contexto:**
+   - Verifica disponibilidad de los MCPs (`elementor-mcp-EVERGREEN`, `wp-elementor-mcp-EVERGREEN`, `StitchMCP`).
+   - Lee `PROMPT_SEGMENT.md` y la Sección 1 de `Stitch_Elementor_Guide_GENERAL_V1.md` (Patrón FULL+BOXED) desde la subcarpeta `stitch2elementor/` para asegurar que las proporciones del diseño sean idénticas.
+
+2. **Limpieza del Entorno WP:**
+   - Obtén el ID de la página "Homepage" en WordPress.
+   - Restablece/Limpia su data en Elementor (o sobrescribe su contenido por completo a un estado en blanco) para garantizar que los contenedores rotos de la exportación previa no interfieran.
+
+3. **Extracción Nativa del HTML (Homepage):**
+   - Descarga de nuevo el código fuente HTML puro de la Homepage desde Stitch.
+   - **REGLA INQUEBRANTABLE:** Usa exclusivamente `curl` o `Invoke-WebRequest` mediante terminal. **NUNCA** uses `read_url_content` (esto reduce el DOM a Markdown y destruye las clases Tailwind). 
+   - Respeta y mantén absolutamente intactas las URLs de las imágenes y assets fotográficos origines (`lh3...`).
+
+4. **Transpilación e Inyección Modular (Por Partes):**
+   - Utiliza `html2json-segment` o `compiler_v4.js` para parsear y convertir el HTML en segmentos JSON compatibles con Elementor.
+   - **Regla Estructural:** Envuelve estrictamente el _elementor_data final bajo el patrón FULL+BOXED (`[{ "elType": "container", "settings": {...} }]`). Nada de "wrappers" adicionales en la raíz.
+   - Inyecta los componentes transpilados SECUENCIALMENTE a la Homepage en WordPress usando `update_page_from_file` o la inserción del `elementor-mcp`. Espera el HTTP 200 de éxito tras cada inyección antes de aplicar la siguiente pieza.
+
+5. **Ajustes de Interfaz Final:**
+   - Garantiza que los iconos no se rendericen como texto (elimina los text-spans de Material Symbols si los hay).
+   - Verifica que los CTAs (Botones) no estén rotos ni carezcan de URL/Color originario.
+
+*(Nota Final: Ejecuta esto de forma rigurosa, no abras navegadores locales bajo ninguna circunstancia, apóyate netamente en herramientas MCP, manipulación de archivos y terminal shell. Detente si ocurre un fallo. SOLO procesa la Homepage).* ¡Adelante!
