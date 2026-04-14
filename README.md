@@ -27,6 +27,22 @@ Google Stitch → HTML Export → Node.js Parser → Elementor JSON → WP REST 
 
 ---
 
+## 🔀 Dual Workflow Architecture (V2)
+
+stitch2elementor V2 operates on a state-of-the-art dual trigger system, giving you two distinct paths to generate your Elementor structures using Antigravity AI.
+
+| 🚊 The "Web Maestro" Pipeline (`go!`) | 🧩 The "Surgical" Pipeline (`segment!`) |
+|:---|:---|
+| **Trigger command:** Type `go!` in chat | **Trigger command:** Type `segment!` in chat |
+| **Scope:** Orchestrates an entire website build from zero | **Scope:** Extracts isolated sections/components from active designs |
+| **Logic:** Automates BrandBook checks, SEO, Design Systems, multi-page builds | **Logic:** Bypasses global limits to focus entirely on precision DOM segmentation |
+| **Best for:** New big projects, multi-page generation, full AI setups | **Best for:** Dodging WP WAF blockers, granular A/B Testing, header/footer atomic design |
+| **Prompt Engine:** Powered by `PROMPT_WEB_MAESTRO_v2.md` | **Prompt Engine:** Powered by `PROMPT_SEGMENT.md` |
+
+> **💡 Best Practice:** While `go!` helps architect the holistic vision, running Elementor injection section-by-section via `segment!` ensures the highest reliability against WordPress ModSecurity limiters.
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Install the skill

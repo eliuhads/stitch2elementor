@@ -5,11 +5,14 @@
 ---
 
 > **¿QUÉ ES ESTE DOCUMENTO?**
-> Es el "prompt maestro" que le das a tu agente Antigravity para crear un sitio web completo.
-> Cópialo en el chat de Antigravity. El agente ejecutará cada fase en orden.
-> **V2** incorpora TODAS las lecciones aprendidas del despliegue real de Evergreen Venezuela.
+> Es el "prompt maestro" de la arquitectura Web Maestro V2 para Antigravity.
+> Tienes dos formas de invocar el flujo de trabajo copiando la palabra mágica en el chat:
+> 
+> 🚊 **TRIGGER 1: `go!`** — Arranca el pipeline **COMPLETO**. Inicia preguntando el nombre de la empresa, verifica todos los skills base, procesa documentos (BrandBook), referencia imágenes y orquesta un sitio web entero creando desde Google Stitch para luego compilar masivamente.
+> 
+> 🧩 **TRIGGER 2: `segment!`** — Lee `PROMPT_SEGMENT.md`. Es la vía **MODULAR**. Aisla el ecosistema, preguntando la empresa y el documento HTML/Stitch puntual para seccionarlo e inyectar partes a Elementor de manera quirúrgica.
 >
-> **ESTRUCTURA DE CARPETAS DEL PROYECTO:**
+> **ESTRUCTURA DE CARPETAS DEL PROYECTO (`go!`):**
 >
 > ```
 > MI_PROYECTO/
