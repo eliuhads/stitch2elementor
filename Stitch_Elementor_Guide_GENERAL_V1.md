@@ -255,6 +255,7 @@ RESPONSIVE:
    ```
 3. **INTERVENCIÓN MANUAL 1: Elementor Full Width**
    - Para que tus páginas usen el Header y Footer global pero a ancho completo, debes ir a la configuración de WordPress y asegurarte de que estén configuradas bajo la plantilla de **"Elementor Full Width" (Elementor Ancho Completo)**. NOTA: Por ahora, si pruebas standalone y la Navbar/Footer está compilada dentro del Body, usarías "Elementor Canvas", pero en la V4.4+ nuestro estándar es Theme Builder.
+   - **⚠️ NOTA CRÍTICA DE INICIALIZACIÓN:** Para evitar fallos, no uses el Bulk Edit si la página es nueva; abre el `Editor Clásico` → click a `Editar con Elementor` → `Configuración de Página (engranaje)` → Layout: `Elementor Full Width` → `Guardar`. Esto inicializa los meta-tags del plugin correctamente.
 
 4. **INTERVENCIÓN MANUAL 2: Global Header & Footer (Theme Builder)**
    - Crea una página o solicita al agente crear dos páginas contenedoras (ej. `[TEMPLATE] Global Header` y `[TEMPLATE] Global Footer`).

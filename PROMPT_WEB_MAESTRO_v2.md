@@ -537,9 +537,10 @@ RESULTADO ESPERADO: true (por cada página)
    Solución: usar update_page_from_file (lee directo del filesystem, evita WAF).
 
 INTERVENCIÓN MANUAL POST-INYECCIÓN:
-   - WordPress Admin → Páginas → Editar (Bulk Edit) 
-   - Cambiar Template a "Elementor Full Width" (Ancho Completo).
-   - Esto empata el Header/Footer de Theme Builder con nuestras páginas.
+   - Las páginas deben cambiar su plantilla a "Elementor Full Width".
+   - Puedes intentar hacerlo con WordPress Admin → Páginas → Editar (Bulk Edit). 
+   - ⚠️ NOTA CRÍTICA DE INICIALIZACIÓN: La REST API de WordPress no siempre setea correctamente el layout de Elementor si la página nunca fue inicializada. Si observas fallos estructurales o no respeta el "Ancho Completo/Canvas", haz el Método Seguro 1 por 1: `Editar la página (clásico)` -> `Editar con Elementor` -> `Configuración (engranaje)` -> `Page Layout: Elementor Full Width` -> `Guardar`.
+   - Esto unificará todas las inyecciones con el Header y Footer global.
 
 ---
 
@@ -582,11 +583,15 @@ VERIFICAR CADA PÁGINA:
   □ Links de navegación funcionan
   □ Imágenes cargan (no URLs temporales de Stitch)
 
-📦 SKILL A USAR:
-   → visual-tester: Automatizar verificación con Playwright headless.
-     Toma screenshots desktop y mobile de cada URL.
-     Detecta errores 404/500 automáticamente.
-     Ejecutar: node skills/visual-tester/test.js [URLs...]
+🚫 REGLA INQUEBRANTABLE: NUNCA abrir navegadores locales.
+   ❌ browser_subagent — PROHIBIDO
+   ❌ Playwright / Puppeteer — PROHIBIDO
+   ❌ Cualquier ventana Chrome/Chromium local — PROHIBIDO
+
+📦 MÉTODOS PERMITIDOS:
+   → read_url_content: Verificar HTML renderizado de URLs públicas (sin abrir navegador)
+   → MCP API tools: get_elementor_elements, validate_elementor_data, get_page
+   → Verificación manual: El usuario abre el navegador él mismo si necesita screenshots
 ```
 
 ---
