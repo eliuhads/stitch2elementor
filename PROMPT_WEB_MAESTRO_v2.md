@@ -1,4 +1,4 @@
-# 🚀 PROMPT MAESTRO V2 — SITIO WEB COMPLETO CON IA
+﻿# 🚀 PROMPT MAESTRO V2 — SITIO WEB COMPLETO CON IA
 ### Motor: Antigravity + Claude | Stack: Google Stitch → HTML → Compiler V4.1 → Native Elementor JSON → MCP → WordPress
 ### Workflow verificado en producción (20+ páginas, Evergreen Venezuela, Abril 2026)
 
@@ -46,21 +46,21 @@ VERIFICAR que existen TODOS los skills del ecosistema:
   CORE (Obligatorios):
     .agent/skills/html-to-json/SKILL.md   ← Reglas de conversión HTML→Elementor JSON
     .agent/skills/ui-ux-pro-max/SKILL.md  ← Sistema de diseño: 67 estilos, 96 paletas, 57 font pairings
-    skills/design-md/SKILL.md             ← Genera DESIGN.md desde proyectos Stitch
-    skills/webp-optimizer/SKILL.md        ← Convierte PNG/JPG a WebP optimizado
+    .agent/skills/design-md/SKILL.md             ← Genera DESIGN.md desde proyectos Stitch
+    .agent/skills/webp-optimizer/SKILL.md        ← Convierte PNG/JPG a WebP optimizado
 
   DISEÑO & GENERACIÓN (Recomendados):
-    skills/enhance-prompt/SKILL.md        ← Optimiza prompts para mejor output de Stitch
-    skills/stitch-loop/SKILL.md           ← Loop autónomo para generar múltiples páginas
+    .agent/skills/enhance-prompt/SKILL.md        ← Optimiza prompts para mejor output de Stitch
+    .agent/skills/stitch-loop/SKILL.md           ← Loop autónomo para generar múltiples páginas
 
   POST-PRODUCCIÓN (Recomendados):
-    skills/Agentic-SEO-Skill/SKILL.md     ← Auditoría SEO completa: 16 sub-skills, 33 scripts
-    skills/visual-tester/SKILL.md         ← Auditoría visual 100% remota sin Playwright (solo Navegador Satélite o read_url_content)
+    .agent/skills/Agentic-SEO-Skill/SKILL.md     ← Auditoría SEO completa: 16 sub-skills, 33 scripts
+    .agent/skills/visual-tester/SKILL.md         ← Auditoría visual 100% remota sin Playwright (solo Navegador Satélite o read_url_content)
 
   AVANZADOS (Opcionales):
-    skills/react-components/SKILL.md      ← Stitch → React/Vite (si no es WordPress)
-    skills/remotion/SKILL.md              ← Videos de walkthrough desde Stitch
-    skills/shadcn-ui/SKILL.md             ← Componentes shadcn/ui para React/Next.js
+    .agent/skills/react-components/SKILL.md      ← Stitch → React/Vite (si no es WordPress)
+    .agent/skills/remotion/SKILL.md              ← Videos de walkthrough desde Stitch
+    .agent/skills/shadcn-ui/SKILL.md             ← Componentes shadcn/ui para React/Next.js
 
 ⚠️ LEER TODOS LOS SKILLS CORE antes de continuar.
    Los demás skills se leen cuando se activa su fase.
@@ -83,9 +83,9 @@ INSTALAR SKILLS FALTANTES:
   Custom Skills (incluidos en este repo — no requieren instalación externa):
     · html-to-json     → ya en .agent/skills/html-to-json/
     · ui-ux-pro-max    → ya en .agent/skills/ui-ux-pro-max/
-    · webp-optimizer   → ya en skills/webp-optimizer/ (requiere: npm install sharp)
-    · visual-tester    → ya en skills/visual-tester/ (Prohibido instalar playwright local. Usar backend satélite).
-    · stitch2elementor → ya en skills/stitch2elementor/
+    · webp-optimizer   → ya en .agent/skills/webp-optimizer/ (requiere: npm install sharp)
+    · visual-tester    → ya en .agent/skills/visual-tester/ (Prohibido instalar playwright local. Usar backend satélite).
+    · stitch2elementor → ya en .agent/skills/stitch2elementor/
 ```
 
 ---
@@ -220,7 +220,7 @@ PARA CADA HERO:
 
 📦 SKILL A USAR:
    → webp-optimizer: Convertir TODAS las imágenes a WebP antes de subir.
-     Ejecutar: node skills/webp-optimizer/optimize.js [carpeta_imagenes]
+     Ejecutar: node .agent/skills/webp-optimizer/optimize.js [carpeta_imagenes]
      Reduce peso 60-80% sin pérdida visible de calidad.
 ```
 
@@ -900,3 +900,4 @@ FASE 4 — PUBLICACIÓN Y SANITIZACIÓN:
 *Motor: Antigravity + Claude | Google Stitch → HTML → Compiler V4.1 → Native Elementor JSON → MCP → WordPress*
 *Flujo verificado en producción · 20+ páginas Evergreen Venezuela · Abril 2026*
 *Incluye 16 errores fatales + mapeo responsivo Tailwind↔Elementor*
+
