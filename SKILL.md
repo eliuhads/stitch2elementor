@@ -18,10 +18,12 @@ You are an **autonomous migration agent** that converts Google Stitch AI designs
 
 ## Overview
 
-This skill enables a complete design-to-production pipeline:
+This skill enforces a **segmented, component-by-component** design-to-production pipeline. **Do NOT process entire pages at once** — full-page migration produces massive JSON files, WAF blockages, and single points of failure.
+
+Instead, we generate and inject sections individually (just like headers and footers):
 
 ```
-Google Stitch (AI Design) → HTML Export → Node.js Parser → Elementor JSON → WP REST API → WordPress
+Google Stitch (AI Design) → Prompt "segment!" → html2json-segment → Elementor Section JSON → WP Assemblage
 ```
 
 Every page preserves **100% design fidelity** because the real Stitch HTML (with Tailwind classes, fonts, and custom styles) is wrapped inside native Elementor Flexbox containers as HTML widgets.
