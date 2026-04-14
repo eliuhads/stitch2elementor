@@ -1414,8 +1414,8 @@ function htmlToElementorContent(htmlStr) {
 
   body.children().each((i, child) => {
     const tag = child.tagName;
-    // (Removed) Skip nav and footer
-    if (['script', 'style', 'link'].includes(tag)) return;
+    // Skip nav, header, and footer so they don't get embedded in standard pages
+    if (['script', 'style', 'link', 'nav', 'header', 'footer'].includes(tag)) return;
     // The first section in the body gets the hero treatment
     const isHero = (sectionIndex === 0 && (tag === 'section' || tag === 'header' || tag === 'div'));
     
@@ -1446,29 +1446,25 @@ function processNavAsHeader(htmlStr) {
     ));
   }
 
-  // Nav links
-  const linksContainer = [];
-  nav.find('a').each((i, a) => {
-    const href = $(a).attr('href') || '#';
-    const linkText = sanitizeHeadingText($(a).text());
-    if (linkText && href !== '#') {
-      linksContainer.push(buildTextEditor(
-        `<a href="${href}" style="font-family:${CONFIG.fonts.headline};font-size:11px;font-weight:700;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none">${linkText}</a>`
-      ));
-    }
+  // Nav-Menu Widget (replaces manual links)
+  navElements.push({
+    id: genId(),
+    elType: 'widget',
+    widgetType: 'nav-menu',
+    isInner: false,
+    settings: {
+      layout: 'horizontal',
+      align_items: 'center',
+      pointer: 'underline',
+      typography_typography: 'custom',
+      typography_font_family: CONFIG.fonts.headline,
+      typography_font_size: { unit: 'px', size: 14, sizes: [] },
+      typography_font_weight: '700',
+      color_menu_item: '#cbd5e1',
+      color_menu_item_hover: '#8FDA3E'
+    },
+    elements: []
   });
-
-  if (linksContainer.length > 0) {
-    navElements.push(buildContainer(
-      {
-        content_width: 'full',
-        flex_direction: 'row',
-        flex_gap: buildFlexGap(32),
-        flex_align_items: 'center',
-      },
-      linksContainer, true
-    ));
-  }
 
   // CTA Button
   const ctaBtn = nav.find('button').first();

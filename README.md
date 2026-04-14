@@ -102,7 +102,8 @@ Phase 3 — Generate in Google Stitch
 Phase 4 — Compile V4.1
   └── Download HTML via curl (NOT read_url_content — full Tailwind classes required)
   └── Run compiler_v4.js → Extract native Elementor JSON templates
-  └── Output: FULL+BOXED containers, header.json, footer.json
+  └── Output: FULL+BOXED containers, header.json (with native nav-menu widget), footer.json
+  └── Global elements (<nav>, <footer>) are automatically stripped from standard pages to prevent duplication.
 
 Phase 5 — Inject into Elementor
   └── Create draft pages → Confirm Elementor Canvas layout with user

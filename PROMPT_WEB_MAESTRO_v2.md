@@ -24,7 +24,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 1. **Descarga HTML**: Usa `curl` (bash) o `Invoke-WebRequest` (PowerShell) para descargar el HTML completo. Nunca uses `read_url_content` — reduce el HTML a Markdown y pierde clases Tailwind. Manten intactas las imagenes origen generadas en Stitch (`lh3...`).
 2. **Compila JSON**: Ejecuta `node compiler_v4.js`. Aplica el patrón FULL+BOXED según `Stitch_Elementor_Guide_GENERAL_V1.md` Sección 1.
-3. **Separa estructura**: Extrae Header y Footer del body en archivos `header.json` y `footer.json` independientes.
+3. **Separa estructura**: Extrae Header y Footer del body en archivos `header.json` y `footer.json` independientes, **omitiéndolos (skip) de las páginas estándar para evitar duplicidad de footers**, e implementando el **widget de navegación nativo (`nav-menu`)** en el Header global.
 
 ---
 
