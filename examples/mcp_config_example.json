@@ -41,28 +41,6 @@
         "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
       },
       "disabled": false
-    },
-
-    "// ─── OPTIONAL: Disable these if not needed (improves performance) ───": "",
-    "figma": {
-      "command": "figma-mcp",
-      "disabled": true,
-      "//": "Enable only if your designs are in Figma, not Stitch"
-    },
-    "playwright": {
-      "command": "playwright-mcp",
-      "disabled": true,
-      "//": "Enable only if you need automated browser testing"
-    },
-    "context7": {
-      "command": "context7-mcp",
-      "disabled": true,
-      "//": "Enable only if you need to look up library documentation"
-    },
-    "firebase-mcp-server": {
-      "command": "firebase-mcp",
-      "disabled": true,
-      "//": "Enable only for Firebase projects (not WordPress)"
     }
   },
 
