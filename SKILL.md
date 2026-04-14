@@ -32,8 +32,6 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 2.  **Lectura Referencial**: Tu única fuente de verdad técnica obligatoria es `Stitch_Elementor_Guide_GENERAL_V1.md`. **Consúltalo específicamente cuando enfrentes: layout roto, mapeo responsive fallido, errores de contenedor o rechazos HTTP por ModSecurity.**
 3.  **Sub-Delegación Inteligente**: En el transcurso de tu pipeline, delegarás sub-tareas asumiendo el alcance de las skills compañeras de tu repositorio. No intentes re-inventar sus funciones; aprovecha sus lógicas.
 4.  **INYECCIONES SECUENCIALES**: Nunca hagas peticiones concurrentes al WP REST API. Espera HTTP 200 de cada página antes de continuar con la siguiente.
-5.  **URLs DE STITCH PROHIBIDAS**: Nunca inyectes JSON con imágenes lh3.googleusercontent.com. Deben subirse a la WP Media Library primero.
-
 ## 4. Skills Transversales
 
 - **enhance-prompt**: Refinamiento de directivas para Stitch (usado en modo `go!` y `segment!`). 
@@ -52,7 +50,7 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 
 ## 6. Criterios de Éxito
 
-- **Modo `go!` (Pipeline Completo)**: Las N páginas del proyecto están completamente inyectadas en WP, son 100% editables bajo el ecosistema flexbox de Elementor, carecen de URLs temporales (`lh3.googleusercontent.com`), y sus respectivos endpoints/slugs fueron estabilizados al formato del `page_manifest.json`.
+- **Modo `go!` (Pipeline Completo)**: Las N páginas del proyecto están completamente inyectadas en WP, son 100% editables bajo el ecosistema flexbox de Elementor, mantienen intactas sus imágenes de diseño original, y sus respectivos endpoints/slugs fueron estabilizados al formato del `page_manifest.json`.
 - **Modo `segment!` (Modular)**: El componente de diseño fue debidamente aislado, encajado dentro de la estandarización FULL+BOXED, transpilado a un JSON puro y cargado de manera asíncrona sobre la página borrador seleccionada sin pervertir el diseño colindante.
 
 ## 7. Control de Calidad Final

@@ -1355,12 +1355,17 @@ function processSection($, sectionEl, isHero = false) {
   }
 
   // 5. Automated Hero Section handling
-  // Hero images come from page_manifest.json media.hero_pairs
-  // Homepage uses hero_pair 1: "Familia Casa Segura"
   if (isHero) {
     outerSettings.background_background = 'classic';
-    // Placeholder — will be overridden per-page by the caller
-    outerSettings.background_image = {"url":"","id":"","size":"","alt":"hero","source":"library"};
+    if (capturedBgImage) {
+      outerSettings.background_image = {
+        url: capturedBgImage,
+        id: '',
+        size: '',
+        alt: 'hero background',
+        source: 'library'
+      };
+    }
     outerSettings.background_position = "center center";
     outerSettings.background_size = "cover";
     outerSettings.background_overlay_background = "gradient";
@@ -1570,36 +1575,6 @@ function countNodes(arr) {
 }
 
 // ============================================================
-// HERO IMAGE INJECTION — uses page_manifest.json hero_pairs
-// ============================================================
-
-function injectHeroImages(content, heroPair) {
-  if (!heroPair || !content || content.length === 0) return content;
-  
-  // Find the first container that has hero marker (min_height vh:100)
-  for (const node of content) {
-    if (node.elType === 'container' && node.settings?.min_height?.unit === 'vh') {
-      node.settings.background_image = {
-        url: heroPair.desktop.url,
-        id: String(heroPair.desktop.id),
-        size: '',
-        alt: heroPair.name || 'hero',
-        source: 'library'
-      };
-      node.settings.background_image_mobile = {
-        url: heroPair.mobile.url,
-        id: String(heroPair.mobile.id),
-        size: '',
-        alt: heroPair.name || 'hero mobile',
-        source: 'library'
-      };
-      break;
-    }
-  }
-  return content;
-}
-
-// ============================================================
 // BATCH CONVERTER
 // ============================================================
 
@@ -1612,8 +1587,6 @@ async function batchConvert() {
 
   const manifest = JSON.parse(fs.readFileSync(CONFIG.manifestPath, 'utf8'));
   const pages = manifest.pages || manifest;
-  const media = manifest.media || {};
-  const heroPairs = media.hero_pairs || {};
   let successCount = 0;
   let errorCount = 0;
   let totalErrors = 0;
@@ -1665,12 +1638,6 @@ async function batchConvert() {
 
       const html = fs.readFileSync(inputPath, 'utf8');
       let content = htmlToElementorContent(html);
-      
-      // Inject hero images from manifest
-      if (page.hero_pair && heroPairs[String(page.hero_pair)]) {
-        content = injectHeroImages(content, heroPairs[String(page.hero_pair)]);
-        console.log(`  🖼️  Hero pair ${page.hero_pair}: "${heroPairs[String(page.hero_pair)].name}"`);
-      }
       
       // Validate
       const validationErrors = validateElementorJSON(content);

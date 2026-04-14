@@ -1,0 +1,18 @@
+{
+  "pages": [
+    {
+      "html": "homepage.html",
+      "json": "homepage.json",
+      "hero_pair": 1
+    }
+  ],
+  "media": {
+    "hero_pairs": {
+      "1": {
+        "name": "Stitch Hero Image",
+        "desktop": { "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuCwM1SZImgB8VD1_VeAB_cE6zS4ZQPGPI3U8vxoDqyupwK3TPc5rEeLbOeGKDcHD1HZ1_6sLhWImi-sVbkoZ7dVPh6tRpo_mYFzjkAwDs3OzsfPhkNZ7JAnSKyKQFNiaATTOnKY4F2JyzMFn0FJ2VX1EBR2zL1FwGRbAmyDmmr7YhtDFUQlFr4n7rC1y3LPtPV2lmOvbZ1SEu91PvG1TRyoHuxqZVjj0Rd5e2HE59r42M8hZhnQWGeoI7ZkYliDzX2cy1uKGKdJjTa4", "id": "" },
+        "mobile": { "url": "https://lh3.googleusercontent.com/aida-public/AB6AXuCwM1SZImgB8VD1_VeAB_cE6zS4ZQPGPI3U8vxoDqyupwK3TPc5rEeLbOeGKDcHD1HZ1_6sLhWImi-sVbkoZ7dVPh6tRpo_mYFzjkAwDs3OzsfPhkNZ7JAnSKyKQFNiaATTOnKY4F2JyzMFn0FJ2VX1EBR2zL1FwGRbAmyDmmr7YhtDFUQlFr4n7rC1y3LPtPV2lmOvbZ1SEu91PvG1TRyoHuxqZVjj0Rd5e2HE59r42M8hZhnQWGeoI7ZkYliDzX2cy1uKGKdJjTa4", "id": "" }
+      }
+    }
+  }
+}

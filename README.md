@@ -53,7 +53,7 @@
 | 📐 **FULL+BOXED Auto-Architecture** | Section backgrounds at 100vw, content capped at 1200px max-width — exactly like premium human dev. |
 | 📱 **Smart Responsive Mapping** | Resolves Tailwind's Mobile-First logic (`flex-col sm:flex-row`) into Elementor's Desktop-First system. |
 | ⚡ **Zero Browser Overhead** | All validations via REST API and `curl`. Playwright/Chromium strictly forbidden to save resources. |
-| 🖼️ **Image Localization** | Detects and uploads temporary Google Stitch images (`lh3...`) to WP Media Library automatically. |
+| 🖼️ **Native Image Preservation** | 100% resolution mapping from Google Stitch to Elementor maintaining pure UI structure. |
 | 🧹 **Post-Gen Sanitization** | Purges Material Symbol text ghosts, fixes internal links, enforces SEO-friendly slugs. |
 | 🔍 **Agentic SEO** | Delegates on-page validation to `Agentic-SEO-Skill` (meta titles, Schema, descriptions). |
 
@@ -93,7 +93,6 @@ Phase 1 — Environment Check
 
 Phase 2 — BrandBook + Assets
   └── Read INFO_BrandBook/ → Extract HEX colors + typography
-  └── Optimize images to WebP → Upload to WP Media Library → Save IDs
   └── Generate page_manifest.json
 
 Phase 3 — Generate in Google Stitch
@@ -110,7 +109,7 @@ Phase 5 — Inject into Elementor
   └── Inject JSON SEQUENTIALLY via update_page_from_file (wait HTTP 200 per page)
 
 Phase 6 — Post-Processing + SEO
-  └── fix_material_symbols.js → fix_internal_links.js → replace_stitch_images.js
+  └── fix_material_symbols.js → fix_internal_links.js → fix_buttons.js
   └── Delegate to Agentic-SEO-Skill for meta, Schema, descriptions
 ```
 
@@ -170,8 +169,6 @@ segment!  ← Single component injection
 | Script | Purpose |
 |---|---|
 | `compiler_v4.js` | Core AST-like DOM walker. Transpiles HTML tags + Tailwind classes into Elementor widget schema. |
-| `replace_stitch_images.js` | Detects `lh3.googleusercontent.com` images and prepares them for WP upload. |
-| `apply_image_replacements.js` | Localizes and permanently stores AI-generated images in the WP Media Core. |
 | `fix_material_symbols.js` | Purges literal text ghosts emitted by CSS icon fallbacks (e.g. `"arrow_forward"`). |
 | `fix_internal_links.js` | Updates all internal href values to match final production URLs from the manifest. |
 
@@ -201,9 +198,6 @@ This skill orchestrates other agent skills. Make sure these are installed:
 
 🚫  No Elementor JSON wrapper objects
     → Output MUST be: [{...}] — plain array only
-
-🚫  No lh3.googleusercontent.com URLs in injected JSON
-    → All Stitch images must be uploaded to WP Media Library first
 
 ⚡  Sequential REST API injections only
     → Wait for HTTP 200 per page before proceeding to the next
