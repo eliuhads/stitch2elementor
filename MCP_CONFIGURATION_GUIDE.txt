@@ -1,106 +1,41 @@
-═════════════════════════════════════════════════════════════════════
-GUIA DE CONFIGURACION DE SERVIDORES MCP (STITCH -> ELEMENTOR)
-═════════════════════════════════════════════════════════════════════
+GUÍA DE CONFIGURACIÓN DE MCP SERVERS PARA STITCH → ELEMENTOR
+============================================================
 
-Para que Antigravity (tu agente de IA) pueda realizar esta automatizacion, 
-necesita hablar con 3 servicios diferentes: Google Stitch, WordPress 
-y la gestion de archivos de Elementor. Para eso usamos 3 "MCP Servers".
+1. INSTALACIÓN DE SERVIDORES GLOBALES (Obligatorio)
+Evita timeouts por compilación in-time mediante:
+> npm install -g wp-elementor-mcp
+> npm install -g elementor-mcp
 
-Aquí tienes las instrucciones detalladas paso a paso para configurarlos.
+2. GESTIÓN DE ACCESOS REST
+- WordPress: Solicita/Crea una "Application Password" oficial del panel wp-admin (Perfil > Application Passwords). Formato estricto a respetar: "xxxx xxxx xxxx xxxx xxxx xxxx".
+- Google Stitch: Emplea Google Cloud Console > "Credentials" > "API key".
 
-─────────────────────────────────────────────────────────────────────
-PASO 1: CREAR TU CONTRASEÑA DE APLICACION EN WORDPRESS
-─────────────────────────────────────────────────────────────────────
-Antes de configurar los servidores, necesitas un acceso especial 
-para la API de WordPress.
+3. FRAGMENTO TARGET PARA `mcp_config.json`
+Edita MANUALMENTE el archivo `mcp_config.json` e inserta los bloques. ADVERTENCIA: Apaga variables paralelas innecesarias de MCP (Puppeteer, Figma, etc) configurando "disabled": true para evitar dispersión del LLM.
 
-1. Entra a tu administrador de WordPress (ej: /wp-admin)
-2. Ve a la seccion Usuarios -> Perfil
-3. Haz scroll hacia abajo hasta "Application Passwords" (Contraseñas de Aplicacion)
-4. Escribe un nombre (ej: "Antigravity Migrator") y haz clic en "Add New"
-5. Copia la contraseña generada. 
-   IMPORTANTE: Tendra el formato "xxxx xxxx xxxx xxxx xxxx xxxx" (con espacios). 
-   Debes copiarla EXACTAMENTE así, manteniendo los espacios.
-
-─────────────────────────────────────────────────────────────────────
-PASO 2: OBTENER TU API KEY DE GOOGLE STITCH
-─────────────────────────────────────────────────────────────────────
-1. Ve a https://console.cloud.google.com/apis/credentials con tu cuenta de Google
-2. Haz clic en "Create Credentials" -> "API key"
-3. Copia esa llave (API Key).
-
-─────────────────────────────────────────────────────────────────────
-PASO 3: INSTALAR LOS SERVIDORES MCP LOCALMENTE
-─────────────────────────────────────────────────────────────────────
-Para evitar errores de "timeout" (tiempo de espera agotado) cuando la IA 
-intenta descargar las cosas, instala los paquetes de npm globalmente.
-
-Abre tu consola (PowerShell, CMD o Terminal) e instala estos dos:
-
-npm install -g wp-elementor-mcp   # Repo: https://github.com/eliuhads/wp-elementor-mcp
-npm install -g elementor-mcp      # Repo: https://github.com/eliuhads/elementor-mcp
-
-(No necesitas instalar StitchMCP, se ejecutara usando npx -y mcp-remote)
-
-─────────────────────────────────────────────────────────────────────
-PASO 4: CONFIGURAR EL ARCHIVO mcp_config.json
-─────────────────────────────────────────────────────────────────────
-Abre tu archivo de configuracion (normalmente en:
-C:\Users\TU_USUARIO\.gemini\antigravity\mcp_config.json) y agrega estas
-tres configuraciones exactamente asi (reemplazando los datos con los tuyos).
-
-MUY IMPORTANTE: Edita este json TU MISMO a mano (o desde el engranaje 
-en tu IDE). Nunca le pidas a la IA que lo edite sola o todo se congelara.
-
-// ---- COPIA ESTO DENTRO DE "mcpServers": {  .... } ----
-
-    "StitchMCP": {
-      "command": "npx",
-      "args": [
-        "-y", "mcp-remote",
-        "https://stitch.googleapis.com/mcp",
-        "--header", "X-Goog-Api-Key: PEGA_TU_API_KEY_DE_GOOGLE_AQUI"
-      ],
-      "env": {},
-      "disabled": false
-    },
-
-    "wp-elementor-mcp": {
-      "command": "wp-elementor-mcp",
-      "args": [],
-      "env": {
-        "WORDPRESS_BASE_URL": "https://tu-dominio.com",
-        "WORDPRESS_USERNAME": "TU_USUARIO_DE_WP_NORMAL",
-        "WORDPRESS_APPLICATION_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx",
-        "WP_MCP_MODE": "advanced"
-      },
-      "disabled": false
-    },
-
-    "elementor-mcp": {
-      "command": "elementor-mcp",
-      "args": [],
-      "env": {
-        "WP_URL": "https://tu-dominio.com",
-        "WP_APP_USER": "TU_USUARIO_DE_WP_NORMAL",
-        "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
-      },
-      "disabled": false
-    }
-
-─────────────────────────────────────────────────────────────────────
-PASO 5: LA REGLA DE ORO DEL RENDIMIENTO
-─────────────────────────────────────────────────────────────────────
-Desactiva cualquier otro servidor MCP que no estes usando.
-Por defecto, la IA inyecta herramientas de todos los servidores (Figma, 
-Playwright, Base de datos, etc) en su flujo de pensamiento. 
-Si dejas todos encendidos, la IA será mas lenta, consumirá más tokens 
-y se confundirá intentando buscar endpoints.
-
-Apagalos marcando "disabled": true en tu archivo de configuracion:
-
-    "figma": { "command": "...", "disabled": true },
-    "playwright": { "command": "...", "disabled": true },
-    "context7": { "command": "...", "disabled": true }
-
-¡Y con eso tu entorno MCP está 100% optimizado para la migracion de Stitch!
+"StitchMCP": {
+  "command": "npx",
+  "args": ["-y", "mcp-remote", "https://stitch.googleapis.com/mcp", "--header", "X-Goog-Api-Key: TU_API_KEY"],
+  "disabled": false
+},
+"wp-elementor-mcp": {
+  "command": "wp-elementor-mcp",
+  "args": [],
+  "env": {
+    "WORDPRESS_BASE_URL": "https://tu-dominio.com",
+    "WORDPRESS_USERNAME": "TU_USUARIO_ADMIN",
+    "WORDPRESS_APPLICATION_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx",
+    "WP_MCP_MODE": "advanced"
+  },
+  "disabled": false
+},
+"elementor-mcp": {
+  "command": "elementor-mcp",
+  "args": [],
+  "env": {
+    "WP_URL": "https://tu-dominio.com",
+    "WP_APP_USER": "TU_USUARIO_ADMIN",
+    "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
+  },
+  "disabled": false
+}
