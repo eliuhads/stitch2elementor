@@ -28,8 +28,8 @@ const crypto = require('crypto');
 // CONFIG — Dynamic Design System
 // ============================================================
 const CONFIG = {
-  inputDir: path.join(__dirname, 'stitch_html'),
-  outputDir: path.join(__dirname, 'elementor_json'),
+  inputDir: path.join(__dirname, '../../../stitch_html'),
+  outputDir: path.join(__dirname, '../../../elementor_json'),
   manifestPath: path.join(__dirname, 'page_manifest.json'),
   designSystemPath: path.join(__dirname, 'design_system.json'),
   
@@ -451,7 +451,7 @@ function extractContainerSettings($, el) {
       }
     }
 
-    // Hover bg (e.g., hover:bg-primary, hover:bg-[#hex], group-hover:bg-[#hex]/50)
+    // Hover bg
     if (cls.match(/^(?:group-)?hover:bg-/)) {
       const hoverCls = cls.replace(/^(?:group-)?hover:/, '');
       if (TW_COLORS[hoverCls]) {
@@ -473,7 +473,84 @@ function extractContainerSettings($, el) {
         }
       }
     }
+
+    // --- Opacity ---
+    const opacityMatch = cls.match(/^opacity-(\d+)$/);
+    if (opacityMatch) {
+      s.opacity = { unit: 'px', size: parseInt(opacityMatch[1]) / 100, sizes: [] };
+    }
   }
+
+  // --- Background Image Capture (Stitch-style) ---
+  // Detect images meant as backgrounds (absolute inset-0) and their gradient/overlay siblings
+  $(el).find('img.absolute.inset-0, img.w-full.h-full.object-cover, div.absolute.inset-0 img').each((i, imgEl) => {
+    // Only process it if it's acting as a background layer
+    const parentClass = ($(imgEl).parent().attr('class') || '');
+    if ($(imgEl).hasClass('absolute') || parentClass.includes('absolute')) {
+      const ic = ($(imgEl).attr('class') || '');
+      s.background_background = 'classic';
+      s.background_image = {
+        url: $(imgEl).attr('src'),
+        id: '', size: '', 
+        alt: $(imgEl).attr('data-alt') || $(imgEl).attr('alt') || 'background component',
+        source: 'library'
+      };
+      s.background_position = 'center center';
+      s.background_repeat = 'no-repeat';
+      s.background_size = 'cover';
+
+      // Emulate image opacity/filters via background overlay
+      const opMatch = ic.match(/opacity-(\d+)/) || parentClass.match(/opacity-(\d+)/);
+      if (opMatch) {
+         // E.g. opacity-20 means 80% black overlay to match dark theme appearance
+         const imgOpacity = parseInt(opMatch[1]) / 100;
+         s.background_overlay_background = 'classic';
+         s.background_overlay_color = '#0B0F1A'; 
+         s.background_overlay_opacity = { unit: 'px', size: 1 - imgOpacity, sizes: [] };
+      }
+      if (ic.includes('grayscale') || parentClass.includes('grayscale')) {
+         s.background_overlay_css_filter = 'custom';
+         s.background_overlay_css_filter_grayscale = { unit: 'px', size: 100, sizes: [] };
+      }
+    }
+  });
+
+  // Detect gradient overlays (Stitch puts them in absolute divs)
+  $(el).find('div.absolute').each((i, divEl) => {
+    const dc = ($(divEl).attr('class') || '');
+    if (dc.includes('inset-0')) {
+      if (dc.includes('hero-gradient')) {
+         s.background_overlay_background = 'gradient';
+         s.background_overlay_color = 'rgba(11, 15, 26, 0.95)';
+         s.background_overlay_color_b = 'rgba(11, 15, 26, 0.4)';
+         s.background_overlay_gradient_angle = { unit: 'deg', size: 90, sizes: [] };
+         s.background_overlay_gradient_type = 'linear';
+      } else if (dc.includes('from-') || dc.includes('bg-gradient')) {
+         const fromMatch = dc.match(/from-\[([^\]]+)\]/);
+         const toMatch = dc.match(/to-\[([^\]]+)\]/);
+         const viaMatch = dc.match(/via-\[([^\]]+)\]/);
+         if (fromMatch) {
+            s.background_overlay_background = 'gradient';
+            s.background_overlay_gradient_type = 'linear';
+            let deg = 180;
+            if (dc.includes('to-t')) deg = 0;
+            if (dc.includes('to-r')) deg = 90;
+            if (dc.includes('to-l')) deg = 270;
+            s.background_overlay_gradient_angle = { unit: 'deg', size: deg, sizes: [] };
+            s.background_overlay_color = fromMatch[1];
+            s.background_overlay_color_b = toMatch ? toMatch[1] : (viaMatch ? viaMatch[1] : 'transparent');
+         }
+      } else if (dc.match(/bg-black\/(\d+)/) || dc.match(/bg-\[([^\]]+)\]\/(\d+)/)) {
+         // simple colored overlay
+         const opMatch = dc.match(/\/(\d+)/);
+         if (opMatch) {
+             s.background_overlay_background = 'classic';
+             const op = parseInt(opMatch[1]) / 100;
+             s.background_overlay_color = 'rgba(0,0,0,' + op + ')';
+         }
+      }
+    }
+  });
   
   if (inlineStyles['background-color']) bgColor = inlineStyles['background-color'];
   if (inlineStyles['background']) {
@@ -657,6 +734,16 @@ function extractContainerSettings($, el) {
   if (classes.includes('h-full')) {
     s.min_height = { unit: '%', size: 100, sizes: [] };
   }
+  for (const cls of classes) {
+    const hMatch = cls.match(/^h-(\d+)$/);
+    if (hMatch) {
+       s.min_height = { unit: 'px', size: parseInt(hMatch[1]) * 4, sizes: [] };
+    }
+    const minHMatch = cls.match(/^min-h-\[(\d+)px\]$/);
+    if (minHMatch) {
+       s.min_height = { unit: 'px', size: parseInt(minHMatch[1]), sizes: [] };
+    }
+  }
   if (inlineStyles['min-height']) {
     const val = parseCSSValue(inlineStyles['min-height']);
     if (val) s.min_height = { unit: val.unit, size: val.size, sizes: [] };
@@ -664,10 +751,15 @@ function extractContainerSettings($, el) {
   if (inlineStyles['height']) {
     const val = parseCSSValue(inlineStyles['height']);
     if (val && val.unit === 'vh') s.min_height = { unit: val.unit, size: val.size, sizes: [] };
+    else if (val) s.min_height = { unit: val.unit, size: val.size, sizes: [] };
   }
 
   // --- Width ---
   for (const cls of classes) {
+    if (cls === 'w-full') s.width = { unit: '%', size: 100, sizes: [] };
+    const wMatch = cls.match(/^w-(\d+)$/);
+    if (wMatch) s.width = { unit: 'px', size: parseInt(wMatch[1]) * 4, sizes: [] };
+    
     if (cls === 'max-w-4xl') s.boxed_width = { unit: 'px', size: 896, sizes: [] };
     if (cls === 'max-w-xl') s.boxed_width = { unit: 'px', size: 576, sizes: [] };
     if (cls === 'max-w-xs') s.boxed_width = { unit: 'px', size: 320, sizes: [] };
@@ -1033,14 +1125,21 @@ function processElement($, el) {
   // --- IMAGE ---
   if (tag === 'img') {
     const src = $(el).attr('src') || '';
-    const alt = $(el).attr('alt') || '';
+    const alt = $(el).attr('data-alt') || $(el).attr('alt') || '';
     if (!src) return null;
-    if (classes.includes('object-cover') && classes.includes('absolute')) return null;
+    
+    // Skip if it's already serving as a background (absolute inset-0)
+    if (classes.includes('absolute') && (classes.includes('inset-0') || classes.includes('top-0'))) {
+       // Only skip if the parent actually has this URL as background
+       // (This is a safety check, but usually true in our new logic)
+       return null; 
+    }
     
     const imgSettings = {};
     const cs = extractContainerSettings($, el);
     if (cs.border_radius) imgSettings.border_radius = cs.border_radius;
     if (cs.margin) imgSettings._margin = cs.margin;
+    if (cs.opacity) imgSettings.opacity = cs.opacity;
     
     for (const cls of classes) {
       const wMatch = cls.match(/^w-(\d+)$/);
@@ -1296,6 +1395,10 @@ function processSection($, sectionEl, isHero = false) {
   if (containerSettings.background_background) {
     outerSettings.background_background = containerSettings.background_background;
     outerSettings.background_color = containerSettings.background_color;
+    if (containerSettings.background_image) outerSettings.background_image = containerSettings.background_image;
+    if (containerSettings.background_position) outerSettings.background_position = containerSettings.background_position;
+    if (containerSettings.background_repeat) outerSettings.background_repeat = containerSettings.background_repeat;
+    if (containerSettings.background_size) outerSettings.background_size = containerSettings.background_size;
   } else {
     // Always set dark background — the entire site is dark-themed
     outerSettings.background_background = 'classic';
@@ -1354,18 +1457,11 @@ function processSection($, sectionEl, isHero = false) {
     innerSettings.boxed_width = { unit: 'px', size: 1200, sizes: [] }; // The Global Design System Boxed Width
   }
 
+  if (containerSettings.min_height) outerSettings.min_height = containerSettings.min_height;
+
   // 5. Automated Hero Section handling
   if (isHero) {
     outerSettings.background_background = 'classic';
-    if (capturedBgImage) {
-      outerSettings.background_image = {
-        url: capturedBgImage,
-        id: '',
-        size: '',
-        alt: 'hero background',
-        source: 'library'
-      };
-    }
     outerSettings.background_position = "center center";
     outerSettings.background_size = "cover";
     outerSettings.background_overlay_background = "gradient";
@@ -1417,7 +1513,8 @@ function htmlToElementorContent(htmlStr) {
     // Skip nav, header, and footer so they don't get embedded in standard pages
     if (['script', 'style', 'link', 'nav', 'header', 'footer'].includes(tag)) return;
     // The first section in the body gets the hero treatment
-    const isHero = (sectionIndex === 0 && (tag === 'section' || tag === 'header' || tag === 'div'));
+    // Refined: main tag shouldn't be hero, its first child section should be.
+    const isHero = (tag === 'section' || tag === 'header') && sectionIndex === 0;
     
     const result = processSection($, child, isHero);
     if (result && (result.elements?.length > 0 || result.settings?.background_background)) {
