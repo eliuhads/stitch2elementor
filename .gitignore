@@ -1,0 +1,7 @@
+node_modules/
+.env
+mcp_config*.json
+elementor_json/
+stitch_html/
+.DS_Store
+*.log

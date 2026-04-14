@@ -49,6 +49,7 @@ Bypasses the full-site pipeline for atomic updates. The agent singles out a spec
    npm i -g elementor-mcp
    ```
 3. **Configure Authentication:** Edit your agent's `mcp_config.json` passing your WordPress URL and an **Application Password** (found in WP Admin -> Profile). See `MCP_CONFIGURATION_GUIDE.txt` for the exact block.
+   🎥 **Video Tutorial:** Watch the step-by-step setup guide [Como conectar Antigravity con WordPress MCP](https://www.youtube.com/watch?v=H9Vs-1OjIh4) for visual instructions on getting Application Passwords sorted without errors.
 4. **Trigger the flow:** Talk to your agent and type `go!` or `segment!` to start the magic.
 
 ---

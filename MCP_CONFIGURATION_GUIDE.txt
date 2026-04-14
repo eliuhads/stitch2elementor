@@ -8,6 +8,7 @@ Evita timeouts por compilación in-time mediante:
 
 2. GESTIÓN DE ACCESOS REST
 - WordPress: Solicita/Crea una "Application Password" oficial del panel wp-admin (Perfil > Application Passwords). Formato estricto a respetar: "xxxx xxxx xxxx xxxx xxxx xxxx".
+  🎥 Video de Apoyo: Aprende a configurarlo paso a paso en https://www.youtube.com/watch?v=H9Vs-1OjIh4
 - Google Stitch: Emplea Google Cloud Console > "Credentials" > "API key".
 
 3. FRAGMENTO TARGET PARA `mcp_config.json`
