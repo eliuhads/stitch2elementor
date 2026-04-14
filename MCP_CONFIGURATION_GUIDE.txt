@@ -1,42 +1,59 @@
 GUÍA DE CONFIGURACIÓN DE MCP SERVERS PARA STITCH → ELEMENTOR
 ============================================================
 
-1. INSTALACIÓN DE SERVIDORES GLOBALES (Obligatorio)
-Evita timeouts por compilación in-time mediante:
-> npm install -g wp-elementor-mcp
-> npm install -g elementor-mcp
+1. INSTALACIÓN GLOBAL (Obligatorio — evita timeouts de compilación in-time)
 
-2. GESTIÓN DE ACCESOS REST
-- WordPress: Solicita/Crea una "Application Password" oficial del panel wp-admin (Perfil > Application Passwords). Formato estricto a respetar: "xxxx xxxx xxxx xxxx xxxx xxxx".
-  🎥 Video de Apoyo: Aprende a configurarlo paso a paso en https://www.youtube.com/watch?v=H9Vs-1OjIh4
-- Google Stitch: Emplea Google Cloud Console > "Credentials" > "API key".
+  npm install -g wp-elementor-mcp
+  npm install -g elementor-mcp
 
-3. FRAGMENTO TARGET PARA `mcp_config.json`
-Edita MANUALMENTE el archivo `mcp_config.json` e inserta los bloques. ADVERTENCIA: Apaga variables paralelas innecesarias de MCP (Puppeteer, Figma, etc) configurando "disabled": true para evitar dispersión del LLM.
+2. CREDENCIALES REQUERIDAS
 
-"StitchMCP": {
-  "command": "npx",
-  "args": ["-y", "mcp-remote", "https://stitch.googleapis.com/mcp", "--header", "X-Goog-Api-Key: TU_API_KEY"],
-  "disabled": false
-},
-"wp-elementor-mcp": {
-  "command": "wp-elementor-mcp",
-  "args": [],
-  "env": {
-    "WORDPRESS_BASE_URL": "https://tu-dominio.com",
-    "WORDPRESS_USERNAME": "TU_USUARIO_ADMIN",
-    "WORDPRESS_APPLICATION_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx",
-    "WP_MCP_MODE": "advanced"
+  WordPress:
+  - Crea una "Application Password" en: WP Admin → Perfil → Application Passwords
+  - Formato exacto requerido: "xxxx xxxx xxxx xxxx xxxx xxxx" (con espacios)
+
+  Google Stitch:
+  - Obtén una API Key en: Google Cloud Console → Credentials → API Key
+
+3. REGLA: DESACTIVA MCPs INNECESARIOS
+
+  Antes de iniciar, en tu mcp_config.json, establece "disabled": true en todos los
+  servidores MCP no requeridos (Puppeteer, Figma, Playwright, etc.).
+  Dejar MCPs activos no utilizados dispersa el contexto del LLM y genera tool calls erróneas.
+
+4. BLOQUE PARA mcp_config.json
+
+  ADVERTENCIA: Edita este archivo MANUALMENTE desde fuera del agente.
+  Nunca lo modifiques con shell tools desde dentro del IDE o causarás un crash del event loop.
+
+  "StitchMCP": {
+    "command": "npx",
+    "args": ["-y", "mcp-remote", "https://stitch.googleapis.com/mcp",
+             "--header", "X-Goog-Api-Key: TU_API_KEY"],
+    "disabled": false
   },
-  "disabled": false
-},
-"elementor-mcp": {
-  "command": "elementor-mcp",
-  "args": [],
-  "env": {
-    "WP_URL": "https://tu-dominio.com",
-    "WP_APP_USER": "TU_USUARIO_ADMIN",
-    "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
+
+  "wp-elementor-mcp": {
+    "command": "wp-elementor-mcp",
+    "args": [],
+    "env": {
+      "WORDPRESS_BASE_URL": "https://tu-dominio.com",
+      "WORDPRESS_USERNAME": "TU_USUARIO_ADMIN",
+      "WORDPRESS_APPLICATION_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx",
+      "WP_MCP_MODE": "advanced"
+      // "advanced" habilita operaciones de Theme Builder (headers/footers globales)
+      // Usa "basic" si solo necesitas inyectar páginas individuales
+    },
+    "disabled": false
   },
-  "disabled": false
-}
+
+  "elementor-mcp": {
+    "command": "elementor-mcp",
+    "args": [],
+    "env": {
+      "WP_URL": "https://tu-dominio.com",
+      "WP_APP_USER": "TU_USUARIO_ADMIN",
+      "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
+    },
+    "disabled": false
+  }
