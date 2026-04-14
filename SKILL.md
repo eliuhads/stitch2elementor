@@ -1,4 +1,4 @@
----
+﻿---
 name: stitch2elementor
 description: Migrates Google Stitch AI designs to WordPress Elementor pages via HTML parsing and WP REST API injection. 100% free, no premium plugins required.
 version: 2.0.0
@@ -59,23 +59,23 @@ This skill orchestrates a full design-to-production pipeline. The following comp
 |-------|----------|---------|----------------|
 | **html-to-json** | `.agent/skills/html-to-json/` | Rules and schema for converting HTML/CSS to valid Elementor JSON. Defines widget mapping, container hierarchy, responsive keys, and validation checklists. | Phase 2: Compilation |
 | **ui-ux-pro-max** | `.agent/skills/ui-ux-pro-max/` | Design intelligence database: 67 styles, 96 palettes, 57 font pairings, 99 UX guidelines. Use to select color schemes, typography, and design direction. | Phase 0: BrandBook + Phase 1: Stitch Design |
-| **design-md** | `skills/design-md/` | Analyzes Stitch projects and synthesizes a semantic design system into `DESIGN.md` files. Extracts tokens, colors, typography, and spacing from Stitch screens. | Phase 0: BrandBook → MASTER.md |
-| **webp-optimizer** | `skills/webp-optimizer/` | Batch converts PNG/JPG images to optimized WebP using Sharp. Critical for WordPress performance and page load speed. | Phase 0: Image Preparation |
+| **design-md** | `.agent/skills/design-md/` | Analyzes Stitch projects and synthesizes a semantic design system into `DESIGN.md` files. Extracts tokens, colors, typography, and spacing from Stitch screens. | Phase 0: BrandBook → MASTER.md |
+| **webp-optimizer** | `.agent/skills/webp-optimizer/` | Batch converts PNG/JPG images to optimized WebP using Sharp. Critical for WordPress performance and page load speed. | Phase 0: Image Preparation |
 
 ### DESIGN & GENERATION SKILLS (Recommended — Improve Stitch output quality)
 
 | Skill | Location | Purpose | Pipeline Phase |
 |-------|----------|---------|----------------|
-| **enhance-prompt** | `skills/enhance-prompt/` | Transforms vague UI ideas into polished, Stitch-optimized prompts. Adds UI/UX keywords, injects design system context, structures output for better generation. | Phase 1: Before generate_screen_from_text |
-| **stitch-loop** | `skills/stitch-loop/` | Autonomous iterative site-building loop. Generates a page, integrates it, prepares instructions for the next iteration. Useful for building multi-page sites. | Phase 1: Multi-page generation |
-| **html2json-segment** | `skills/html2json-segment/` | Generates native Elementor JSON templates segment by segment with FULL+BOXED structure. Use `segment!` trigger. | Phase 1/2: Segment JSON Gen |
+| **enhance-prompt** | `.agent/skills/enhance-prompt/` | Transforms vague UI ideas into polished, Stitch-optimized prompts. Adds UI/UX keywords, injects design system context, structures output for better generation. | Phase 1: Before generate_screen_from_text |
+| **stitch-loop** | `.agent/skills/stitch-loop/` | Autonomous iterative site-building loop. Generates a page, integrates it, prepares instructions for the next iteration. Useful for building multi-page sites. | Phase 1: Multi-page generation |
+| **html2json-segment** | `.agent/skills/html2json-segment/` | Generates native Elementor JSON templates segment by segment with FULL+BOXED structure. Use `segment!` trigger. | Phase 1/2: Segment JSON Gen |
 
 ### POST-PRODUCTION SKILLS (Recommended — Quality and SEO)
 
 | Skill | Location | Purpose | Pipeline Phase |
 |-------|----------|---------|----------------|
-| **Agentic-SEO-Skill** | `skills/Agentic-SEO-Skill/` | Full SEO audit suite: 16 sub-skills, 10 specialist agents, 33 scripts. Technical SEO, Core Web Vitals, E-E-A-T, schema markup, hreflang, GEO/AEO analysis. | Phase 4: SEO + Verification |
-| **visual-tester** | `skills/visual-tester/` | Auditoría visual 100% remota usando `read_url_content` y MCP API tools. **🚫 PROHIBIDO abrir navegadores locales (browser_subagent, Playwright, Chromium).** Toda verificación debe ser vía API o HTTP estático. | Phase 4: Visual Verification |
+| **Agentic-SEO-Skill** | `.agent/skills/Agentic-SEO-Skill/` | Full SEO audit suite: 16 sub-skills, 10 specialist agents, 33 scripts. Technical SEO, Core Web Vitals, E-E-A-T, schema markup, hreflang, GEO/AEO analysis. | Phase 4: SEO + Verification |
+| **visual-tester** | `.agent/skills/visual-tester/` | Auditoría visual 100% remota usando `read_url_content` y MCP API tools. **🚫 PROHIBIDO abrir navegadores locales (browser_subagent, Playwright, Chromium).** Toda verificación debe ser vía API o HTTP estático. | Phase 4: Visual Verification |
 
 > **🚫 REGLA CRÍTICA GLOBAL — NUNCA ABRIR NAVEGADORES LOCALES:**
 > Está **TERMINANTEMENTE PROHIBIDO** usar `browser_subagent`, Playwright, Puppeteer, o cualquier herramienta que abra Chrome/Chromium en la máquina del usuario. Consume recursos, congela el sistema y es **INACEPTABLE**. Toda verificación visual se hace con `read_url_content` (URLs públicas) o MCP API tools (`get_elementor_elements`, `get_page`, `validate_elementor_data`).
@@ -85,9 +85,9 @@ This skill orchestrates a full design-to-production pipeline. The following comp
 
 | Skill | Location | Purpose | When to Use |
 |-------|----------|---------|-------------|
-| **react-components** | `skills/react-components/` | Converts Stitch designs into modular Vite + React components with AST validation. | When building React apps instead of WordPress |
-| **remotion** | `skills/remotion/` | Generates walkthrough videos from Stitch projects using Remotion with transitions and zooming. | For marketing demos or client presentations |
-| **shadcn-ui** | `skills/shadcn-ui/` | Expert shadcn/ui component integration with Radix UI and Tailwind CSS. | When building modern React/Next.js interfaces |
+| **react-components** | `.agent/skills/react-components/` | Converts Stitch designs into modular Vite + React components with AST validation. | When building React apps instead of WordPress |
+| **remotion** | `.agent/skills/remotion/` | Generates walkthrough videos from Stitch projects using Remotion with transitions and zooming. | For marketing demos or client presentations |
+| **shadcn-ui** | `.agent/skills/shadcn-ui/` | Expert shadcn/ui component integration with Radix UI and Tailwind CSS. | When building modern React/Next.js interfaces |
 
 ### How the Skills Fit in the Pipeline
 
@@ -216,23 +216,23 @@ const hasStructuralRole = containerSettings.flex_direction ||
 
 
 
-### Fix #17 � Native Elementor Icon Widgets for Material Symbols
+### Fix #17 � Native Elementor Icon Widgets for Material Symbols
 **Problem:** Early compiler versions stripped <span class="material-symbols-outlined"> because Elementor doesn't natively use Material Symbols offline.
 **Impact:** Pages were missing critical UI semantic and visual icons.
 **Solution:** Added mapMaterialToFontAwesome() dictionary mapping. Now, the compiler intercepts Material Symbols and emits native Elementor widgetType: 'icon' nodes using equivalent FontAwesome 5 solid vectors.
 
-### Fix #18 � Background Image ALT Transfer for Contextual Asset Mapping
+### Fix #18 � Background Image ALT Transfer for Contextual Asset Mapping
 **Problem:** The apply_image_replacements.js script mapped WP media assets by reading the alt string in JSON. However, the compiler was hardcoding alt: 'background' when extracting absolute inset-0 img elements.
 **Impact:** Different sections (like Hero and CTA) would end up mapping to the same generic default image (solar_res).
 **Solution:** The compiler now actively transfers the alt or data-alt attributes from the Stitch original img to the outerSettings.background_image.alt, allowing downstream scripts to assign section-specific background replacements.
 
-### Fix #19 � Comprehensive Custom Button Class Detection
+### Fix #19 � Comprehensive Custom Button Class Detection
 **Problem:** Buttons relying strictly on custom arbitrary Tailwind utility values (like bg-[#8FDA3E] or px-12) bypassed the button detection logic and were rendered as plain text-editor links.
 **Impact:** Important generic CTAs and WhatsApp buttons were broken visually.
 **Solution:** Expanded the button recognition logic tag === 'a' to check for higher range padding values (px-12) and dynamically detect arbitrary background classes (c.startsWith('bg-[')).
 
 ---
-*V2.1.0 � Production-hardened, Final Adjustments April 2026*
+*V2.1.0 � Production-hardened, Final Adjustments April 2026*
 
 
 ---
@@ -280,5 +280,6 @@ Se han solucionado tres deficiencias cr�ticas en la fidelidad visual de los el
 2. **Transferencia de Atributos ALT de Fondos (Fix #18)**: El compilador ahora extrae el 'alt' / 'data-alt' originado en los contenedores de Stitch (<img class='absolute inset-0'>) y los transfiere al 'background_image.alt', evitando la colisi�n de im�genes gen�ricas que provocaba que secciones dispares (como CTA y Hero) heredaran la misma imagen.
 3. **Parseo Robusto de Botones (Fix #19)**: Modificada la validaci�n de '<button>' y '<a>' para clasificar enlaces con altas cantidades de padding (px-12) y colores duros en Tailwind (bg-[#8FDA3E]) como botones Elementor leg�timos, asegurando coherencia visual en CTAs generales.
 - **Acci�n:** Estas modificaciones fueron integradas en 'compiler_v4.js', corridas globalmente y publicadas en 'elemento_json', para luego inyectar con la herramienta de 'wp-elementor_mcp' bajo el pageId 75, resultando en una r�plica exacta sin interacci�n manual GUI. El archivo base en 'stitch2elementor/SKILL.md' tambi�n fue actualizado reflejando estas adiciones.
+
 
 
