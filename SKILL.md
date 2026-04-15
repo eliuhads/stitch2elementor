@@ -69,10 +69,11 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 2. **Sincronización vía PHP (Carrier Script)**: Debido a que el WP REST API bloquea el acceso al "Default Kit" (ID 8) con error `401 Forbidden`, se debe utilizar un script inyector PHP robusto (`robust_inject.php`) para sincronizar el BrandBook en la base de datos una sola vez al inicio del proyecto.
 3. **Procedimiento de Inyección**:
    - Genera los JSONs transpilados y limpios.
-   - **Punto de Decisión Crítica**: El agente DEBE detenerse y preguntar al usuario qué vía de inyección prefiere:
-      - **A) Vía MCP (Elementor WordPress MCP)**: Inyección directa vía API local. (Propensa a errores 401 si los payloads son grandes por mod_security).
-      - **B) Vía Alternativa Rápida (Inyección PHP Manual)**: Recomendada para alta velocidad y prevención de errores 401. Agrupa todos los JSONs generados en una carpeta local, crea un script PHP maestro, y pide al usuario que suba todo por FTP y lo ejecute.
-      - **C) Vía Autónoma FTP Asistida (RECOMENDADA)**: Usar el script `scripts/ftp_injector.js` (basado en `basic-ftp`) leyendo un `.env` local para subir la carpeta recursiva de JSONs y el inyector PHP. El script emitirá un link en consola. **INSTRUCCIÓN CRÍTICA:** DEBES proporcionarle este link directamente al usuario en tu respuesta del chat, explicándole que debe abrirlo en su navegador (con sesión activa en WordPress). Debes ESPERAR pacientemente a que el usuario te confirme por el chat que el enlace se ejecutó correctamente. Solo después de su confirmación, enviarás el input (ENTER) al comando del script para que purgue automáticamente el archivo PHP por seguridad.
+   - **Procesa Sideload de Media**: Descarga imágenes de Stitch, expórtalas en `.webp`, y envíalas vía FTP a `v9_images_temp/`.
+   - **Punto de Decisión Crítica**: El agente DEBE preguntar al usuario qué vía de inyección prefiere (Siendo C la definitiva en entornos reales):
+      - **A) Vía MCP (Elementor WordPress MCP)**: Inyección directa vía API. (ALTAMENTE propensa a errores HTTP 406/401 si los payloads superan 50kb debido a bloqueos de ModSecurity / WAF en el host. Sólo para testeos rápidos sin imágenes).
+      - **B) Vía Alternativa Rápida (Inyección PHP Manual)**: Crear script PHP y datos, pedir al usuario subir vía FTP manualmente y ejecutar.
+      - **C) Vía Autónoma Híbrida (RECOMENDADA)**: Ejecutar un script automatizado local (basado en `basic-ftp` e inserción HTTP) que transporta el JSON/Media vía FTP, inyecta un archivo PHP actuante, lo dispara remotamente (`curl` / `fetch`) para que WP asuma nativamente el Sideload de media (remplazando `%%FILE:%%`) y cree las páginas evadiendo el Firewall de Elementor. Acto seguido, el mismo script Node auto-destruye el PHP por seguridad perimetral.
 
 ## 8. Control de Calidad Final
 

@@ -1,144 +1,24 @@
 {
   "pages": [
-    {
-      "html": "calculadora-de-consumo-energ-tico.html",
-      "json": "calculadora-de-consumo-energ-tico.json",
-      "wp_id": 295,
-      "slug": "calculadora-de-consumo-energetico",
-      "title": "Calculadora de Consumo Energético"
-    },
-    {
-      "html": "pol-tica-de-privacidad.html",
-      "json": "pol-tica-de-privacidad.json",
-      "wp_id": 307,
-      "slug": "politica-de-privacidad",
-      "title": "Política de Privacidad"
-    },
-    {
-      "html": "soporte-y-garant-a.html",
-      "json": "soporte-y-garant-a.json",
-      "wp_id": 312,
-      "slug": "soporte-y-garantia",
-      "title": "Soporte y Garantía"
-    },
-    {
-      "html": "cat-logos-y-recursos.html",
-      "json": "cat-logos-y-recursos.json",
-      "wp_id": 296,
-      "slug": "catalogos-y-recursos",
-      "title": "Catálogos y Recursos"
-    },
-    {
-      "html": "homepage.html",
-      "json": "homepage.json",
-      "wp_id": 299,
-      "slug": "homepage",
-      "title": "Evergreen Venezuela"
-    },
-    {
-      "html": "paneles-solares.html",
-      "json": "paneles-solares.json",
-      "wp_id": 305,
-      "slug": "paneles-solares",
-      "title": "Paneles Solares"
-    },
-    {
-      "html": "blog-art-culos-y-noticias.html",
-      "json": "blog-art-culos-y-noticias.json",
-      "wp_id": 294,
-      "slug": "blog",
-      "title": "Blog Artículos y Noticias"
-    },
-    {
-      "html": "iluminaci-n-led-solar.html",
-      "json": "iluminaci-n-led-solar.json",
-      "wp_id": 301,
-      "slug": "iluminacion-led-solar",
-      "title": "Iluminación LED Solar"
-    },
-    {
-      "html": "sobre-nosotros.html",
-      "json": "sobre-nosotros.json",
-      "wp_id": 310,
-      "slug": "sobre-nosotros",
-      "title": "Sobre Nosotros"
-    },
-    {
-      "html": "respaldo-energ-tico-residencial.html",
-      "json": "respaldo-energ-tico-residencial.json",
-      "wp_id": 309,
-      "slug": "respaldo-energetico-residencial",
-      "title": "Respaldo Energético Residencial"
-    },
-    {
-      "html": "soluciones-de-energ-a.html",
-      "json": "soluciones-de-energ-a.json",
-      "wp_id": 311,
-      "slug": "soluciones-de-energia",
-      "title": "Soluciones de Energía"
-    },
-    {
-      "html": "iluminaci-n-convencional.html",
-      "json": "iluminaci-n-convencional.json",
-      "wp_id": 300,
-      "slug": "iluminacion-convencional",
-      "title": "Iluminación Convencional"
-    },
-    {
-      "html": "p-gina-de-contacto.html",
-      "json": "p-gina-de-contacto.json",
-      "wp_id": 304,
-      "slug": "contacto",
-      "title": "Página de Contacto"
-    },
-    {
-      "html": "respaldo-energ-tico-comercial-e-industrial.html",
-      "json": "respaldo-energ-tico-comercial-e-industrial.json",
-      "wp_id": 308,
-      "slug": "respaldo-energetico-industrial",
-      "title": "Respaldo Energético Comercial e Industrial"
-    },
-    {
-      "html": "jump-starters-arrancadores.html",
-      "json": "jump-starters-arrancadores.json",
-      "wp_id": 303,
-      "slug": "jump-starters-arrancadores",
-      "title": "Jump Starters Arrancadores"
-    },
-    {
-      "html": "estaciones-de-energ-a-port-tiles.html",
-      "json": "estaciones-de-energ-a-port-tiles.json",
-      "wp_id": 297,
-      "slug": "estaciones-de-energia-portatiles",
-      "title": "Estaciones de Energía Portátiles"
-    },
-    {
-      "html": "pol-tica-de-cookies.html",
-      "json": "pol-tica-de-cookies.json",
-      "wp_id": 306,
-      "slug": "politica-de-cookies",
-      "title": "Política de Cookies"
-    },
-    {
-      "html": "financiamiento.html",
-      "json": "financiamiento.json",
-      "wp_id": 298,
-      "slug": "financiamiento",
-      "title": "Financiamiento"
-    },
-    {
-      "html": "iluminaci-n.html",
-      "json": "iluminaci-n.json",
-      "wp_id": 302,
-      "slug": "iluminacion",
-      "title": "Iluminación"
-    },
-    {
-      "html": "bater-as-de-energ-a-solar.html",
-      "json": "bater-as-de-energ-a-solar.json",
-      "wp_id": 293,
-      "slug": "baterias-de-energia-solar",
-      "title": "Baterías de Energía Solar"
-    }
+    { "html": "homepage.html", "json": "homepage.json", "wp_id": 426, "slug": "homepage", "title": "Evergreen Venezuela" },
+    { "html": "soluciones-de-energia.html", "json": "soluciones-de-energia.json", "wp_id": 427, "slug": "soluciones-de-energia", "title": "Soluciones de Energía" },
+    { "html": "estaciones-de-energia-portatiles.html", "json": "estaciones-de-energia-portatiles.json", "wp_id": 428, "slug": "estaciones-de-energia-portatiles", "title": "Estaciones de Energía Portátiles" },
+    { "html": "respaldo-energetico-residencial.html", "json": "respaldo-energetico-residencial.json", "wp_id": 429, "slug": "respaldo-energetico-residencial", "title": "Respaldo Energético Residencial" },
+    { "html": "respaldo-energetico-comercial.html", "json": "respaldo-energetico-comercial.json", "wp_id": 430, "slug": "respaldo-energetico-industrial", "title": "Respaldo Energético Comercial e Industrial" },
+    { "html": "baterias-de-energia-solar.html", "json": "baterias-de-energia-solar.json", "wp_id": 431, "slug": "baterias-de-energia-solar", "title": "Baterías de Energía Solar" },
+    { "html": "paneles-solares.html", "json": "paneles-solares.json", "wp_id": 432, "slug": "paneles-solares", "title": "Paneles Solares" },
+    { "html": "iluminacion.html", "json": "iluminacion.json", "wp_id": 433, "slug": "iluminacion", "title": "Iluminación" },
+    { "html": "iluminacion-led-solar.html", "json": "iluminacion-led-solar.json", "wp_id": 434, "slug": "iluminacion-led-solar", "title": "Iluminación LED Solar" },
+    { "html": "iluminacion-convencional.html", "json": "iluminacion-convencional.json", "wp_id": 435, "slug": "iluminacion-convencional", "title": "Iluminación Convencional" },
+    { "html": "jump-starters-arrancadores.html", "json": "jump-starters-arrancadores.json", "wp_id": 436, "slug": "jump-starters-arrancadores", "title": "Jump Starters Arrancadores" },
+    { "html": "calculadora-de-consumo-energetico.html", "json": "calculadora-de-consumo-energetico.json", "wp_id": 437, "slug": "calculadora-de-consumo-energetico", "title": "Calculadora de Consumo Energético" },
+    { "html": "catalogos-y-recursos.html", "json": "catalogos-y-recursos.json", "wp_id": 438, "slug": "catalogos-y-recursos", "title": "Catálogos y Recursos" },
+    { "html": "sobre-nosotros.html", "json": "sobre-nosotros.json", "wp_id": 439, "slug": "sobre-nosotros", "title": "Sobre Nosotros" },
+    { "html": "blog-articulos-y-noticias.html", "json": "blog-articulos-y-noticias.json", "wp_id": 440, "slug": "blog", "title": "Blog Artículos y Noticias" },
+    { "html": "financiamiento.html", "json": "financiamiento.json", "wp_id": 441, "slug": "financiamiento", "title": "Financiamiento" },
+    { "html": "contacto.html", "json": "contacto.json", "wp_id": 442, "slug": "contacto", "title": "Página de Contacto" },
+    { "html": "soporte-y-garantia.html", "json": "soporte-y-garantia.json", "wp_id": 443, "slug": "soporte-y-garantia", "title": "Soporte y Garantía" },
+    { "html": "politica-de-privacidad.html", "json": "politica-de-privacidad.json", "wp_id": 444, "slug": "politica-de-privacidad", "title": "Política de Privacidad" },
+    { "html": "politica-de-cookies.html", "json": "politica-de-cookies.json", "wp_id": 445, "slug": "politica-de-cookies", "title": "Política de Cookies" }
   ]
 }

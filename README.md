@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-4.1.0-6C63FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/version-4.2.0-6C63FF?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/license-MIT-00D9A3?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/Elementor-Flexbox_Native-E2009F?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/WordPress-REST_API-21759B?style=for-the-badge&labelColor=0D1117" />
@@ -249,6 +249,9 @@ A: The core JSON injection works with Elementor Free. Flexbox Containers require
 
 **Q: What happens if Stitch generates non-semantic HTML?**
 A: Use the `enhance-prompt` skill to refine your Stitch directives. The `Stitch_Elementor_Guide_GENERAL_V1.md` also covers common output patterns and how to handle them.
+
+**Q: I get a 406 Not Acceptable or 401 Unauthorized via WP REST API when injecting pages.**
+A: This is usually ModSecurity or a WAF blocking large JSON payloads (over 50-100kb). Switch to **"Vía Autónoma Híbrida" (Option C)**. The orchestrator will upload the payloads via FTP and inject them using a temporary local PHP script, bypassing the HTTP Payload firewall completely.
 
 **Q: Can I use this without Google Stitch?**
 A: The `segment!` mode can work with any valid HTML + Tailwind input, not just Stitch output. The `go!` mode is tightly coupled to the Stitch generation flow.
