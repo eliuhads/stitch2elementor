@@ -11,6 +11,13 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ---
 
+### FASE 1.5: SINCRONIZACIÓN DE BRANDBOOK (Kit Injection)
+
+1. **Genera Script Inyector**: Basado en el `MASTER.md`, genera un archivo `robust_inject.php` y su correspondiente JSON de Kit Global.
+2. **Entrega al Usuario**: Proporciona el script al usuario y solicítale que lo ejecute en el servidor para "inyectar el ADN" de la marca antes de iniciar la migración de páginas. Esto corrige errores 401 de la API REST.
+
+---
+
 ### FASE 2: GENERACIÓN EN GOOGLE STITCH
 
 1. Define los datos de contacto del proyecto (teléfonos, RRSS, URLs finales).

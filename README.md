@@ -55,6 +55,7 @@
 | ⚡ **Zero Browser Overhead** | All validations via REST API and `curl`. Playwright/Chromium strictly forbidden to save resources. |
 | 🖼️ **Native Image Preservation** | 100% resolution mapping from Google Stitch to Elementor maintaining pure UI structure. |
 | 🧹 **Post-Gen Sanitization** | Purges Material Symbol text ghosts, fixes internal links, enforces SEO-friendly slugs. |
+| 💉 **Native Global Kit Injection** | Bypasses REST API 401 errors using a robust PHP carrier script to sync BrandBooks. |
 | 🔍 **Agentic SEO** | Delegates on-page validation to `Agentic-SEO-Skill` (meta titles, Schema, descriptions). |
 
 ---
@@ -95,9 +96,12 @@ Phase 2 — BrandBook + Assets
   └── Read INFO_BrandBook/ → Extract HEX colors + typography
   └── Generate page_manifest.json
 
-Phase 3 — Generate in Google Stitch
-  └── Create project → Apply Design System → Generate screens (>1280px Desktop)
-  └── Pause for user approval if needed
+Phase 1.5 — BrandBook Synchronization
+  └── Generate robust_inject.php + Master Kit JSON
+  └── User upload/execution to bypass REST API 401 on Elementor Kits
+  └── Result: Global Styles (8+ fonts, 7+ colors) synced in DB
+
+Phase 2 — Generate in Google Stitch
 
 Phase 4 — Compile V4.1
   └── Download HTML via curl (NOT read_url_content — full Tailwind classes required)

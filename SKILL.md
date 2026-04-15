@@ -53,10 +53,14 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 - **Modo `go!` (Pipeline Completo)**: Las N páginas del proyecto están completamente inyectadas en WP, son 100% editables bajo el ecosistema flexbox de Elementor, mantienen intactas sus imágenes de diseño original, y sus respectivos endpoints/slugs fueron estabilizados al formato del `page_manifest.json`.
 - **Modo `segment!` (Modular)**: El componente de diseño fue debidamente aislado, encajado dentro de la estandarización FULL+BOXED, transpilado a un JSON puro y cargado de manera asíncrona sobre la página borrador seleccionada sin pervertir el diseño colindante.
 
-## 7. Tipografía Fluida (Nativa V4) y Restricciones REST
+## 7. Tipografía Fluida y Sincronización Global (ADN de Marca)
 
-1. **Inyección Nativa de Clamp**: El `compiler_v4.js` fue reescrito para inyectar fómulas de tipografía fluida (`clamp(...)`) directamente a nivel widget (como `unit: 'custom'`). Esto anula la dependencia de configurar los ajustes globales del Tema Elementor a mano.
-2. **Restricción WP REST API para Kits**: Nunca intentes modificar u obtener el "Default Kit" de Elementor (ID 8 u otros en `elementor_library`) a través de la API REST usando contraseñas de aplicación nativas. El servidor devolverá un `401 Forbidden` o fallará en encontrar el post por bloqueos de seguridad de CPT. Confía en la inyección in-widget del compilador.
+1. **Inyección Nativa de Clamp**: El `compiler_v4.js` inyecta fórmulas `clamp(...)` a nivel widget. Esto garantiza responsividad inmediata sin depender del Global Kit.
+2. **Sincronización vía PHP (Carrier Script)**: Debido a que el WP REST API bloquea el acceso al "Default Kit" (ID 8) con error `401 Forbidden`, se debe utilizar un script inyector PHP robusto (`robust_inject.php`) para sincronizar el BrandBook en la base de datos una sola vez al inicio del proyecto.
+3. **Procedimiento de Inyección**:
+   - Genera el JSON del Master Kit basado en el BrandBook.
+   - Crea un script PHP que cargue `wp-load.php` y actualice la meta `_elementor_page_settings` del post ID 8.
+   - Solicita al usuario subir y ejecutar el script para establecer el ADN visual (Colores + Tipografía Global).
 
 ## 8. Control de Calidad Final
 
