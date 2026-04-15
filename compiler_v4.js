@@ -342,17 +342,19 @@ function buildTextEditor(html, extraSettings = {}) {
 
 /** Build a button widget */
 function buildButton(text, link = '#', extraSettings = {}) {
-  const cleanText = sanitizeHeadingText(text);
+  let cleanText = sanitizeHeadingText(text);
+  
+  // WhatsApp specific styling override (Stitch Brandbook compliance)
+  const isWhatsApp = link.includes('wa.me') || text.toLowerCase().includes('whatsapp');
+  if (isWhatsApp) {
+      cleanText = '<span class="material-symbols-outlined">rocket_launch</span> Escríbenos por WhatsApp';
+  }
+
   if (!cleanText) return null;
   
   const isExternal = link.includes('wa.me') || link.includes('whatsapp') || link.includes('instagram') || link.includes('facebook');
   
-  return {
-    id: genId(),
-    elType: 'widget',
-    widgetType: 'button',
-    isInner: false,
-    settings: {
+  const settings = {
       text: cleanText,
       link: { url: link, is_external: isExternal ? 'on' : '', nofollow: '', custom_attributes: '' },
       typography_typography: 'custom',
@@ -361,7 +363,28 @@ function buildButton(text, link = '#', extraSettings = {}) {
       typography_font_size: { unit: 'px', size: 14, sizes: [] },
       border_radius: buildDimension(4, 4, 4, 4),
       ...extraSettings
-    },
+  };
+
+  if (isWhatsApp) {
+    settings.typography_font_family = 'Inter';
+    settings.typography_font_weight = '700';
+    settings.typography_font_size = { unit: 'px', size: 18, sizes: [] };
+    settings.border_radius = buildDimension(8, 8, 8, 8);
+    settings.typography_text_transform = 'uppercase';
+    settings.button_text_color = '#8FDA3E';
+    settings.background_color = '#0B0F1A';
+    settings.hover_animation = 'grow';
+    settings.padding = buildDimension(16, 32, 16, 32);
+    // Elementor doesn't technically use content_classes on the button directly, but if it does:
+    settings.content_classes = 'flex items-center gap-2';
+  }
+
+  return {
+    id: genId(),
+    elType: 'widget',
+    widgetType: 'button',
+    isInner: false,
+    settings,
     elements: []
   };
 }

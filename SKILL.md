@@ -53,7 +53,12 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 - **Modo `go!` (Pipeline Completo)**: Las N páginas del proyecto están completamente inyectadas en WP, son 100% editables bajo el ecosistema flexbox de Elementor, mantienen intactas sus imágenes de diseño original, y sus respectivos endpoints/slugs fueron estabilizados al formato del `page_manifest.json`.
 - **Modo `segment!` (Modular)**: El componente de diseño fue debidamente aislado, encajado dentro de la estandarización FULL+BOXED, transpilado a un JSON puro y cargado de manera asíncrona sobre la página borrador seleccionada sin pervertir el diseño colindante.
 
-## 7. Control de Calidad Final
+## 7. Tipografía Fluida (Nativa V4) y Restricciones REST
+
+1. **Inyección Nativa de Clamp**: El `compiler_v4.js` fue reescrito para inyectar fómulas de tipografía fluida (`clamp(...)`) directamente a nivel widget (como `unit: 'custom'`). Esto anula la dependencia de configurar los ajustes globales del Tema Elementor a mano.
+2. **Restricción WP REST API para Kits**: Nunca intentes modificar u obtener el "Default Kit" de Elementor (ID 8 u otros en `elementor_library`) a través de la API REST usando contraseñas de aplicación nativas. El servidor devolverá un `401 Forbidden` o fallará en encontrar el post por bloqueos de seguridad de CPT. Confía en la inyección in-widget del compilador.
+
+## 8. Control de Calidad Final
 
 -   **Tolerancia Cero**: Si un script interno de post-procesamiento arroja una excepción, **detén inmediatamente el pipeline**. No prosigas ignorando el fallo; diagnostica y repara.
--   **Garantía de Fidelidad**: El Output Inyectado siempre debe garantizar la ausencia de "Material Symbol text-spans", estar provisto de un "design system" robusto y purgado de recursos volátiles.
+-   **Garantía de Fidelidad**: El Output Inyectado siempre debe garantizar la ausencia de "Material Symbol text-spans", estar provisto de un "design system" robusto (con su `clamp()` incrustado) y purgado de recursos volátiles.
