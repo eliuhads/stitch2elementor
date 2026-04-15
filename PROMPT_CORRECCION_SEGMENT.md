@@ -28,3 +28,12 @@ Ejecutar una migraciÃ³n de **fidelidad absoluta (100%)** ÃšNICAMENTE para la pÃ¡
    - Verifica que los CTAs (Botones) no estÃ©n rotos ni carezcan de URL/Color originario.
 
 *(Nota Final: Ejecuta esto de forma rigurosa, no abras navegadores locales bajo ninguna circunstancia, apÃ³yate netamente en herramientas MCP, manipulaciÃ³n de archivos y terminal shell. Detente si ocurre un fallo. SOLO procesa la Homepage).* Â¡Adelante!
+
+### REGLA DE CARPETAS
+Siempre al generar, descargar o guardar archivos asegúrate de ubicarlos en la subcarpeta correcta según su tipo:
+- JSONs de Elementor -> elementor_jsons/
+- HTML/Crudos de Stitch -> assets_originales/
+- Imágenes y assets optimizados -> fotos_web/
+- Exports finales -> exports/
+- Registros de error/ejecución -> logs/
+

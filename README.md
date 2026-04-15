@@ -56,6 +56,7 @@
 | 🖼️ **Native Image Preservation** | 100% resolution mapping from Google Stitch to Elementor maintaining pure UI structure. |
 | 🧹 **Post-Gen Sanitization** | Purges Material Symbol text ghosts, fixes internal links, enforces SEO-friendly slugs. |
 | 💉 **Native Global Kit Injection** | Bypasses REST API 401 errors using a robust PHP carrier script to sync BrandBooks. |
+| 🚀 **Mass PHP Injection (Alternative)** | Injects complete page batches natively via PHP (`inject_all_pages.php`), bypassing MCP REST API 401 payload limits entirely for high-speed migrations. |
 | 🔍 **Agentic SEO** | Delegates on-page validation to `Agentic-SEO-Skill` (meta titles, Schema, descriptions). |
 
 ---

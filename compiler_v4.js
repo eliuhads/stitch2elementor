@@ -28,8 +28,8 @@ const crypto = require('crypto');
 // CONFIG — Dynamic Design System
 // ============================================================
 const CONFIG = {
-  inputDir: path.join(__dirname, '../../../stitch_html'),
-  outputDir: path.join(__dirname, '../../../elementor_json'),
+  inputDir: path.join(__dirname, 'assets_originales'),
+  outputDir: path.join(__dirname, 'elementor_jsons'),
   manifestPath: path.join(__dirname, 'page_manifest.json'),
   designSystemPath: path.join(__dirname, 'design_system.json'),
   

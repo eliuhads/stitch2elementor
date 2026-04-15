@@ -11,3 +11,12 @@ Al recibir `segment!`, asume el rol de Ingeniero de Conversi贸n Modular. Opera s
 3. **Aplica arquitectura**: Envuelve el componente en patr贸n FULL+BOXED seg煤n `Stitch_Elementor_Guide_GENERAL_V1.md` Secci贸n 1. No redefinas los valores aqu铆.
 4. **Genera JSON Elementor**: Produce un array puro listo para `_elementor_data`: `[{ "elType": "container", "settings": {...} }]`. Nunca uses un objeto wrapper en la ra铆z.
 5. **Inyecta**: Usa `update_page_from_file` de `elementor-mcp` como primera opci贸n. Si no est谩 disponible, usa el MCP general de WP. El destino debe ser una p谩gina borrador confirmada por el usuario.
+
+### REGLA DE CARPETAS
+Siempre al generar, descargar o guardar archivos aseg鷕ate de ubicarlos en la subcarpeta correcta seg鷑 su tipo:
+- JSONs de Elementor -> elementor_jsons/
+- HTML/Crudos de Stitch -> assets_originales/
+- Im醙enes y assets optimizados -> fotos_web/
+- Exports finales -> exports/
+- Registros de error/ejecuci髇 -> logs/
+

@@ -39,7 +39,10 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 1. Crea las p谩ginas en borrador con `create_page` de `wp-elementor-mcp` (si no existen).
 2. Notifica al usuario: debe configurar manualmente el layout de cada p谩gina destino como "Elementor Full Width" o "Elementor Canvas" desde el UI de WordPress antes de continuar.
-3. Inyecta los JSON con `update_page_from_file` de forma SECUENCIAL. Espera confirmaci贸n de 茅xito de cada inyecci贸n antes de iniciar la siguiente.
+3. **Punto de Elecci贸n de V铆a de Inyecci贸n**: Pregunta al usuario expl铆citamente qu茅 m茅todo usar para inyectar los JSON:
+   - **Opci贸n A (API Local / MCP)**: Usa `update_page_from_file` de forma SECUENCIAL. Espera confirmaci贸n de 茅xito de cada inyecci贸n antes de iniciar la siguiente.
+   - **Opci贸n B (Inyecci贸n PHP Manual)**: Genera `inject_all_pages.php` y la carpeta `v9_json_payloads`, y solicita al usuario subirlos manualmente al FTP y ejecutarlos.
+   - **Opci贸n C (Inyecci贸n FTP/HTTP Aut贸noma Asistida - RECOMENDADA)**: Si el usuario proporciona acceso FTP en un `.env` (FTP_HOST, FTP_USER, FTP_PASSWORD, FTP_REMOTE_PATH, SITE_URL), ejecuta en consola `node scripts/ftp_injector.js`. El script subir谩 los archivos y generar谩 un link. **INSTRUCCI脫N CR脥TICA:** Debes entregar este link al usuario en tu respuesta del chat y **RECORDARLE EXPL脥CITAMENTE que debe abrirlo en un navegador donde tenga su sesi贸n de WordPress autenticada**. Luego, pausa tu ejecuci贸n y ESPERA a que el usuario te confirme por el chat que el script se ejecut贸 con 茅xito. Solo despu茅s de su confirmaci贸n, usa `send_command_input` para enviar el ENTER a la consola y destruir el archivo PHP.
 
 ---
 
@@ -50,3 +53,12 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 3. Ejecuta `fix_buttons.js` para aplicar c贸digos de color del BrandBook a los botones.
 4. Ejecuta `fix_internal_links.js` para actualizar enlaces internos al dominio final.
 6. Delega validaci贸n final a `Agentic-SEO-Skill` (meta titles, Schema, meta descriptions).
+
+### REGLA DE CARPETAS
+Siempre al generar, descargar o guardar archivos aseg鷕ate de ubicarlos en la subcarpeta correcta seg鷑 su tipo:
+- JSONs de Elementor -> elementor_jsons/
+- HTML/Crudos de Stitch -> assets_originales/
+- Im醙enes y assets optimizados -> fotos_web/
+- Exports finales -> exports/
+- Registros de error/ejecuci髇 -> logs/
+

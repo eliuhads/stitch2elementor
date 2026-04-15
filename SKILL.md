@@ -26,7 +26,17 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 1.  **Validación de MCPs**: Confirma, mediante tus herramientas de descubrimiento, que los servidores `StitchMCP`, `wp-elementor-mcp` y `elementor-mcp` están activos e inyectados en tu contexto. 
 2.  **Verificación de Entorno**: No modifiques `mcp_config.json` a través de shell tools bajo ninguna circunstancia (causa crash del event loop de los agentes locales). Si hay problemas de conexión/autenticación, informa al usuario para que lo edite manualmente siguiendo `MCP_CONFIGURATION_GUIDE.txt`.
 
-## 3. Arquitectura y Reglas Inquebrantables
+## 3. Arquitectura, Estructura y Reglas Inquebrantables
+
+### 3.1 Estructura Organizada de Carpetas
+Todos los archivos generados, estáticos o de exportación deben guardarse en sus respectivas subcarpetas para mantener el repositorio limpio:
+- `elementor_jsons/`: Archivos JSON generados y transpilados listos para inyección.
+- `fotos_web/`: Imágenes y assets comprimidos/optimizados (ej. WebP).
+- `assets_originales/`: Archivos fuente u originales crudos obtenidos de Stitch.
+- `exports/`: Archivos paquetizados o listos para subida manual/FTP hacia WordPress.
+- `logs/`: Registros de procesos, conversiones, analíticas y errores.
+
+### 3.2 Reglas Inquebrantables
 
 1.  **Cero Navegadores**: **PROHIBIDO** el uso de `browser_subagent`, Playwright o Chromium local. Alternativas permitidas obligatorias: `curl`, `Invoke-WebRequest`, `read_url_content` y REST API vía MCP.
 2.  **Lectura Referencial**: Tu única fuente de verdad técnica obligatoria es `Stitch_Elementor_Guide_GENERAL_V1.md`. **Consúltalo específicamente cuando enfrentes: layout roto, mapeo responsive fallido, errores de contenedor o rechazos HTTP por ModSecurity.**
@@ -58,9 +68,11 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 1. **Inyección Nativa de Clamp**: El `compiler_v4.js` inyecta fórmulas `clamp(...)` a nivel widget. Esto garantiza responsividad inmediata sin depender del Global Kit.
 2. **Sincronización vía PHP (Carrier Script)**: Debido a que el WP REST API bloquea el acceso al "Default Kit" (ID 8) con error `401 Forbidden`, se debe utilizar un script inyector PHP robusto (`robust_inject.php`) para sincronizar el BrandBook en la base de datos una sola vez al inicio del proyecto.
 3. **Procedimiento de Inyección**:
-   - Genera el JSON del Master Kit basado en el BrandBook.
-   - Crea un script PHP que cargue `wp-load.php` y actualice la meta `_elementor_page_settings` del post ID 8.
-   - Solicita al usuario subir y ejecutar el script para establecer el ADN visual (Colores + Tipografía Global).
+   - Genera los JSONs transpilados y limpios.
+   - **Punto de Decisión Crítica**: El agente DEBE detenerse y preguntar al usuario qué vía de inyección prefiere:
+      - **A) Vía MCP (Elementor WordPress MCP)**: Inyección directa vía API local. (Propensa a errores 401 si los payloads son grandes por mod_security).
+      - **B) Vía Alternativa Rápida (Inyección PHP Manual)**: Recomendada para alta velocidad y prevención de errores 401. Agrupa todos los JSONs generados en una carpeta local, crea un script PHP maestro, y pide al usuario que suba todo por FTP y lo ejecute.
+      - **C) Vía Autónoma FTP Asistida (RECOMENDADA)**: Usar el script `scripts/ftp_injector.js` (basado en `basic-ftp`) leyendo un `.env` local para subir la carpeta recursiva de JSONs y el inyector PHP. El script emitirá un link en consola. **INSTRUCCIÓN CRÍTICA:** DEBES proporcionarle este link directamente al usuario en tu respuesta del chat, explicándole que debe abrirlo en su navegador (con sesión activa en WordPress). Debes ESPERAR pacientemente a que el usuario te confirme por el chat que el enlace se ejecutó correctamente. Solo después de su confirmación, enviarás el input (ENTER) al comando del script para que purgue automáticamente el archivo PHP por seguridad.
 
 ## 8. Control de Calidad Final
 
