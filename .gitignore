@@ -1,7 +1,16 @@
 node_modules/
 .env
-mcp_config*.json
-elementor_json/
-stitch_html/
 .DS_Store
 *.log
+
+# Carpetas generadas (ignorar contenido, excepto README)
+elementor_jsons/*
+!elementor_jsons/README.md
+fotos_web/*
+!fotos_web/README.md
+exports/*
+!exports/README.md
+logs/*
+!logs/README.md
+assets_originales/*
+!assets_originales/README.md
