@@ -1,4 +1,4 @@
-# PROMPT MAESTRO V2 — PIPELINE COMPLETO (`go!`)
+# PROMPT MAESTRO V2 — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
 
 Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma autónoma y secuencial. Cada fase depende de la correcta ejecución de la anterior. Verifica MCPs según SKILL.md antes de iniciar.
 
@@ -54,11 +54,19 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 4. Ejecuta `fix_internal_links.js` para actualizar enlaces internos al dominio final.
 6. Delega validación final a `Agentic-SEO-Skill` (meta titles, Schema, meta descriptions).
 
+---
+
+## MODO MODULAR (`segment!`)
+Al recibir el modo `segment!`, asume el rol de Ingeniero de Conversión Modular para intervenir EXCLUSIVAMENTE sobre un solo componente asilado:
+1. **Petición**: Solicita al usuario el proyecto o URL y el bloque específico (ej: Hero, Footer).
+2. **Aislamiento**: Parseá únicamente el componente solicitado.
+3. **Conversión**: Envuelve en el patrón FULL+BOXED y produce un array listo para `_elementor_data` (nunca objetos wrapper root).
+4. **Inyección Inmediata**: Usa la Vía de Inyección requerida (primordialmente asíncrona si es simple) a una página de pruebas o staging confirmada.
+
 ### REGLA DE CARPETAS
-Siempre al generar, descargar o guardar archivos aseg�rate de ubicarlos en la subcarpeta correcta seg�n su tipo:
+Siempre al generar, descargar o guardar archivos asegúrate de ubicarlos en la subcarpeta correcta según su tipo:
 - JSONs de Elementor -> elementor_jsons/
 - HTML/Crudos de Stitch -> assets_originales/
-- Im�genes y assets optimizados -> fotos_web/
+- Imágenes y assets optimizados -> fotos_web/
 - Exports finales -> exports/
-- Registros de error/ejecuci�n -> logs/
-
+- Registros de error/ejecución -> logs/

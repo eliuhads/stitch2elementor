@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-2.1.1-6C63FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/version-4.1.0-6C63FF?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/license-MIT-00D9A3?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/Elementor-Flexbox_Native-E2009F?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/WordPress-REST_API-21759B?style=for-the-badge&labelColor=0D1117" />
@@ -219,8 +219,7 @@ This skill orchestrates other agent skills. Make sure these are installed:
 | File | Content |
 |---|---|
 | `SKILL.md` | Agent entrypoint — rules, MCPs, error handling, success criteria |
-| `PROMPT_WEB_MAESTRO_v2.md` | Full pipeline instructions for `go!` mode |
-| `PROMPT_SEGMENT.md` | Modular injection instructions for `segment!` mode |
+| `PROMPT_WEB_MAESTRO_v2.md` | Full pipeline instructions (`go!` and `segment!`) |
 | `Stitch_Elementor_Guide_GENERAL_V1.md` | Technical reference: responsive mapping, architectures, debugging |
 | `MCP_CONFIGURATION_GUIDE.txt` | Step-by-step MCP auth setup for WordPress |
 

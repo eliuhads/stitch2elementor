@@ -107,7 +107,8 @@ function genId() {
 function parseInlineStyles(styleStr) {
   if (!styleStr) return {};
   const result = {};
-  styleStr.split(';').forEach(pair => {
+  // Split by ';' but avoid splitting if inside parentheses (like url(...) or calc(...))
+  styleStr.split(/;(?![^(]*\))/g).forEach(pair => {
     const [key, ...valParts] = pair.split(':');
     if (key && valParts.length) {
       result[key.trim()] = valParts.join(':').trim();
@@ -1696,12 +1697,13 @@ function countNodes(arr) {
 
 async function batchConvert() {
   console.log('╔══════════════════════════════════════════════════╗');
-  console.log('║  COMPILER V4 — Evergreen Nativización Perfecta  ║');
+  console.log('║  COMPILER V4.1 — Evergreen Nativización Perfecta ║');
   console.log('║  BrandBook V9 · Barlow Condensed + Barlow        ║');
-  console.log('║  HTML → Native Elementor JSON (Fixed Keys)       ║');
+  console.log('║  HTML → Native Elementor JSON (Async Batcher)    ║');
   console.log('╚══════════════════════════════════════════════════╝\n');
 
-  const manifest = JSON.parse(fs.readFileSync(CONFIG.manifestPath, 'utf8'));
+  const manifestData = await fs.promises.readFile(CONFIG.manifestPath, 'utf8');
+  const manifest = JSON.parse(manifestData);
   const pages = manifest.pages || manifest;
   let successCount = 0;
   let errorCount = 0;
@@ -1710,10 +1712,10 @@ async function batchConvert() {
   // Process Header
   console.log('📋 Processing Header template...');
   try {
-    const homepageHtml = fs.readFileSync(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
+    const homepageHtml = await fs.promises.readFile(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
     const headerContent = processNavAsHeader(homepageHtml);
     const headerPath = path.join(CONFIG.outputDir, 'header.json');
-    fs.writeFileSync(headerPath, JSON.stringify(headerContent), 'utf8');
+    await fs.promises.writeFile(headerPath, JSON.stringify(headerContent), 'utf8');
     console.log(`  ✅ Header → ${path.basename(headerPath)} (${countNodes(headerContent)} nodes)`);
   } catch (err) {
     console.error(`  ❌ Header: ${err.message}`);
@@ -1723,36 +1725,36 @@ async function batchConvert() {
   // Process Footer
   console.log('📋 Processing Footer template...');
   try {
-    const homepageHtml = fs.readFileSync(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
+    const homepageHtml = await fs.promises.readFile(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
     const footerContent = processFooterTemplate(homepageHtml);
     const footerPath = path.join(CONFIG.outputDir, 'footer.json');
-    fs.writeFileSync(footerPath, JSON.stringify(footerContent), 'utf8');
+    await fs.promises.writeFile(footerPath, JSON.stringify(footerContent), 'utf8');
     console.log(`  ✅ Footer → ${path.basename(footerPath)} (${countNodes(footerContent)} nodes)`);
   } catch (err) {
     console.error(`  ❌ Footer: ${err.message}`);
     errorCount++;
   }
 
-  // Process all pages
+  // Process all pages concurrently
   console.log('\n📄 Processing pages...\n');
-  for (const page of pages) {
+  const results = await Promise.all(pages.map(async (page) => {
     const htmlFile = page.html;
     const jsonFile = page.json;
     if (!htmlFile || !jsonFile) {
       console.log(`  ⚠️  Skipping page without html/json fields: ${JSON.stringify(page)}`);
-      continue;
+      return { status: 'skipped' };
     }
 
     const inputPath = path.join(CONFIG.inputDir, htmlFile);
     const outputPath = path.join(CONFIG.outputDir, jsonFile);
 
     try {
-      if (!fs.existsSync(inputPath)) {
+      try { await fs.promises.access(inputPath); } catch (e) {
         console.log(`  ⚠️  ${htmlFile} — NOT FOUND, skipping`);
-        continue;
+        return { status: 'skipped' };
       }
 
-      const html = fs.readFileSync(inputPath, 'utf8');
+      const html = await fs.promises.readFile(inputPath, 'utf8');
       let content = htmlToElementorContent(html);
       
       // Validate
@@ -1760,21 +1762,32 @@ async function batchConvert() {
       if (validationErrors.length > 0) {
         console.log(`  ⚠️  ${htmlFile} — ${validationErrors.length} validation warnings:`);
         validationErrors.slice(0, 3).forEach(e => console.log(`      ${e}`));
-        totalErrors += validationErrors.length;
       }
       
       // Output content array (for _elementor_data)
-      fs.writeFileSync(outputPath, JSON.stringify(content), 'utf8');
+      await fs.promises.writeFile(outputPath, JSON.stringify(content), 'utf8');
       
       const nodeCount = countNodes(content);
-      const fileSize = Math.round(fs.statSync(outputPath).size / 1024);
+      const fileStat = await fs.promises.stat(outputPath);
+      const fileSize = Math.round(fileStat.size / 1024);
       console.log(`  ✅ ${htmlFile.padEnd(35)} → ${jsonFile.padEnd(35)} (${nodeCount} nodes, ${fileSize}KB)`);
-      successCount++;
+      
+      return { status: 'success', warnings: validationErrors.length };
     } catch (err) {
       console.error(`  ❌ ${htmlFile}: ${err.message}`);
+      return { status: 'error', message: err.message };
+    }
+  }));
+
+  // Aggregate results
+  results.forEach(res => {
+    if (res.status === 'success') {
+      successCount++;
+      totalErrors += res.warnings;
+    } else if (res.status === 'error') {
       errorCount++;
     }
-  }
+  });
 
   console.log('\n' + '═'.repeat(55));
   console.log(`📊 Results: ${successCount} success, ${errorCount} errors, ${totalErrors} warnings`);

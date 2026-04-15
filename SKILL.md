@@ -17,7 +17,7 @@ El usuario activará tu ejecución a través de uno de estos dos comandos (o int
   
 - **Modo Modular (`segment!`)**: 
   - Propósito: Aislamiento, conversión e inyección de un único componente o sección.
-  - Acción inmediata: Lee y asimila el archivo `PROMPT_SEGMENT.md`.
+  - Acción inmediata: Lee y asimila el archivo `PROMPT_WEB_MAESTRO_v2.md`, dirígete directo a la sección "MODO MODULAR".
 
 ## 2. Dependencias Obligatorias (Pre-Flight Check)
 
@@ -45,7 +45,7 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 ## 4. Skills Transversales
 
 - **enhance-prompt**: Refinamiento de directivas para Stitch (usado en modo `go!` y `segment!`). 
-- **html2json-segment**: Utilidad exclusiva del modo `segment!` para la transpilación de un componente único.
+- **html2json-segment**: Utilidad para transpilación de un componente único.
 - **html-to-elementor** (en docs/): Mapeo principal HTML a JSON.
 - **webp-optimizer**: Conversión y compresión de imágenes.
 - **Agentic-SEO-Skill**: Validación on-page post-migración.
