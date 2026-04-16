@@ -2,7 +2,7 @@ const ftp = require('basic-ftp');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-require('dotenv').config({ path: path.join(__dirname, 'veclas.env') });
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 function fetchUrl(url) {
     return new Promise((resolve, reject) => {
@@ -26,10 +26,11 @@ async function main() {
         });
 
         console.log(`[FTP] Uploading updated JSON payloads...`);
+        const jsonDir = path.join(__dirname, '..', 'elementor_jsons');
         await client.ensureDir('/v9_json_payloads');
-        await client.uploadFrom(path.join(__dirname, 'v9_json_payloads', 'header.json'), '/v9_json_payloads/header.json');
-        await client.uploadFrom(path.join(__dirname, 'v9_json_payloads', 'footer.json'), '/v9_json_payloads/footer.json');
-        await client.uploadFrom(path.join(__dirname, 'v9_json_payloads', 'homepage.json'), '/v9_json_payloads/homepage.json');
+        await client.uploadFrom(path.join(jsonDir, 'header.json'), '/v9_json_payloads/header.json');
+        await client.uploadFrom(path.join(jsonDir, 'footer.json'), '/v9_json_payloads/footer.json');
+        await client.uploadFrom(path.join(jsonDir, 'homepage.json'), '/v9_json_payloads/homepage.json');
         await client.cd('/');
 
         console.log(`[FTP] Uploading create_hf.php...`);

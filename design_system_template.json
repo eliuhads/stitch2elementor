@@ -1,0 +1,44 @@
+{
+  "colors": {
+    "background": "#0B0F1A",
+    "paper": "#F5F3ED",
+    "primary": "#368A39",
+    "accentCta": "#8FDA3E",
+    "primaryDark": "#368A39",
+    "secondary": "#84da7e",
+    "techBlue": "#28B5E1",
+    "amber": "#F5A623",
+    "tertiary": "#90db3f",
+    "onSurface": "#dfe2f2",
+    "onSurfaceVariant": "#bfcab9",
+    "surfaceContainerLowest": "#0a0e19",
+    "surfaceContainerLow": "#171b27",
+    "surfaceContainer": "#1b1f2b",
+    "surfaceContainerHigh": "#262a36",
+    "surfaceContainerHighest": "#313441",
+    "white": "#FFFFFF",
+    "textDark": "#0B0F1A",
+    "textMuted": "#4D4D4D",
+    "surfaceCard": "#161C2C",
+    "outlineVariant": "#40493d"
+  },
+  "fonts": {
+    "headline": "Inter",
+    "body": "Inter",
+    "label": "Inter",
+    "cta": "Inter",
+    "tech": "monospace"
+  },
+  "googleFontsLink": "<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap\" rel=\"stylesheet\">",
+  "typoScale": {
+    "h1": { "desktop": 48, "tablet": 36, "mobile": 28, "weight": "800" },
+    "h2": { "desktop": 36, "tablet": 30, "mobile": 24, "weight": "700" },
+    "h3": { "desktop": 24, "tablet": 20, "mobile": 18, "weight": "700" },
+    "h4": { "desktop": 20, "tablet": 18, "mobile": 16, "weight": "700" },
+    "h5": { "desktop": 16, "tablet": 15, "mobile": 14, "weight": "600" },
+    "h6": { "desktop": 14, "tablet": 13, "mobile": 12, "weight": "600" }
+  },
+  "logoUrl": "https://your-site.com/wp-content/uploads/logo.webp",
+  "logoAlt": "Your Logo",
+  "logoText": "YOUR_BRAND"
+}

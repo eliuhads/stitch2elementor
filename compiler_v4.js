@@ -73,7 +73,11 @@ const CONFIG = {
     h4: { desktop: 20, tablet: 18, mobile: 16, weight: '700' },
     h5: { desktop: 16, tablet: 15, mobile: 14, weight: '600' },
     h6: { desktop: 14, tablet: 13, mobile: 12, weight: '600' },
-  }
+  },
+  // Branding assets (override via design_system.json)
+  logoUrl: 'https://evergreenvzla.com/wp-content/uploads/2026/04/logo_evergreen_completo_horizontal_texto-1-scaled.webp',
+  logoAlt: 'Evergreen Logo',
+  logoText: 'EVERGREEN',
 };
 
 // Auto-load dynamic design system if exists
@@ -84,6 +88,9 @@ if (fs.existsSync(CONFIG.designSystemPath)) {
     if (ds.fonts) Object.assign(CONFIG.fonts, ds.fonts);
     if (ds.typoScale) Object.assign(CONFIG.typoScale, ds.typoScale);
     if (ds.googleFontsLink) CONFIG.googleFontsLink = ds.googleFontsLink;
+    if (ds.logoUrl) CONFIG.logoUrl = ds.logoUrl;
+    if (ds.logoAlt) CONFIG.logoAlt = ds.logoAlt;
+    if (ds.logoText) CONFIG.logoText = ds.logoText;
     console.log('✅ Custom Design System Loaded');
   } catch (e) {
     console.error('⚠️ Could not parse design_system.json. Using defaults.');
@@ -165,7 +172,7 @@ function buildFlexGap(sizePx) {
     sizes: [],
     column: s,
     row: s,
-    isLinked: '1'
+    isLinked: true
   };
 }
 
@@ -1189,7 +1196,117 @@ function processElement($, el) {
   // --- SVG (skip inline SVGs) ---
   if (tag === 'svg') return null;
 
-  // --- HR ---
+  // --- FORM (preserve as html widget for editability) ---
+  if (tag === 'form') {
+    const formHtml = $(el).toString();
+    if (!formHtml || formHtml.length < 10) return null;
+    return {
+      id: genId(),
+      elType: 'widget',
+      widgetType: 'html',
+      isInner: false,
+      settings: {
+        html: sanitizeForHTML(formHtml)
+      },
+      elements: []
+    };
+  }
+
+  // --- VIDEO ---
+  if (tag === 'video') {
+    const src = $(el).attr('src') || $(el).find('source').first().attr('src') || '';
+    if (!src) return null;
+    return {
+      id: genId(),
+      elType: 'widget',
+      widgetType: 'html',
+      isInner: false,
+      settings: {
+        html: `<video src="${src}" controls playsinline style="width:100%;max-width:100%;border-radius:8px;">${$(el).attr('poster') ? `poster="${$(el).attr('poster')}"` : ''}</video>`
+      },
+      elements: []
+    };
+  }
+
+  // --- IFRAME (YouTube, Vimeo, Maps embeds) ---
+  if (tag === 'iframe') {
+    const src = $(el).attr('src') || '';
+    if (!src) return null;
+    
+    // YouTube/Vimeo → native video widget
+    const youtubeMatch = src.match(/(?:youtube\.com\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if (youtubeMatch) {
+      return {
+        id: genId(),
+        elType: 'widget',
+        widgetType: 'video',
+        isInner: false,
+        settings: {
+          video_type: 'youtube',
+          youtube_url: `https://www.youtube.com/watch?v=${youtubeMatch[1]}`,
+          aspect_ratio: '169',
+        },
+        elements: []
+      };
+    }
+    
+    const vimeoMatch = src.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    if (vimeoMatch) {
+      return {
+        id: genId(),
+        elType: 'widget',
+        widgetType: 'video',
+        isInner: false,
+        settings: {
+          video_type: 'vimeo',
+          vimeo_url: `https://vimeo.com/${vimeoMatch[1]}`,
+          aspect_ratio: '169',
+        },
+        elements: []
+      };
+    }
+    
+    // Google Maps → native google_maps widget
+    if (src.includes('google.com/maps')) {
+      const addressMatch = src.match(/q=([^&]+)/);
+      return {
+        id: genId(),
+        elType: 'widget',
+        widgetType: 'google_maps',
+        isInner: false,
+        settings: {
+          address: addressMatch ? decodeURIComponent(addressMatch[1]) : 'Location',
+          zoom: { unit: 'px', size: 14 },
+          height: { unit: 'px', size: 400 },
+        },
+        elements: []
+      };
+    }
+    
+    // Generic iframe → html widget
+    return {
+      id: genId(),
+      elType: 'widget',
+      widgetType: 'html',
+      isInner: false,
+      settings: {
+        html: `<iframe src="${src}" style="width:100%;min-height:400px;border:none;" loading="lazy"></iframe>`
+      },
+      elements: []
+    };
+  }
+
+  // --- TABLE (preserve structure in text-editor) ---
+  if (tag === 'table') {
+    const tableHtml = $(el).toString();
+    if (!tableHtml) return null;
+    
+    const color = extractTextColor(classes, inlineStyles);
+    const wrappedHtml = `<div style="overflow-x:auto;width:100%;${color ? `color:${color};` : `color:${CONFIG.colors.white};`}border-radius:8px;">${sanitizeForHTML(tableHtml)}</div>`;
+    
+    return buildTextEditor(wrappedHtml);
+  }
+
   if (tag === 'hr') return buildDivider();
 
   // --- UL/OL ---
@@ -1240,14 +1357,14 @@ function processElement($, el) {
     if ($(el).children().length === 0 && text) {
       const uText = text.trim().toUpperCase();
       // --- LOGO OVERRIDE (V4.4) ---
-      if (uText === 'EVERGREEN' || uText === 'LUMEN INDUSTRIAL') {
+      if (uText === CONFIG.logoText || uText === 'LUMEN INDUSTRIAL') {
           // Wrapped in a constrained container to prevent it from ignoring width
           return buildContainer(
             { content_width: 'full', width: { unit: 'px', size: 192, sizes: [] } },
             [
               buildImage(
-                "https://evergreenvzla.com/wp-content/uploads/2026/04/logo_evergreen_completo_horizontal_texto-1-scaled.webp", 
-                "Evergreen Logo", 
+                CONFIG.logoUrl, 
+                CONFIG.logoAlt, 
                 { width: { unit: '%', size: 100, sizes: [] } }
               )
             ],
@@ -1615,8 +1732,8 @@ function processNavAsHeader(htmlStr) {
         isInner: false,
         settings: {
           image: { 
-            url: 'https://evergreenvzla.com/wp-content/uploads/2026/04/logo_evergreen_completo_horizontal_texto-1-scaled.webp', 
-            id: '', size: '', alt: 'Evergreen Logo', source: 'library' 
+            url: CONFIG.logoUrl, 
+            id: '', size: '', alt: CONFIG.logoAlt, source: 'library' 
           },
           image_size: 'full',
           width: { unit: '%', size: 100, sizes: [] }, // 100% of the 220px container
@@ -1791,8 +1908,8 @@ function countNodes(arr) {
 
 async function batchConvert() {
   console.log('╔══════════════════════════════════════════════════╗');
-  console.log('║  COMPILER V4.1 — Evergreen Nativización Perfecta ║');
-  console.log('║  BrandBook V9 · Barlow Condensed + Barlow        ║');
+  console.log('║  COMPILER V4.2 — Nativización Perfecta            ║');
+  console.log(`║  Design: ${CONFIG.fonts.headline} + ${CONFIG.fonts.body}`.padEnd(51) + '║');
   console.log('║  HTML → Native Elementor JSON (Async Batcher)    ║');
   console.log('╚══════════════════════════════════════════════════╝\n');
 

@@ -1,6 +1,6 @@
 ---
 name: stitch2elementor
-version: 4.5.1
+version: 4.6.0
 description: Orquestador principal para migraciones automatizadas de Google Stitch a WordPress (Elementor Pro). Activa este skill cuando el usuario pida "migrar stitch a elementor", "ejecutar go!", "aplicar web maestro" o "hacer migración modular/segmentada". Este skill controla el pipeline completo "Web Maestro v2", gestionando MCPs de WordPress, Elementor y manipulación de AST/JSON local para transpilación.
 ---
 
@@ -19,6 +19,19 @@ El usuario activará tu ejecución a través de uno de estos dos comandos (o int
 - **Modo Modular (`segment!`)**: 
   - Propósito: Aislamiento, conversión e inyección de un único componente o sección.
   - Acción inmediata: Lee y asimila el archivo `PROMPT_WEB_MAESTRO_v2.md`, dirígete directo a la sección "MODO MODULAR".
+
+### Quick Example (`go!`)
+```
+Usuario: go!
+Agente:
+  1. Lee BrandBook → genera design_system.json
+  2. Genera 20 pantallas en Stitch → descarga HTMLs a assets_originales/
+  3. node compiler_v4.js → 20 JSONs + header.json + footer.json en elementor_jsons/
+  4. node scripts/fix_material_symbols.js → limpia residuos de iconos
+  5. node scripts/sync_and_inject.js → FTP upload + PHP injection + cache flush
+  6. node scripts/fix_slugs.js → normaliza URLs
+  7. Verificación read_url_content → reporte final
+```
 
 ## 2. Dependencias Obligatorias (Pre-Flight Check)
 
@@ -47,7 +60,7 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 
 - **enhance-prompt**: Refinamiento de directivas para Stitch (usado en modo `go!` y `segment!`). 
 - **html2json-segment**: Utilidad para transpilación de un componente único.
-- **html-to-elementor** (en docs/): Mapeo principal HTML a JSON.
+- **html-to-elementor** (consolidado en docs/widget-mapping.md): Mapeo principal HTML a JSON.
 - **webp-optimizer**: Conversión y compresión de imágenes.
 - **Agentic-SEO-Skill**: Validación on-page post-migración.
 
@@ -62,7 +75,7 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 | `fix_material_symbols.js` | Node.js | Purga spans textuales de iconos Material |
 | `fix_slugs.js` | Node.js | Regulariza rutas REST según manifest |
 | `robust_inject_template.php` | PHP | Template para inyección de Global Kit |
-| `ftp_injector.js` | Node.js | Utilidad FTP alternativa |
+| `inject_all_pages.php` | PHP | Inyector batch de N páginas con soporte de manifest |
 
 ## 5. Manejo de Errores
 
