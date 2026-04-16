@@ -1,4 +1,4 @@
-# PROMPT MAESTRO V2 — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
+# PROMPT: WEB MAESTRO V2 [v4.3.0] — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
 
 Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma autónoma y secuencial. Cada fase depende de la correcta ejecución de la anterior. Verifica MCPs según SKILL.md antes de iniciar.
 

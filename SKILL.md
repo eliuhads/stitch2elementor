@@ -1,5 +1,6 @@
 ---
 name: stitch2elementor
+version: 4.3.0
 description: Orquestador principal para migraciones automatizadas de Google Stitch a WordPress (Elementor Pro). Activa este skill cuando el usuario pida "migrar stitch a elementor", "ejecutar go!", "aplicar web maestro" o "hacer migración modular/segmentada". Este skill controla el pipeline completo "Web Maestro v2", gestionando MCPs de WordPress, Elementor y manipulación de AST/JSON local para transpilación.
 ---
 
