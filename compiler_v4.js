@@ -348,7 +348,7 @@ function buildButton(text, link = '#', extraSettings = {}) {
   // WhatsApp specific styling override (Stitch Brandbook compliance)
   const isWhatsApp = link.includes('wa.me') || text.toLowerCase().includes('whatsapp');
   if (isWhatsApp) {
-      cleanText = '<span class="material-symbols-outlined">rocket_launch</span> Escríbenos por WhatsApp';
+      cleanText = 'Escríbenos por WhatsApp';
   }
 
   if (!cleanText) return null;
@@ -376,8 +376,9 @@ function buildButton(text, link = '#', extraSettings = {}) {
     settings.background_color = '#0B0F1A';
     settings.hover_animation = 'grow';
     settings.padding = buildDimension(16, 32, 16, 32);
-    // Elementor doesn't technically use content_classes on the button directly, but if it does:
-    settings.content_classes = 'flex items-center gap-2';
+    settings.selected_icon = { value: 'fab fa-whatsapp', library: 'fa-brands' };
+    settings.icon_align = 'left';
+    settings.icon_indent = { unit: 'px', size: 8, sizes: [] };
   }
 
   return {
@@ -919,10 +920,17 @@ function extractTypography(classes, inlineStyles = {}) {
   return typo;
 }
 
+// Prefixes to exclude when extracting text colors (size/alignment classes)
+const TEXT_NON_COLOR_PREFIXES = new Set([
+  'text-xs','text-sm','text-base','text-lg','text-xl',
+  'text-2xl','text-3xl','text-4xl','text-5xl','text-6xl','text-7xl','text-8xl',
+  'text-center','text-left','text-right','text-justify'
+]);
+
 /** Extract text color from classes/inline styles */
 function extractTextColor(classes, inlineStyles = {}) {
   for (const cls of classes) {
-    if (TW_COLORS[cls] && cls.startsWith('text-') && !cls.startsWith('text-xs') && !cls.startsWith('text-sm') && !cls.startsWith('text-base') && !cls.startsWith('text-lg') && !cls.startsWith('text-xl') && !cls.startsWith('text-2') && !cls.startsWith('text-3') && !cls.startsWith('text-4') && !cls.startsWith('text-5') && !cls.startsWith('text-6') && !cls.startsWith('text-7') && !cls.startsWith('text-8') && !cls.startsWith('text-center') && !cls.startsWith('text-left') && !cls.startsWith('text-right')) {
+    if (TW_COLORS[cls] && cls.startsWith('text-') && !TEXT_NON_COLOR_PREFIXES.has(cls)) {
       return TW_COLORS[cls];
     }
     // Arbitrary text color: text-[#28B5E1]
@@ -1187,12 +1195,34 @@ function processElement($, el) {
   // --- UL/OL ---
   if (tag === 'ul' || tag === 'ol') {
     const items = [];
+    const styleId = 'ls_' + genId();
+    let hasLinks = false;
+    
     $(el).children('li').each((i, li) => {
-      items.push(`<li>${$(li).html()}</li>`);
+      const $li = $(li);
+      $li.find('a').each((j, a) => {
+        hasLinks = true;
+        const aClasses = $(a).attr('class') || '';
+        $(a).attr('class', aClasses + ` ${styleId}_link`);
+        // We remove hardcoded styles from previous patch
+        $(a).removeAttr('style');
+      });
+      items.push(`<li>${$li.html()}</li>`);
     });
+    
     if (items.length === 0) return null;
     const listTag = tag === 'ol' ? 'ol' : 'ul';
-    return buildTextEditor(`<${listTag}>${items.join('')}</${listTag}>`);
+    
+    // Inject intelligent hover styles if there are links
+    let styleBlock = '';
+    if (hasLinks) {
+       styleBlock = `<style>
+         .${styleId}_link { color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.3s ease; }
+         .${styleId}_link:hover { color: #28B5E1; text-decoration: underline; }
+       </style>`;
+    }
+    
+    return buildTextEditor(`${styleBlock}<${listTag} style="list-style-type: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px;">${items.join('')}</${listTag}>`);
   }
 
   // --- DIV / SECTION / NAV / HEADER / FOOTER / MAIN / ARTICLE ---
@@ -1211,10 +1241,17 @@ function processElement($, el) {
       const uText = text.trim().toUpperCase();
       // --- LOGO OVERRIDE (V4.4) ---
       if (uText === 'EVERGREEN' || uText === 'LUMEN INDUSTRIAL') {
-          return buildImage(
-            "https://evergreenvzla.com/wp-content/uploads/2026/04/logo_evergreen_completo_horizontal_texto-1-scaled.webp", 
-            "Evergreen Logo", 
-            { width: { unit: 'px', size: 192, sizes: [] } }
+          // Wrapped in a constrained container to prevent it from ignoring width
+          return buildContainer(
+            { content_width: 'full', width: { unit: 'px', size: 192, sizes: [] } },
+            [
+              buildImage(
+                "https://evergreenvzla.com/wp-content/uploads/2026/04/logo_evergreen_completo_horizontal_texto-1-scaled.webp", 
+                "Evergreen Logo", 
+                { width: { unit: '%', size: 100, sizes: [] } }
+              )
+            ],
+            true // isInner
           );
       }
 
@@ -1559,52 +1596,109 @@ function processNavAsHeader(htmlStr) {
 
   const navElements = [];
 
-  // Logo
-  const logoText = nav.children().first().text().trim();
-  if (logoText) {
-    navElements.push(buildTextEditor(
-      `<div style="font-family:${CONFIG.fonts.headline};font-size:20px;font-weight:900;color:${CONFIG.colors.primary};text-transform:uppercase;letter-spacing:-0.05em">${sanitizeHeadingText(logoText)}</div>`
-    ));
-  }
-
-  // Nav-Menu Widget (replaces manual links)
+  // 1. Logo Container (Constrained Width)
   navElements.push({
     id: genId(),
-    elType: 'widget',
-    widgetType: 'nav-menu',
-    isInner: false,
+    elType: 'container',
+    isInner: true,
     settings: {
-      layout: 'horizontal',
-      align_items: 'center',
-      pointer: 'underline',
-      typography_typography: 'custom',
-      typography_font_family: CONFIG.fonts.headline,
-      typography_font_size: { unit: 'px', size: 14, sizes: [] },
-      typography_font_weight: '700',
-      color_menu_item: '#cbd5e1',
-      color_menu_item_hover: '#8FDA3E'
+      content_width: 'full',
+      width: { unit: 'px', size: 220, sizes: [] },
+      flex_direction: 'row',
+      flex_align_items: 'center',
     },
-    elements: []
+    elements: [
+      {
+        id: genId(),
+        elType: 'widget',
+        widgetType: 'image',
+        isInner: false,
+        settings: {
+          image: { 
+            url: 'https://evergreenvzla.com/wp-content/uploads/2026/04/logo_evergreen_completo_horizontal_texto-1-scaled.webp', 
+            id: '', size: '', alt: 'Evergreen Logo', source: 'library' 
+          },
+          image_size: 'full',
+          width: { unit: '%', size: 100, sizes: [] }, // 100% of the 220px container
+          link_to: 'custom',
+          link: { url: '/', is_external: '', nofollow: '' }
+        },
+        elements: []
+      }
+    ]
   });
 
-  // CTA Button
-  const ctaBtn = nav.find('button').first();
-  if (ctaBtn.length) {
-    navElements.push(buildButton(ctaBtn.text().trim(), 'https://wa.me/584123118100', {
-      background_color: CONFIG.colors.primaryDark,
-      button_text_color: '#FFFFFF',
-    }));
-  }
+  // 2. Nav-Menu Container
+  navElements.push({
+    id: genId(),
+    elType: 'container',
+    isInner: true,
+    settings: {
+      content_width: 'full',
+      flex_direction: 'row',
+      flex_justify_content: 'center',
+      flex_align_items: 'center',
+      flex_grow: 1, // Take remaining space
+    },
+    elements: [
+      {
+        id: genId(),
+        elType: 'widget',
+        widgetType: 'nav-menu',
+        isInner: false,
+        settings: {
+          layout: 'horizontal',
+          align_items: 'center',
+          pointer: 'underline',
+          typography_typography: 'custom',
+          typography_font_family: CONFIG.fonts.headline,
+          typography_font_size: { unit: 'px', size: 15, sizes: [] },
+          typography_font_weight: '700',
+          color_menu_item: '#cbd5e1',
+          color_menu_item_hover: '#8FDA3E',
+          pointer_color: '#8FDA3E'
+        },
+        elements: []
+      }
+    ]
+  });
+
+  // 3. CTA Button Container
+  navElements.push({
+    id: genId(),
+    elType: 'container',
+    isInner: true,
+    settings: {
+      content_width: 'full',
+      width: { unit: 'px', size: 180, sizes: [] },
+      flex_direction: 'row',
+      flex_justify_content: 'flex-end',
+      flex_align_items: 'center',
+    },
+    elements: [
+      buildButton('WHATSAPP', 'https://wa.me/584123118100', {
+        background_color: CONFIG.colors.primaryDark,
+        button_text_color: '#FFFFFF',
+        typography_font_family: CONFIG.fonts.headline,
+        typography_font_weight: '700',
+        typography_font_size: { unit: 'px', size: 14, sizes: [] },
+        border_radius: { unit: 'px', top: 4, right: 4, bottom: 4, left: 4 },
+      })
+    ]
+  });
 
   return [buildContainer(
     {
-      content_width: 'full',
+      content_width: 'boxed',
+      boxed_width: { unit: 'px', size: 1200, sizes: [] },
       background_background: 'classic',
-      background_color: 'rgba(14,19,32,0.7)',
+      background_color: 'rgba(11, 15, 26, 0.95)',
       flex_direction: 'row',
       flex_justify_content: 'space-between',
       flex_align_items: 'center',
-      padding: buildDimension(16, 32, 16, 32),
+      padding: buildDimension(15, 30, 15, 30),
+      margin: buildDimension(0, 0, 0, 0),
+      position: 'fixed'
     },
     navElements, false
   )];
@@ -1709,30 +1803,39 @@ async function batchConvert() {
   let errorCount = 0;
   let totalErrors = 0;
 
-  // Process Header
-  console.log('📋 Processing Header template...');
+  // Read homepage once for both Header and Footer extraction
+  let homepageHtml;
   try {
-    const homepageHtml = await fs.promises.readFile(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
-    const headerContent = processNavAsHeader(homepageHtml);
-    const headerPath = path.join(CONFIG.outputDir, 'header.json');
-    await fs.promises.writeFile(headerPath, JSON.stringify(headerContent), 'utf8');
-    console.log(`  ✅ Header → ${path.basename(headerPath)} (${countNodes(headerContent)} nodes)`);
+    homepageHtml = await fs.promises.readFile(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
   } catch (err) {
-    console.error(`  ❌ Header: ${err.message}`);
-    errorCount++;
+    console.error(`  ❌ Cannot read homepage.html: ${err.message}`);
+    errorCount += 2;
   }
 
-  // Process Footer
-  console.log('📋 Processing Footer template...');
-  try {
-    const homepageHtml = await fs.promises.readFile(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
-    const footerContent = processFooterTemplate(homepageHtml);
-    const footerPath = path.join(CONFIG.outputDir, 'footer.json');
-    await fs.promises.writeFile(footerPath, JSON.stringify(footerContent), 'utf8');
-    console.log(`  ✅ Footer → ${path.basename(footerPath)} (${countNodes(footerContent)} nodes)`);
-  } catch (err) {
-    console.error(`  ❌ Footer: ${err.message}`);
-    errorCount++;
+  if (homepageHtml) {
+    // Process Header
+    console.log('📋 Processing Header template...');
+    try {
+      const headerContent = processNavAsHeader(homepageHtml);
+      const headerPath = path.join(CONFIG.outputDir, 'header.json');
+      await fs.promises.writeFile(headerPath, JSON.stringify(headerContent), 'utf8');
+      console.log(`  ✅ Header → ${path.basename(headerPath)} (${countNodes(headerContent)} nodes)`);
+    } catch (err) {
+      console.error(`  ❌ Header: ${err.message}`);
+      errorCount++;
+    }
+
+    // Process Footer
+    console.log('📋 Processing Footer template...');
+    try {
+      const footerContent = processFooterTemplate(homepageHtml);
+      const footerPath = path.join(CONFIG.outputDir, 'footer.json');
+      await fs.promises.writeFile(footerPath, JSON.stringify(footerContent), 'utf8');
+      console.log(`  ✅ Footer → ${path.basename(footerPath)} (${countNodes(footerContent)} nodes)`);
+    } catch (err) {
+      console.error(`  ❌ Footer: ${err.message}`);
+      errorCount++;
+    }
   }
 
   // Process all pages concurrently

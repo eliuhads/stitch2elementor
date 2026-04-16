@@ -37,22 +37,14 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ### FASE 4: INYECCIÓN ELEMENTOR
 
-1. Crea las páginas en borrador con `create_page` de `wp-elementor-mcp` (si no existen).
-2. Notifica al usuario: debe configurar manualmente el layout de cada página destino como "Elementor Full Width" o "Elementor Canvas" desde el UI de WordPress antes de continuar.
-3. **Punto de Elección de Vía de Inyección**: Pregunta al usuario explícitamente qué método usar para inyectar los JSON:
-   - **Opción A (API Local / MCP)**: Usa `update_page_from_file` de forma SECUENCIAL. Espera confirmación de éxito de cada inyección. (ADVERTENCIA: Falla con Payload too large / 406 Not Acceptable en la mayoría de hostings por ModSecurity).
-   - **Opción B (Inyección PHP Manual)**: Genera `inject_all_pages.php` y la carpeta `v9_json_payloads`, solicitando subirlos manualmente vía FTP y ejecutarlos.
-   - **Opción C (Vía Autónoma Híbrida - TOTALMENTE RECOMENDADA)**: Construir un script Node.js (`upload_and_run.js`) que: 1) Suba las imágenes `.webp` (media sideloading) y JSONs vía FTP (usando `basic-ftp`). 2) Suba un inyector `process_media.php`. 3) Dispáralo automáticamente vía petición web HTTP (`fetch` / `read_url_content`). 4) Elimine el PHP del servidor mediante FTP tras completar. Esto evade el WAF completamente y registra todo nativamente.
-
----
-
-### FASE 5: POST-PROCESAMIENTO Y SEO
-
-1. Ejecuta `fix_slugs.js` para adaptar los REST slugs al manifest.
-2. Ejecuta `fix_material_symbols.js` para eliminar spans textuales de iconos.
-3. Ejecuta `fix_buttons.js` para aplicar códigos de color del BrandBook a los botones.
-4. Ejecuta `fix_internal_links.js` para actualizar enlaces internos al dominio final.
-6. Delega validación final a `Agentic-SEO-Skill` (meta titles, Schema, meta descriptions).
+1. **Compilar JSONs**: Ejecuta `node compiler_v4.js` para generar los 20 JSONs de páginas + `header.json` + `footer.json`.
+2. **Inyección Híbrida Autónoma (VÍA ÚNICA)**: Ejecuta `scripts/sync_and_inject.js` que automáticamente:
+   - Sube JSONs y PHPs inyectores vía FTP
+   - Dispara `create_hf_native.php` (crea Header/Footer como plantillas nativas `elementor_library` con display conditions globales y menú auto-descubierto)
+   - Dispara `inject_all_pages.php` (inyecta las 20 páginas secuencialmente)
+   - Dispara `flush_cache.php` (limpia CSS, sincroniza biblioteca, recarga permalinks)
+   - Auto-elimina los PHPs del servidor por seguridad
+3. **No hay opciones alternativas.** Si la inyección falla, diagnostica el error HTTP y corrige. No ofrezcas MCP directo ni subida manual.
 
 ---
 

@@ -49,7 +49,19 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 - **html-to-elementor** (en docs/): Mapeo principal HTML a JSON.
 - **webp-optimizer**: Conversión y compresión de imágenes.
 - **Agentic-SEO-Skill**: Validación on-page post-migración.
-- **ui-ux-pro-max**: Paletas y tipografía.
+
+### 4.1 Inventario de Scripts (`scripts/`)
+
+| Script | Tipo | Función |
+|---|---|---|
+| `compiler_v4.js` | Node.js | Transpiler principal HTML → Elementor JSON |
+| `sync_and_inject.js` | Node.js | Orquestador FTP+HTTP: sube, inyecta, limpia |
+| `create_hf_native.php` | PHP | Crea Header/Footer como `elementor_library` con conditions globales |
+| `flush_cache.php` | PHP | Regenera CSS, sincroniza biblioteca, flush permalinks |
+| `fix_material_symbols.js` | Node.js | Purga spans textuales de iconos Material |
+| `fix_slugs.js` | Node.js | Regulariza rutas REST según manifest |
+| `robust_inject_template.php` | PHP | Template para inyección de Global Kit |
+| `ftp_injector.js` | Node.js | Utilidad FTP alternativa |
 
 ## 5. Manejo de Errores
 
@@ -70,10 +82,21 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 3. **Procedimiento de Inyección**:
    - Genera los JSONs transpilados y limpios.
    - **Procesa Sideload de Media**: Descarga imágenes de Stitch, expórtalas en `.webp`, y envíalas vía FTP a `v9_images_temp/`.
-   - **Punto de Decisión Crítica**: El agente DEBE preguntar al usuario qué vía de inyección prefiere (Siendo C la definitiva en entornos reales):
-      - **A) Vía MCP (Elementor WordPress MCP)**: Inyección directa vía API. (ALTAMENTE propensa a errores HTTP 406/401 si los payloads superan 50kb debido a bloqueos de ModSecurity / WAF en el host. Sólo para testeos rápidos sin imágenes).
-      - **B) Vía Alternativa Rápida (Inyección PHP Manual)**: Crear script PHP y datos, pedir al usuario subir vía FTP manualmente y ejecutar.
-      - **C) Vía Autónoma Híbrida (RECOMENDADA)**: Ejecutar un script automatizado local (basado en `basic-ftp` e inserción HTTP) que transporta el JSON/Media vía FTP, inyecta un archivo PHP actuante, lo dispara remotamente (`curl` / `fetch`) para que WP asuma nativamente el Sideload de media (remplazando `%%FILE:%%`) y cree las páginas evadiendo el Firewall de Elementor. Acto seguido, el mismo script Node auto-destruye el PHP por seguridad perimetral.
+   - **Vía Autónoma Híbrida (VÍA POR DEFECTO ESTRICTA)**: Ejecutar un script automatizado local (basado en `basic-ftp` e inserción HTTP, como `scripts/sync_and_inject.js`) que transporta el JSON/Media vía FTP, inyecta un archivo PHP actuante y lo dispara remotamente (`curl` / `fetch`) para que WP asuma nativamente el Sideload de media (remplazando `%%FILE:%%`) y cree las páginas evadiendo el Firewall de Elementor y ModSecurity. Acto seguido, el script Node auto-destruye el PHP por seguridad perimetral.
+
+### 7.1 Inyección de Theme Builder (Header / Footer)
+Nunca crees páginas estándar para el Header o el Footer. Utiliza de forma obligatoria el script `scripts/create_hf_native.php`. Este script hace lo siguiente:
+1. Inyecta los JSON bajo el Custom Post Type interno de Elementor: `elementor_library`.
+2. Asigna las llaves `_elementor_template_type` como `header` y `footer`.
+3. Adicionalmente, auto-descubre e inyecta el ID del Menú Nativo (ej. Buscar el ID del menú llamado 'Ppal Desktop' e inyectarlo en el JSON local).
+4. Sobrescribe la opción maestra `elementor_theme_builder_conditions` en la tabla `wp_options` insertando `['include', 'general']` de modo que el header y footer se asignen a todo el sitio simultáneamente sin intervención del usuario.
+
+### 7.2 Rutina Final Obligatoria de Limpieza y Sincronización (Cache Flush)
+Todo pipeline de inyección, modificaciones globales o migración debe FINALIZAR obligatoriamente disparando el script `scripts/flush_cache.php` de forma remota. Dicho script dispara de forma nativa los siguientes métodos de WordPress/Elementor:
+1. `flush_rewrite_rules(false)`: Para refrescar los Enlaces Permanentes.
+2. `\Elementor\Plugin::$instance->files_manager->clear_cache()`: Regenerar todo CSS asíncrono y limpiar data estática (Clear Files & Data).
+3. `\Elementor\Api::get_library_data(true)`: Forzar sincronización remota de biblioteca Elementor.
+Esto garantiza que los cambios de Base de Datos se reflejen en DOM inmediato. No consultes al usuario antes de hacer esto; asúmelo como parte obligatoria del ciclo de inyección.
 
 ## 8. Control de Calidad Final
 

@@ -1,5 +1,28 @@
 # Changelog - stitch2elementor
 
+## [v4.3.0] - 2026-04-15
+### Corregido
+- **WhatsApp Button (A1):** Eliminado `<span class="material-symbols-outlined">rocket_launch</span>` del texto del botón que Elementor renderizaba como texto plano. Reemplazado por icono nativo FA (`selected_icon: fab fa-whatsapp`).
+- **Dead Code (A2):** Eliminado `content_classes = 'flex items-center gap-2'` — no es una setting nativa de Elementor (código muerto).
+- **Homepage Double-Read (A3):** `homepage.html` se leía 2 veces (Header + Footer). Cacheado en variable única.
+- **List ID Collisions (C5):** Reemplazado `Math.random()*10000` por `crypto.randomBytes(4)` para IDs de estilos en listas.
+
+### Optimizado
+- **extractTextColor (C2):** Cadena de 15 `!cls.startsWith(...)` reemplazada por `Set.has()` (O(1) vs O(n)).
+
+### Eliminado
+- Referencia a skill fantasma `ui-ux-pro-max` en SKILL.md (no existe).
+- `PROMPT_WEB_MAESTRO_v2.txt` duplicado en raíz del proyecto.
+- Tests obsoletos movidos a `archive/tests/` (`test_img.js`, `test_isolate*.js`).
+
+### Documentación
+- **PROMPT_WEB_MAESTRO_v2.md:** Eliminadas Opciones A/B/C de inyección. Fase 4 ahora es "Vía Única Híbrida" exclusiva.
+- **SKILL.md:** Añadida tabla de inventario de 8 scripts reales (§4.1).
+- **docs/gotchas.md:** Reescrito limpio (18 gotchas). Gotcha #13 actualizado a inyección nativa `elementor_library`. Añadido Gotcha #18 (Cache Flush obligatorio).
+- **README.md:** Actualizado pipeline, scripts table, FAQ, version badge, y eliminadas skills fantasma.
+- **package.json:** Versión sincronizada `2.1.0` → `4.3.0`.
+- `docs/SKILL.md` renombrado a `docs/html-to-elementor-reference.md` para evitar confusión.
+
 ## [v4.2.0] - 2026-04-15
 ### Añadido
 - **Bypass de ModSecurity (WAF):** Se documentó e integró la solución híbrida "FTP + PHP Injector" como estándar recomendado cuando el WP REST API devuelva `406 Not Acceptable` o `401 Unauthorized` al inyectar grandes payloads JSON de Elementor.
