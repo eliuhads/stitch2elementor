@@ -1,6 +1,6 @@
 ---
 name: stitch2elementor
-version: 4.3.0
+version: 4.5.1
 description: Orquestador principal para migraciones automatizadas de Google Stitch a WordPress (Elementor Pro). Activa este skill cuando el usuario pida "migrar stitch a elementor", "ejecutar go!", "aplicar web maestro" o "hacer migración modular/segmentada". Este skill controla el pipeline completo "Web Maestro v2", gestionando MCPs de WordPress, Elementor y manipulación de AST/JSON local para transpilación.
 ---
 
@@ -89,15 +89,18 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 Nunca crees páginas estándar para el Header o el Footer. Utiliza de forma obligatoria el script `scripts/create_hf_native.php`. Este script hace lo siguiente:
 1. Inyecta los JSON bajo el Custom Post Type interno de Elementor: `elementor_library`.
 2. Asigna las llaves `_elementor_template_type` como `header` y `footer`.
-3. Adicionalmente, auto-descubre e inyecta el ID del Menú Nativo (ej. Buscar el ID del menú llamado 'Ppal Desktop' e inyectarlo en el JSON local).
-4. Sobrescribe la opción maestra `elementor_theme_builder_conditions` en la tabla `wp_options` insertando `['include', 'general']` de modo que el header y footer se asignen a todo el sitio simultáneamente sin intervención del usuario.
+3. **Mapeo de Menú Robusto**: Auto-descubre e inyecta el ID del Menú Nativo (fallback sequence: 'Ppal Desktop' -> 'Main Menu' -> First available).
+4. **Diseño Premium Boxed**: Los headers deben seguir la jerarquía `Container (Full Width) > Container (Boxed 1200px)`.
+5. **Logo Constraint**: El logo horizontal debe ser forzado a `192px` de ancho para evitar distorsiones visuales.
+6. Sobrescribe la opción maestra `elementor_theme_builder_conditions` en la tabla `wp_options` insertando `['include', 'general']`.
 
-### 7.2 Rutina Final Obligatoria de Limpieza y Sincronización (Cache Flush)
-Todo pipeline de inyección, modificaciones globales o migración debe FINALIZAR obligatoriamente disparando el script `scripts/flush_cache.php` de forma remota. Dicho script dispara de forma nativa los siguientes métodos de WordPress/Elementor:
+### 7.2 Rutina Final Obligatoria de Limpieza y Sincronización (Cache Flush & Config)
+Todo pipeline de inyección, modificaciones globales o migración debe FINALIZAR obligatoriamente disparando el script `scripts/flush_cache.php` de forma remota pasándole los IDs del manifest. Dicho script dispara de forma nativa los siguientes métodos de WordPress/Elementor:
 1. `flush_rewrite_rules(false)`: Para refrescar los Enlaces Permanentes.
-2. `\Elementor\Plugin::$instance->files_manager->clear_cache()`: Regenerar todo CSS asíncrono y limpiar data estática (Clear Files & Data).
-3. `\Elementor\Api::get_library_data(true)`: Forzar sincronización remota de biblioteca Elementor.
-Esto garantiza que los cambios de Base de Datos se reflejen en DOM inmediato. No consultes al usuario antes de hacer esto; asúmelo como parte obligatoria del ciclo de inyección.
+2. **Configuración de Front Page**: Establece automáticamente `page_on_front` y `page_for_posts` según el `page_manifest.json` (Parámetros `home_id` y `blog_id`).
+3. `\Elementor\Plugin::$instance->files_manager->clear_cache()`: Regenerar todo CSS asíncrono y limpiar data estática (Clear Files & Data).
+4. `\Elementor\Api::get_library_data(true)`: Forzar sincronización remota de biblioteca Elementor.
+Esto garantiza que los cambios de Base de Datos se reflejen en DOM inmediato y la navegación sea funcional. No consultes al usuario antes de hacer esto; asúmelo como parte obligatoria del ciclo de inyección.
 
 ## 8. Control de Calidad Final
 
