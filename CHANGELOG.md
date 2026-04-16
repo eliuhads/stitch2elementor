@@ -4,7 +4,40 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
-## [4.6.0] – 2026-04-16 — AUDITORÍA COMPLETA + REFACTORING
+## [4.6.2] – 2026-04-16 — IMAGEN WORKFLOW CLEANUP
+
+### 🔴 Breaking Change (Conceptual)
+- **Eliminado**: Toda referencia a carpetas locales de imágenes (`fotos_web/`, `IMAGENES_FUENTES`, `v9_images_temp/`)
+- **Flujo único de imágenes**: Las imágenes provienen **exclusivamente** de Google Stitch. El PHP inyector (`inject_all_pages.php`) llama a `media_sideload_image()` de WordPress directamente sobre las URLs de Stitch — sin descarga local, sin carpetas intermedias, sin scripts adicionales.
+
+### 📁 Archivos Actualizados
+- `SKILL.md`: Eliminado `fotos_web/` de estructura de carpetas, eliminado `webp-optimizer` de skills transversales, reescrita sección 7.3 de flujo de imágenes
+- `PROMPT_WEB_MAESTRO_v2.md`: Eliminado paso "Migrar imágenes" de FASE 3; URLs de Stitch se dejan intactas hasta la inyección PHP
+- `README.md`: Feature actualizada a "Automatic Image Sideload", eliminado `webp-optimizer` de skills transversales, pipeline actualizado
+
+---
+
+
+
+### 🔴 Critical Knowledge (FUNDAMENTAL — No olvidar)
+- **ID-Shifting**: `sync_and_inject.js` siempre asigna **NUEVOS** IDs en WordPress. Los IDs previos quedan obsoletos inmediatamente tras cada re-inyección.
+- **Mantenimiento Post-Inyección OBLIGATORIO**: Siempre disparar `flush_cache.php` con el nuevo ID post-inyección para fijar Homepage.
+- **Protocolo "AHORA SI"**: Flujo de éxito confirmado: Inyectar → Capturar nuevo ID de Homepage → Realinear Homepage con `flush_cache.php`.
+- **Modo Config-Only**: Usar `maintenance_only.js` cuando solo se necesita cambiar Homepage sin re-inyectar contenido (protege IDs actuales).
+
+### 🟢 Estado de Migración Evergreen Venezuela
+- **Homepage Final**: ID **1054** — seteada exitosamente.
+- **Fidelidad**: Caché regenerada y biblioteca Elementor sincronizada.
+- **Pipeline**: Automatizado y documentado en versión de máxima estabilidad.
+
+### 📁 Archivos Actualizados
+- `page_manifest.json`: ID de Homepage actualizado a 1054, añadidos campos `home_id`, `blog_id`, `migration_status`, advertencia de ID-Shifting
+- `PROMPT_WEB_MAESTRO_v2.md`: Protocolo AHORA SI y Modo Config-Only codificados en FASE 4 + reglas transversales 7 y 8
+- `scripts/maintenance_only.js`: **[NUEVO]** Script de mantenimiento puro para realineación de Homepage sin re-inyección
+
+---
+
+
 
 ### 🔴 Critical Fixes
 - **A2**: Fixed `fix_material_symbols.js` targeting non-existent `elementor_json` → `elementor_jsons`

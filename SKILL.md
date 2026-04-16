@@ -1,6 +1,6 @@
 ---
 name: stitch2elementor
-version: 4.6.0
+version: 4.6.2
 description: Orquestador principal para migraciones automatizadas de Google Stitch a WordPress (Elementor Pro). Activa este skill cuando el usuario pida "migrar stitch a elementor", "ejecutar go!", "aplicar web maestro" o "hacer migración modular/segmentada". Este skill controla el pipeline completo "Web Maestro v2", gestionando MCPs de WordPress, Elementor y manipulación de AST/JSON local para transpilación.
 ---
 
@@ -45,10 +45,11 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 ### 3.1 Estructura Organizada de Carpetas
 Todos los archivos generados, estáticos o de exportación deben guardarse en sus respectivas subcarpetas para mantener el repositorio limpio:
 - `elementor_jsons/`: Archivos JSON generados y transpilados listos para inyección.
-- `fotos_web/`: Imágenes y assets comprimidos/optimizados (ej. WebP).
-- `assets_originales/`: Archivos fuente u originales crudos obtenidos de Stitch.
+- `assets_originales/`: Archivos HTML fuente descargados desde Google Stitch.
 - `exports/`: Archivos paquetizados o listos para subida manual/FTP hacia WordPress.
 - `logs/`: Registros de procesos, conversiones, analíticas y errores.
+
+> **Nota de imágenes**: Las imágenes provienen **exclusivamente** de Google Stitch. El pipeline las descarga directamente desde la CDN de Stitch (`lh3.googleusercontent.com`) y las sube al servidor WordPress. No se usa ninguna carpeta local de imágenes.
 
 ### 3.2 Reglas Inquebrantables
 
@@ -61,7 +62,6 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 - **enhance-prompt**: Refinamiento de directivas para Stitch (usado en modo `go!` y `segment!`). 
 - **html2json-segment**: Utilidad para transpilación de un componente único.
 - **html-to-elementor** (consolidado en docs/widget-mapping.md): Mapeo principal HTML a JSON.
-- **webp-optimizer**: Conversión y compresión de imágenes.
 - **Agentic-SEO-Skill**: Validación on-page post-migración.
 
 ### 4.1 Inventario de Scripts (`scripts/`)
@@ -70,6 +70,7 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 |---|---|---|
 | `compiler_v4.js` | Node.js | Transpiler principal HTML → Elementor JSON |
 | `sync_and_inject.js` | Node.js | Orquestador FTP+HTTP: sube, inyecta, limpia |
+| `maintenance_only.js` | Node.js | **Modo Config-Only**: Realinea Homepage + flush caché SIN re-inyectar contenido |
 | `create_hf_native.php` | PHP | Crea Header/Footer como `elementor_library` con conditions globales |
 | `flush_cache.php` | PHP | Regenera CSS, sincroniza biblioteca, flush permalinks |
 | `fix_material_symbols.js` | Node.js | Purga spans textuales de iconos Material |
@@ -93,10 +94,11 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 
 1. **Inyección Nativa de Clamp**: El `compiler_v4.js` inyecta fórmulas `clamp(...)` a nivel widget. Esto garantiza responsividad inmediata sin depender del Global Kit.
 2. **Sincronización vía PHP (Carrier Script)**: Debido a que el WP REST API bloquea el acceso al "Default Kit" (ID 8) con error `401 Forbidden`, se debe utilizar un script inyector PHP robusto (`robust_inject.php`) para sincronizar el BrandBook en la base de datos una sola vez al inicio del proyecto.
-3. **Procedimiento de Inyección**:
-   - Genera los JSONs transpilados y limpios.
-   - **Procesa Sideload de Media**: Descarga imágenes de Stitch, expórtalas en `.webp`, y envíalas vía FTP a `v9_images_temp/`.
-   - **Vía Autónoma Híbrida (VÍA POR DEFECTO ESTRICTA)**: Ejecutar un script automatizado local (basado en `basic-ftp` e inserción HTTP, como `scripts/sync_and_inject.js`) que transporta el JSON/Media vía FTP, inyecta un archivo PHP actuante y lo dispara remotamente (`curl` / `fetch`) para que WP asuma nativamente el Sideload de media (remplazando `%%FILE:%%`) y cree las páginas evadiendo el Firewall de Elementor y ModSecurity. Acto seguido, el script Node auto-destruye el PHP por seguridad perimetral.
+3. **Flujo de Imágenes (Stitch → WordPress)**:
+   - Las imágenes provienen **única y exclusivamente** de Google Stitch (URLs tipo `lh3.googleusercontent.com/*`).
+   - El script `inject_all_pages.php` detecta estas URLs en los JSONs inyectados y las registra en la WordPress Media Library usando `media_sideload_image()` de forma nativa.
+   - **No se usan carpetas locales de imágenes**. No se descarga, comprime ni sube manualmente ningún asset de imagen.
+   - **Vía Autónoma Híbrida (VÍA POR DEFECTO ESTRICTA)**: Ejecutar `scripts/sync_and_inject.js` que transporta el JSON vía FTP, inyecta el PHP actuante y lo dispara remotamente (`curl` / `fetch`) para que WordPress procese el sideload de media directamente desde las URLs de Stitch. El script Node auto-destruye el PHP por seguridad perimetral.
 
 ### 7.1 Inyección de Theme Builder (Header / Footer)
 Nunca crees páginas estándar para el Header o el Footer. Utiliza de forma obligatoria el script `scripts/create_hf_native.php`. Este script hace lo siguiente:

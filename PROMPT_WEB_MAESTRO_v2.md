@@ -26,15 +26,17 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 1. **Compilar JSONs**: Ejecuta `node compiler_v4.js`. Genera los N JSONs de páginas + `header.json` + `footer.json` en `elementor_jsons/`.
 2. **Purgar Material Symbols**: Ejecuta `node scripts/fix_material_symbols.js` para eliminar residuos textuales de iconos.
-3. **Migrar imágenes** (si aplica): Ejecuta scripts de auditoría/reemplazo de imágenes `lh3.googleusercontent.com` para mapear a WordPress Media Library.
-4. **Verificar JSONs**: Abre 2-3 archivos JSON al azar y confirma:
+3. **Verificar JSONs**: Abre 2-3 archivos JSON al azar y confirma:
    - Son arrays `[{...}]` (nunca wrapper objects)
    - Tienen `elType`, `id`, `isInner` en cada nodo
    - Los containers usan `flex_gap` (no `gap`), `flex_align_items` (no `align_items`)
+   - Las URLs de imágenes son de Google Stitch (`lh3.googleusercontent.com/*`) — **no las reemplaces manualmente**: el inyector PHP las procesa automáticamente durante la FASE 4.
 
 ---
 
 ### FASE 4: INYECCIÓN ELEMENTOR
+
+> **⚠️ DOCTRINA ID-SHIFTING**: Cada ejecución de `sync_and_inject.js` asigna **NUEVOS IDs** en WordPress. Cualquier `wp_id` previo queda OBSOLETO inmediatamente. El flujo correcto es SIEMPRE: inyectar → capturar nuevos IDs → realinear Homepage → limpiar caché.
 
 1. **Inyección Híbrida Autónoma (VÍA ÚNICA)**: Ejecuta `node scripts/sync_and_inject.js` que automáticamente:
     - Sube JSONs y PHPs inyectores vía FTP a `v9_json_payloads/`
@@ -42,10 +44,23 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
     - Dispara `create_hf_native.php` (Header/Footer como `elementor_library`)
     - Dispara `inject_all_pages.php` (inyecta las N páginas secuencialmente)
     - **⚠️ ATENCIÓN: Esto cambiará los IDs de las páginas en WordPress.**
-    - **Paso Crítico de Realineación**: Dispara `flush_cache.php` pasándole los nuevos IDs para fijar la Homepage/Blog y limpiar caché (OBLIGATORIO)
+    - **Paso Crítico de Realineación ("Protocolo AHORA SI")**: Dispara `flush_cache.php` pasándole los nuevos IDs para fijar la Homepage/Blog y limpiar caché (OBLIGATORIO)
     - Auto-elimina los PHPs del servidor por seguridad perimetral
 
-2. **Post-inyección**: 
+2. **Protocolo AHORA SI — Flujo de Éxito Confirmado** (ejecutar SIEMPRE post-inyección):
+    ```
+    1. Inyectar páginas → Los IDs cambian en WordPress
+    2. Capturar el NUEVO ID de Homepage (del log de sync_and_inject.js o via MCP get_pages)
+    3. Actualizar 'home_id' en page_manifest.json con el nuevo ID
+    4. Ejecutar flush_cache.php con el nuevo ID → Fija Homepage + limpia caché Elementor
+    ```
+
+3. **Modo Config-Only** (usar cuando NO se quiere re-inyectar contenido):
+    - Si solo se necesita cambiar la Homepage sin alterar los IDs actuales, usar `node scripts/maintenance_only.js`
+    - Este modo aplica SOLO el paso de configuración de `page_on_front` y `flush_cache` sin tocar el contenido
+    - **Cuándo usarlo**: Tras un crash de pipeline, para corregir la Homepage sin perder los IDs estables
+
+4. **Post-inyección**: 
     - Ejecuta `node scripts/fix_slugs.js` para normalizar URLs según el manifest
     - Verifica slugs con `read_url_content` sobre 2-3 páginas aleatorias
 
@@ -106,3 +121,5 @@ El modo modular permite aislar, convertir e inyectar un **único componente o se
 4. **Nunca** hagas peticiones REST API concurrentes — secuencial estricto
 5. **Siempre** consulta `Stitch_Elementor_Guide_GENERAL_V1.md` ante errores de layout
 6. **Siempre** verifica que `design_system.json` existe antes de compilar
+7. **ID-Shifting es inevitable**: Tras cualquier `sync_and_inject.js`, ejecuta siempre el Protocolo AHORA SI. Nunca asumas que los IDs anteriores son válidos.
+8. **Modo Config-Only para mantenimiento**: Si el sitio está estable y solo necesitas ajustar la Homepage, usa `maintenance_only.js` — nunca re-inyectes solo para eso.
