@@ -4,6 +4,33 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [4.6.3] – 2026-04-16 — AUDITORÍA: DESVINCULAR COMPILER DE PROYECTO ESPECÍFICO
+
+### 🔴 Bugs Corregidos
+- **Fix A1 — Hardcodes eliminados de `compiler_v4.js`**:
+  - Logo URL, logoAlt, logoText → placeholders vacíos. Deben definirse en `design_system.json`
+  - `'LUMEN INDUSTRIAL'` removido del logo detection → ahora usa `CONFIG.logoText.toUpperCase()` genérico
+  - WhatsApp number `wa.me/584123118100` → `CONFIG.whatsappUrl` (configurable por proyecto)
+  - Banner `COMPILER V4.2 — Nativización Perfecta` → `COMPILER V4 — stitch2elementor`
+- **Fix A6 — `google_maps` widget**: `zoom` corregido de `{unit:'px', size:14}` (incorrecto) a `14` (entero plano que Elementor espera)
+
+### ✨ Nuevos Campos en `design_system.json`
+- `whatsappUrl` — URL de WhatsApp del header (requerido para nav)
+- `instagramUrl` — URL de Instagram (opcional, para footer/social)
+- `facebookUrl` — URL de Facebook (opcional, para footer/social)
+- Todos documentados en `design_system_template.json`
+
+### 🗑️ Archivos Eliminados (Limpieza B5, A5)
+- `orchestrator_go.js` (raíz) — duplicado, la versión activa está en `archive/`
+- `scripts/ftp_injector.js` — duplicado, la versión activa está en `archive/`
+
+### 📄 Archivos Actualizados
+- `compiler_v4.js` — Todos los fixes anteriores + comentario indicando "no hardcodear datos de cliente"
+- `design_system_template.json` — Añadidos campos de contacto
+- `SKILL.md`, `package.json` — Bump a `4.6.3`
+
+---
+
 ## [4.6.2] – 2026-04-16 — IMAGEN WORKFLOW CLEANUP
 
 ### 🔴 Breaking Change (Conceptual)

@@ -1,9 +1,9 @@
 /**
  * ============================================================
  * COMPILER V4 — HTML to Native Elementor JSON
- * Evergreen Venezuela — Nativización Perfecta
+ * stitch2elementor — Generic Multi-Project Compiler
  * ============================================================
- * 
+ *
  * FIXES over V3:
  *   - flex_gap (not gap), flex_align_items (not align_items),
  *     flex_justify_content (not justify_content)
@@ -16,6 +16,9 @@
  *   - Material Symbols text stripped ("arrow_forward" → "→")
  *   - Aggressive tree pruning
  *   - Proper string types for dimension values
+ *
+ * CONFIG: All project-specific values must be set in design_system.json
+ *         Do NOT hardcode client data in this file.
  * ============================================================
  */
 
@@ -74,10 +77,12 @@ const CONFIG = {
     h5: { desktop: 16, tablet: 15, mobile: 14, weight: '600' },
     h6: { desktop: 14, tablet: 13, mobile: 12, weight: '600' },
   },
-  // Branding assets (override via design_system.json)
-  logoUrl: 'https://evergreenvzla.com/wp-content/uploads/2026/04/logo_evergreen_completo_horizontal_texto-1-scaled.webp',
-  logoAlt: 'Evergreen Logo',
-  logoText: 'EVERGREEN',
+  // Branding assets — MUST be overridden via design_system.json
+  // These are empty placeholders. Set real values in your project's design_system.json
+  logoUrl: '',           // e.g. 'https://yoursite.com/wp-content/uploads/logo.webp'
+  logoAlt: 'Logo',
+  logoText: 'BRAND',     // Text that Stitch renders as the logo (used for logo detection)
+  whatsappUrl: '#',      // e.g. 'https://wa.me/1234567890'
 };
 
 // Auto-load dynamic design system if exists
@@ -91,6 +96,7 @@ if (fs.existsSync(CONFIG.designSystemPath)) {
     if (ds.logoUrl) CONFIG.logoUrl = ds.logoUrl;
     if (ds.logoAlt) CONFIG.logoAlt = ds.logoAlt;
     if (ds.logoText) CONFIG.logoText = ds.logoText;
+    if (ds.whatsappUrl) CONFIG.whatsappUrl = ds.whatsappUrl;
     console.log('✅ Custom Design System Loaded');
   } catch (e) {
     console.error('⚠️ Could not parse design_system.json. Using defaults.');
@@ -1276,8 +1282,8 @@ function processElement($, el) {
         isInner: false,
         settings: {
           address: addressMatch ? decodeURIComponent(addressMatch[1]) : 'Location',
-          zoom: { unit: 'px', size: 14 },
-          height: { unit: 'px', size: 400 },
+          zoom: 14,                              // Elementor expects plain integer, not dimension object
+          height: { unit: 'px', size: 400, sizes: [] },
         },
         elements: []
       };
@@ -1356,15 +1362,16 @@ function processElement($, el) {
     // This fixes: Stats Banner numbers (15+, 5000+), labels, etc.
     if ($(el).children().length === 0 && text) {
       const uText = text.trim().toUpperCase();
-      // --- LOGO OVERRIDE (V4.4) ---
-      if (uText === CONFIG.logoText || uText === 'LUMEN INDUSTRIAL') {
+      // --- LOGO OVERRIDE: detect text that Stitch renders as logo placeholder ---
+      // Set CONFIG.logoText in design_system.json to match your brand name as Stitch renders it
+      if (CONFIG.logoText && uText === CONFIG.logoText.toUpperCase()) {
           // Wrapped in a constrained container to prevent it from ignoring width
           return buildContainer(
             { content_width: 'full', width: { unit: 'px', size: 192, sizes: [] } },
             [
               buildImage(
-                CONFIG.logoUrl, 
-                CONFIG.logoAlt, 
+                CONFIG.logoUrl,
+                CONFIG.logoAlt,
                 { width: { unit: '%', size: 100, sizes: [] } }
               )
             ],
@@ -1793,7 +1800,7 @@ function processNavAsHeader(htmlStr) {
       flex_align_items: 'center',
     },
     elements: [
-      buildButton('WHATSAPP', 'https://wa.me/584123118100', {
+      buildButton('WHATSAPP', CONFIG.whatsappUrl || '#', {
         background_color: CONFIG.colors.primaryDark,
         button_text_color: '#FFFFFF',
         typography_font_family: CONFIG.fonts.headline,
@@ -1908,9 +1915,9 @@ function countNodes(arr) {
 
 async function batchConvert() {
   console.log('╔══════════════════════════════════════════════════╗');
-  console.log('║  COMPILER V4.2 — Nativización Perfecta            ║');
+  console.log('║  COMPILER V4 — stitch2elementor                   ║');
   console.log(`║  Design: ${CONFIG.fonts.headline} + ${CONFIG.fonts.body}`.padEnd(51) + '║');
-  console.log('║  HTML → Native Elementor JSON (Async Batcher)    ║');
+  console.log('║  HTML → Native Elementor JSON (Batch Compiler)   ║');
   console.log('╚══════════════════════════════════════════════════╝\n');
 
   const manifestData = await fs.promises.readFile(CONFIG.manifestPath, 'utf8');
