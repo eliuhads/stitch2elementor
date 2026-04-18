@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-4.6.1-6C63FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/version-4.6.5-6C63FF?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/status-active_development-FF6B35?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/license-MIT-00D9A3?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/Elementor-Flexbox_Native-E2009F?style=for-the-badge&labelColor=0D1117" />
@@ -161,8 +161,8 @@ If the site content is stable and you only need to fix the homepage pointer or c
 # Uses home_id from page_manifest.json
 node scripts/maintenance_only.js
 
-# Or force a specific ID
-node scripts/maintenance_only.js 1054
+# Or force a specific ID (example only — actual ID changes after every injection)
+node scripts/maintenance_only.js <NEW_HOMEPAGE_ID>
 ```
 
 This script uploads a self-destructing PHP to the server, sets `page_on_front`, flushes Elementor cache, syncs the library, and auto-deletes the PHP — all without touching a single page's content or ID.
@@ -234,6 +234,8 @@ Use `design_system_template.json` as your starting point. Configure colors, font
 go!       ← Full site build
 segment!  ← Single component injection
 ```
+
+> ⚠️ **ID Shifting Warning:** Every injection via `sync_and_inject.js` assigns **new WordPress IDs** to all pages. Previous IDs become immediately obsolete. After any injection, you **must** capture the new Homepage ID and run `flush_cache.php` to realign the front page. For maintenance without re-injection, use `maintenance_only.js`. See [Battle-Tested Protocols](#-battle-tested-protocols) for the full protocol.
 
 ---
 

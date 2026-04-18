@@ -4,6 +4,35 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [4.6.5] - 2026-04-18 — PROTOCOLO ID SHIFTING & POST-INYECCIÓN
+
+### 📄 Documentación — Protocolo ID Shifting Formalizado
+- **`SKILL.md`**: Nueva sección `## ⚠️ ID Shifting — Comportamiento Crítico` con Protocolo "AHORA SÍ" como lista numerada obligatoria, Modo Config-Only, y advertencia sobre IDs fijos obsoletos.
+- **`SKILL.md`**: Sección 7.2 (Cache Flush) anotada con advertencia de que IDs deben estar actualizados en manifest ANTES de ejecutar flush.
+- **`README.md`**: Advertencia de ID Shifting añadida en Quick Start. Ejemplo hardcodeado `1054` reemplazado por `<NEW_HOMEPAGE_ID>`.
+- **`PROMPT_WEB_MAESTRO_v2.md`**: Ya contenía Protocolo AHORA SI y Modo Config-Only (integrado en v4.6.1). Confirmado vigente — sin cambios adicionales requeridos.
+- **`PROMPT_SEGMENT.md` / `PROMPT_CORRECCION_SEGMENT.md`**: No aplica — fueron consolidados en `PROMPT_WEB_MAESTRO_v2.md` desde v4.6.4.
+
+### 🔑 Conocimiento Crítico Codificado
+- **ID Shifting es inherente a WordPress**: Cada `sync_and_inject.js` crea posts nuevos con IDs nuevos. Los IDs previos son inmediatamente obsoletos.
+- **Protocolo AHORA SÍ (4 pasos)**: Inyectar → Capturar nuevo ID → Actualizar manifest → Ejecutar flush_cache.php. OBLIGATORIO sin excepción.
+- **Modo Config-Only**: `maintenance_only.js` para cambiar Homepage sin re-inyectar (protege IDs estables).
+- **IDs fijos marcados como referenciales**: `1054` y otros IDs históricos anotados como ejemplo/referencial, no como valor vigente.
+
+---
+
+## [4.6.4] - 2026-04-16 - AUDITORÍA MASIVA Y REFACTORIZACIÓN MODULAR
+
+### 🚀 Mejoras de Eficiencia
+- **Iconos Purgados Nativamente**: Se integró un pre-procesamiento en cheerio para limpiar spans con clases `.material-symbols-outlined` previo al recorrido del AST en `compiler_v4.js`. Esto evita tener que inyectar el script externo `fix_material_symbols.js`.
+- **Limpieza de Array Root**: `wrapAsTemplate` fue simplificado para evitar el wrapper versionado (`{ version, content }`) y obligar una entrega estricta de array puro, evadiendo errores recurrentes de importación Elementor. 
+
+### 🧹 Limpieza y Consolidación ("De-cluttering")
+- **Prompts Modulares Consolidables**: Eliminadas reglas duales ambiguas en `PROMPT_SEGMENT.md` y `PROMPT_CORRECCION_SEGMENT.md`. Toda lógica modular "segment!" ahora vive de forma centralizada en el `PROMPT_WEB_MAESTRO_v2.md`.
+- **Test Scripts Zombis**: Todos los scripts de mock experimentales dentro de la carpeta `archive/tests/` fueron purgados por causar conflicto contextual.
+
+---
+
 ## [4.6.3] – 2026-04-16 — AUDITORÍA: DESVINCULAR COMPILER DE PROYECTO ESPECÍFICO
 
 ### 🔴 Bugs Corregidos

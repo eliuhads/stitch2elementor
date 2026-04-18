@@ -1,7 +1,7 @@
 ---
 name: stitch2elementor
-version: 4.6.3
-description: Orquestador principal para migraciones automatizadas de Google Stitch a WordPress (Elementor Pro). Activa este skill cuando el usuario pida "migrar stitch a elementor", "ejecutar go!", "aplicar web maestro" o "hacer migración modular/segmentada". Este skill controla el pipeline completo "Web Maestro v2", gestionando MCPs de WordPress, Elementor y manipulación de AST/JSON local para transpilación.
+version: 4.6.5
+description: Orquestador principal para migraciones automatizadas de Google Stitch a WordPress (Elementor Pro). Activa este skill cuando el usuario pida "migrar stitch a elementor", "ejecutar go!", "aplicar web maestro" o "hacer migración modular/segmentada". Este skill controla el pipeline completo "Web Maestro v2", gestionando MCPs de WordPress, Elementor y manipulación de AST/JSON local para transpilación. (Modo modular unificado nativo 100% en PROMPT_WEB_MAESTRO_v2).
 ---
 
 # Stitch → Elementor Migration Maestro
@@ -85,6 +85,34 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 3. **Inyección WP fallida**: Detén la inyección en curso. Informa al usuario detallando el error HTTP específico devuelto por el servidor. Nunca pases a la siguiente página sin resolverlo.
 4. **Script .js no encontrado**: Detén el pipeline. Verifica su ruta en la subcarpeta `scripts/` e informa al usuario de qué script esencial se carece.
 
+## ⚠️ ID Shifting — Comportamiento Crítico
+
+> **ADVERTENCIA**: Cada ejecución de `sync_and_inject.js` hace que WordPress asigne **NUEVOS IDs** a todas las páginas inyectadas. Cualquier `wp_id` registrado previamente (en manifests, logs o memoria del agente) queda **OBSOLETO** de forma inmediata tras una re-inyección. Esto NO es un bug — es comportamiento inherente de WordPress al crear posts nuevos.
+
+### Protocolo "AHORA SÍ" — Flujo de Éxito Confirmado (OBLIGATORIO)
+
+Después de **toda** inyección vía `sync_and_inject.js`, ejecuta estos pasos **sin excepción**:
+
+1. **Inyectar páginas** → `node scripts/sync_and_inject.js` — los IDs cambian en WordPress.
+2. **Capturar el NUEVO ID de Homepage** — del log de inyección o vía MCP `get_pages`.
+3. **Actualizar `home_id`** en `page_manifest.json` con el nuevo ID capturado.
+4. **Ejecutar `flush_cache.php`** pasándole el nuevo ID → Fija `page_on_front` + regenera CSS Elementor + sincroniza biblioteca.
+
+> **Si omites el paso 4, la Homepage apuntará a un ID inexistente o incorrecto.**
+
+### Modo Config-Only (SIN re-inyectar contenido)
+
+Si el sitio está estable y solo necesitas cambiar la Homepage o limpiar caché:
+
+```bash
+node scripts/maintenance_only.js          # Lee home_id del manifest
+node scripts/maintenance_only.js <ID>     # Fuerza un ID específico
+```
+
+**Nunca** ejecutes `sync_and_inject.js` solo para corregir el puntero de Homepage — eso destruiría los IDs actuales innecesariamente.
+
+> `[OBSOLETO — los IDs cambian tras cada inyección]`: Cualquier mención a IDs fijos de Homepage (como `1054`) en logs o manifests históricos es referencial. Siempre captura el ID vigente post-inyección.
+
 ## 6. Criterios de Éxito
 
 - **Modo `go!` (Pipeline Completo)**: Las N páginas del proyecto están completamente inyectadas en WP, son 100% editables bajo el ecosistema flexbox de Elementor, mantienen intactas sus imágenes de diseño original, y sus respectivos endpoints/slugs fueron estabilizados al formato del `page_manifest.json`.
@@ -110,9 +138,12 @@ Nunca crees páginas estándar para el Header o el Footer. Utiliza de forma obli
 6. Sobrescribe la opción maestra `elementor_theme_builder_conditions` en la tabla `wp_options` insertando `['include', 'general']`.
 
 ### 7.2 Rutina Final Obligatoria de Limpieza y Sincronización (Cache Flush & Config)
-Todo pipeline de inyección, modificaciones globales o migración debe FINALIZAR obligatoriamente disparando el script `scripts/flush_cache.php` de forma remota pasándole los IDs del manifest. Dicho script dispara de forma nativa los siguientes métodos de WordPress/Elementor:
+
+> **⚠️ ESTE PASO ES OBLIGATORIO TRAS TODA INYECCIÓN** — es la segunda mitad del Protocolo "AHORA SÍ" (ver sección anterior). Sin este paso, la Homepage queda desalineada por ID Shifting.
+
+Todo pipeline de inyección, modificaciones globales o migración debe FINALIZAR obligatoriamente disparando el script `scripts/flush_cache.php` de forma remota pasándole los **NUEVOS** IDs (capturados post-inyección, no los anteriores). Dicho script dispara de forma nativa los siguientes métodos de WordPress/Elementor:
 1. `flush_rewrite_rules(false)`: Para refrescar los Enlaces Permanentes.
-2. **Configuración de Front Page**: Establece automáticamente `page_on_front` y `page_for_posts` según el `page_manifest.json` (Parámetros `home_id` y `blog_id`).
+2. **Configuración de Front Page**: Establece automáticamente `page_on_front` y `page_for_posts` según el `page_manifest.json` (Parámetros `home_id` y `blog_id`). **Los IDs deben estar actualizados en el manifest ANTES de ejecutar este script.**
 3. `\Elementor\Plugin::$instance->files_manager->clear_cache()`: Regenerar todo CSS asíncrono y limpiar data estática (Clear Files & Data).
 4. `\Elementor\Api::get_library_data(true)`: Forzar sincronización remota de biblioteca Elementor.
 Esto garantiza que los cambios de Base de Datos se reflejen en DOM inmediato y la navegación sea funcional. No consultes al usuario antes de hacer esto; asúmelo como parte obligatoria del ciclo de inyección.

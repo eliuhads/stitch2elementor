@@ -1,6 +1,6 @@
 {
   "name": "stitch2elementor",
-  "version": "4.6.3",
+  "version": "4.6.5",
   "description": "Agentic AI Pipeline: From Google Stitch HTML to Native WordPress Elementor Pages automatically",
   "main": "compiler_v4.js",
   "scripts": {
