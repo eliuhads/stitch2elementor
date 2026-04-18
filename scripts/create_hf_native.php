@@ -1,6 +1,29 @@
 <?php
+/**
+ * create_hf_native.php — Native Elementor Theme Builder Header/Footer Creator
+ * stitch2elementor v4.6.4
+ *
+ * Creates Header and Footer as native Elementor Theme Builder templates
+ * with global display conditions. Reads JSON payloads from /v9_json_payloads/.
+ *
+ * This file is uploaded via FTP and executed remotely once, then auto-deleted for security.
+ */
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
+// --- Authentication ---
+$token = isset($_GET['token']) ? $_GET['token'] : '';
+$expected = getenv('INJECT_SECRET') ?: (defined('INJECT_SECRET') ? INJECT_SECRET : '');
+if (empty($expected)) {
+    $secret_file = __DIR__ . '/v9_json_payloads/.inject_secret';
+    if (file_exists($secret_file)) {
+        $expected = trim(file_get_contents($secret_file));
+    }
+}
+if (empty($token) || empty($expected) || $token !== $expected) {
+    http_response_code(403);
+    die(json_encode(['success' => false, 'error' => 'Forbidden — invalid or missing token']));
+}
 
 define('WP_USE_THEMES', false);
 require_once(__DIR__ . '/wp-load.php');
@@ -12,20 +35,8 @@ $pages = [
 ];
 
 global $wpdb;
-$url_map = [];
-$temp_dir = __DIR__ . '/wp-content/uploads/v9_images_temp/';
-if (file_exists($temp_dir)) {
-    $files = scandir($temp_dir);
-    foreach ($files as $file) {
-        if ($file === '.' || $file === '..') continue;
-        $existing = $wpdb->get_var($wpdb->prepare("SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_wp_attached_file' AND meta_value LIKE %s", '%' . $file));
-        if ($existing) {
-            $url_map[$file] = wp_get_attachment_url($existing);
-        }
-    }
-}
 
-echo "<h2>Creating NATIVE Elementor Theme Builder Templates...</h2>";
+$results = [];
 
 foreach($pages as $title => $info) {
     $json_file = $info['file'];
@@ -33,27 +44,28 @@ foreach($pages as $title => $info) {
 
     $path = $json_dir . $json_file;
     if(!file_exists($path)) {
-        echo "Missing JSON: $path <br>";
+        $results[$title] = ['status' => 'skipped', 'reason' => "Missing JSON: $json_file"];
         continue;
     }
     
     $content = file_get_contents($path);
-    foreach($url_map as $local_file => $wp_url) {
-        $content = str_replace("%%FILE:" . $local_file . "%%", $wp_url, $content);
-    }
-    
     $data = json_decode($content, true);
     if(!$data) {
-        echo "Failed to decode $json_file <br>";
+        $results[$title] = ['status' => 'error', 'reason' => "Failed to decode $json_file"];
         continue;
     }
 
     // Menu Auto-Discovery and Injection for Header Nav-Menu
     if ($tmpl_type === 'header') {
         $menu_term = get_term_by('name', 'Ppal Desktop', 'nav_menu');
+        if (!$menu_term) {
+            // Fallback: try to get the first available menu
+            $menus = wp_get_nav_menus();
+            if (!empty($menus)) {
+                $menu_term = $menus[0];
+            }
+        }
         if ($menu_term) {
-            echo "🔍 Located menu 'Ppal Desktop' (ID: {$menu_term->term_id}). Injecting into nav-menu widget...<br>";
-            // Recursive function to find and modify nav-menu elements
             $inject_menu = function(&$elements) use (&$inject_menu, $menu_term) {
                 foreach ($elements as &$el) {
                     if (isset($el['widgetType']) && $el['widgetType'] === 'nav-menu') {
@@ -65,18 +77,19 @@ foreach($pages as $title => $info) {
                 }
             };
             $inject_menu($data);
+            $results[$title]['menu_injected'] = $menu_term->name;
         } else {
-            echo "⚠️ Menu 'Ppal Desktop' not found in database. WordPress nav-menu might be empty.<br>";
+            $results[$title]['menu_warning'] = 'No nav menus found in database';
         }
     }
     
-    // Purge ANY existing posts (both dummy pages and old elementor_library templates) with the same name
+    // Purge ANY existing posts with the same name
     $existing = $wpdb->get_col($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_title = %s AND post_type IN ('page', 'elementor_library')", $title));
     if(!empty($existing)) {
         foreach($existing as $eid) {
             wp_delete_post($eid, true);
-            echo "🧹 Deleted old duplicate '$title' (ID: $eid)<br>";
         }
+        $results[$title]['purged_old_ids'] = $existing;
     }
     
     // Create natively as Theme Builder Template
@@ -88,7 +101,7 @@ foreach($pages as $title => $info) {
     ]);
     
     if(is_wp_error($page_id)) {
-        echo "Error creating $title: " . $page_id->get_error_message() . "<br>";
+        $results[$title] = ['status' => 'error', 'reason' => $page_id->get_error_message()];
         continue;
     }
     
@@ -114,8 +127,8 @@ foreach($pages as $title => $info) {
          \Elementor\Plugin::$instance->posts_manager->clear_cache($page_id);
     }
     
-    echo "✅ Successfully created '$title' (ID: $page_id) as Global $tmpl_type<br>";
+    $results[$title] = ['status' => 'created', 'id' => $page_id, 'type' => "global_$tmpl_type"];
 }
 
-echo "<h3>DONE. Templates injected as Theme Builder & mapped across entire site!</h3>";
+echo json_encode(['success' => true, 'results' => $results, 'timestamp' => date('c')]);
 ?>

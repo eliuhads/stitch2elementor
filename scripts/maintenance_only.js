@@ -1,6 +1,6 @@
 /**
  * maintenance_only.js — Modo Config-Only (Protocolo AHORA SI)
- * stitch2elementor v4.6.1
+ * stitch2elementor v4.6.5
  *
  * PROPÓSITO: Realinear Homepage en WordPress y limpiar caché Elementor
  *            SIN re-inyectar contenido ni alterar IDs de páginas.
@@ -55,12 +55,12 @@ function buildMaintenancePHP(homeId) {
 /**
  * maintenance_only_runner.php — Auto-destruible
  * Realinea Homepage + Flush Caché Elementor
- * Generado por maintenance_only.js — stitch2elementor v4.6.1
+ * Generado por maintenance_only.js — stitch2elementor v4.6.4
  */
 
 // Seguridad básica: solo desde localhost o con token
 $token = isset($_GET['token']) ? $_GET['token'] : '';
-$expected = '${process.env.INJECT_SECRET || 'ev2026secure'}';
+$expected = '${process.env.INJECT_SECRET || ''}';
 if ($token !== $expected) {
   http_response_code(403);
   die('Forbidden');
@@ -118,7 +118,11 @@ async function run() {
   const phpFilename = `maintenance_only_runner_${Date.now()}.php`;
   const phpContent = buildMaintenancePHP(homeId);
   const localTmp = path.join(__dirname, '..', 'exports', phpFilename);
-  const secret = process.env.INJECT_SECRET || 'ev2026secure';
+  const secret = process.env.INJECT_SECRET;
+  if (!secret) {
+    console.error('❌ ERROR: INJECT_SECRET no está definido en .env');
+    process.exit(1);
+  }
 
   // Escribir PHP temporal
   fs.mkdirSync(path.join(__dirname, '..', 'exports'), { recursive: true });

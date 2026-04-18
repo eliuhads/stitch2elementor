@@ -52,10 +52,11 @@ Propiedades prohibidas (legacy): `gap`, `margin` en su forma estandarizada antig
 | Script | Función | Cuándo ejecutar |
 |---|---|---|
 | `compiler_v4.js` | Transpiler principal HTML → Elementor JSON | Fase 2 |
+| `sync_and_inject.js` | Orquestador FTP+PHP: sube JSONs, ejecuta inyección, limpia PHPs | Fase 5 |
+| `maintenance_only.js` | Modo Config-Only: realinea Homepage + flush sin re-inyectar | Post-Fase 5 (mantenimiento) |
 | `fix_slugs.js` | Regulariza rutas REST según el manifest | Fase 4, paso 1 |
-| `audit_stitch_images.js` | Escanea JSONs y reporta todas las URLs lh3 pendientes de migrar | Fase 4, paso 3 (antes de replace) |
-| `replace_stitch_images.js` | Detecta URLs `lh3` y genera mapa de reemplazos | Fase 4, paso 3 |
-| `apply_image_replacements.js` | Aplica el mapa de reemplazos al JSON final | Fase 4, paso 3 |
-| `fix_material_symbols.js` | Purga spans textuales de iconos | Fase 4, paso 2 |
-| `fix_buttons.js` | Aplica códigos de color del BrandBook a botones | Fase 4, paso 4 |
-| `fix_internal_links.js` | Actualiza enlaces internos al dominio final | Fase 4, paso 5 |
+| `fix_material_symbols.js` | Purga spans textuales de iconos Material Symbols | Fase 4, paso 2 |
+| `create_hf_native.php` | Crea Header/Footer como Theme Builder templates nativos | Ejecutado por sync_and_inject.js |
+| `inject_all_pages.php` | Inyector batch de páginas desde manifest | Ejecutado por sync_and_inject.js |
+| `flush_cache.php` | Flush caché Elementor + realineación Homepage | Ejecutado por sync_and_inject.js |
+

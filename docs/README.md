@@ -1,17 +1,21 @@
-# html-to-elementor
+# stitch2elementor — Documentation
 
-Claude Code skill to convert HTML/Tailwind markup into native Elementor JSON templates.
+Reference documentation for the stitch2elementor Antigravity skill.
 
 ## Files in this folder
 
 | File | Purpose |
 |---|---|
-| `SKILL.md` | Main skill file — read this first. Contains all conversion rules. |
-| `elementor-json-schema.md` | Complete Elementor JSON structure reference with examples. |
+| `elementor-json-schema.md` | Complete Elementor Flexbox JSON structure reference with examples. |
 | `widget-mapping.md` | HTML element → Elementor widget mapping with JSON examples. |
 | `examples.md` | Full input/output examples (hero, features grid, CTA section). |
 | `gotchas.md` | Critical real-world issues. Read before generating any JSON. |
 
-## Activation
+## Related files (project root)
 
-Drop this `docs/` folder into your agent's skills directory. The agent activates the skill when it detects conversion intent (see `SKILL.md` description frontmatter).
+| File | Purpose |
+|---|---|
+| `SKILL.md` | Agent entrypoint — triggers, MCPs, error handling, success criteria |
+| `PROMPT_WEB_MAESTRO_v2.md` | Full pipeline instructions (`go!` and `segment!` modes) |
+| `Stitch_Elementor_Guide_GENERAL_V1.md` | Technical reference for layout patterns and responsive mapping |
+| `CHANGELOG.md` | Version history with battle-tested lessons and critical fixes |

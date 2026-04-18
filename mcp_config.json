@@ -7,8 +7,8 @@
       },
       "disabled": false
     },
-    "wp-elementor-mcp-EVERGREEN": {
-      "command": "C:\\Users\\TEC\\AppData\\Roaming\\npm\\wp-elementor-mcp.cmd",
+    "wp-elementor-mcp": {
+      "command": "wp-elementor-mcp",
       "args": [],
       "env": {
         "WORDPRESS_BASE_URL": "${WORDPRESS_BASE_URL}",
@@ -18,8 +18,8 @@
       },
       "disabled": false
     },
-    "elementor-mcp-EVERGREEN": {
-      "command": "C:\\Users\\TEC\\AppData\\Roaming\\npm\\elementor-mcp.cmd",
+    "elementor-mcp": {
+      "command": "elementor-mcp",
       "args": [],
       "env": {
         "WP_URL": "${WP_URL}",

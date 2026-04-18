@@ -3,14 +3,18 @@ node_modules/
 .DS_Store
 *.log
 
-# Carpetas generadas (ignorar contenido, excepto README)
+# Generated output folders (ignore content, keep READMEs)
 elementor_jsons/*
 !elementor_jsons/README.md
-fotos_web/*
-!fotos_web/README.md
 exports/*
 !exports/README.md
 logs/*
 !logs/README.md
 assets_originales/*
 !assets_originales/README.md
+
+# Scratch/temp files
+scratch/
+
+# Page manifest with real site data (use page_manifest_example.json as template)
+page_manifest.json

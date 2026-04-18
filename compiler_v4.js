@@ -1685,6 +1685,7 @@ function processSection($, sectionEl, isHero = false) {
 /** Convert full HTML page to Elementor JSON content array */
 function htmlToElementorContent(htmlStr) {
   const $ = cheerio.load(htmlStr, { decodeEntities: false });
+  $('.material-symbols-outlined').remove();
   const body = $('body');
   const contentElements = [];
 
@@ -1715,6 +1716,7 @@ function htmlToElementorContent(htmlStr) {
 /** Process nav → Header template */
 function processNavAsHeader(htmlStr) {
   const $ = cheerio.load(htmlStr, { decodeEntities: false });
+  $('.material-symbols-outlined').remove();
   const nav = $('nav').first();
   if (!nav.length) return [];
 
@@ -1831,6 +1833,7 @@ function processNavAsHeader(htmlStr) {
 /** Process footer → Footer template */
 function processFooterTemplate(htmlStr) {
   const $ = cheerio.load(htmlStr, { decodeEntities: false });
+  $('.material-symbols-outlined').remove();
   const footer = $('footer').first();
   if (!footer.length) return [];
   
@@ -1844,13 +1847,7 @@ function processFooterTemplate(htmlStr) {
 
 /** Wrap content array in template format */
 function wrapAsTemplate(content, title, type = 'page') {
-  return {
-    version: '0.4',
-    title: title,
-    type: type,
-    page_settings: [],
-    content: content
-  };
+  return content;
 }
 
 // ============================================================
