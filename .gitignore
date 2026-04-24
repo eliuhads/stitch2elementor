@@ -1,7 +1,14 @@
+mcp_config.json
+pipeline_state.json
+design-system/
+output/
+INFO_BrandBook/
 node_modules/
+*.log
+
+# Environment
 .env
 .DS_Store
-*.log
 
 # Generated output folders (ignore content, keep READMEs)
 elementor_jsons/*

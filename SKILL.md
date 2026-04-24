@@ -26,7 +26,7 @@ Usuario: go!
 Agente:
   1. Lee BrandBook → genera design_system.json
   2. Genera 20 pantallas en Stitch → descarga HTMLs a assets_originales/
-  3. node compiler_v4.js → 20 JSONs + header.json + footer.json en elementor_jsons/
+  3. node scripts/compiler_v4.js → 20 JSONs + header.json + footer.json en elementor_jsons/
   4. node scripts/fix_material_symbols.js → limpia residuos de iconos
   5. node scripts/sync_and_inject.js → FTP upload + PHP injection + cache flush
   6. node scripts/fix_slugs.js → normaliza URLs
@@ -57,6 +57,17 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 2.  **Lectura Referencial**: Tu única fuente de verdad técnica obligatoria es `Stitch_Elementor_Guide_GENERAL_V1.md`. **Consúltalo específicamente cuando enfrentes: layout roto, mapeo responsive fallido, errores de contenedor o rechazos HTTP por ModSecurity.**
 3.  **Sub-Delegación Inteligente**: En el transcurso de tu pipeline, delegarás sub-tareas asumiendo el alcance de las skills compañeras de tu repositorio. No intentes re-inventar sus funciones; aprovecha sus lógicas.
 4.  **INYECCIONES SECUENCIALES**: Nunca hagas peticiones concurrentes al WP REST API. Espera HTTP 200 de cada página antes de continuar con la siguiente.
+5.  **CHECKPOINT OBLIGATORIO**: Tras completar cada paso individual, escribe
+    `pipeline_state.json` antes de continuar. Si el pipeline se interrumpe,
+    el trigger `conti!!` (ver `CONTI!!.md`) reanuda desde el último checkpoint.
+6.  **VERIFICACIÓN DE SKILLS HERMANOS EN FASE -1**: Comprueba existencia de
+    `webp-optimizer`, `Agentic-SEO-Skill` y `ui-ux-pro-max` en el directorio
+    de skills del agente. Si alguno falta, notifica al usuario con:
+    `⚠️ Skill [nombre] no encontrado. La fase [X] se ejecutará sin él.`
+    Continúa el pipeline; no abortes por un skill faltante.
+7.  **OUTPUT LOCAL ANTES DE INYECTAR**: Guarda cada JSON compilado en
+    `output/[nombre-pagina].json` antes de inyectarlo en WordPress.
+    Esto permite reanudar desde FASE 3 sin recompilar si hay un corte.
 ## 4. Skills Transversales
 
 - **enhance-prompt**: Refinamiento de directivas para Stitch (usado en modo `go!` y `segment!`). 
@@ -68,7 +79,7 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 
 | Script | Tipo | Función |
 |---|---|---|
-| `compiler_v4.js` | Node.js | Transpiler principal HTML → Elementor JSON |
+| `scripts/compiler_v4.js` | Node.js | Transpiler principal HTML → Elementor JSON |
 | `sync_and_inject.js` | Node.js | Orquestador FTP+HTTP: sube, inyecta, limpia |
 | `maintenance_only.js` | Node.js | **Modo Config-Only**: Realinea Homepage + flush caché SIN re-inyectar contenido |
 | `create_hf_native.php` | PHP | Crea Header/Footer como `elementor_library` con conditions globales |
@@ -125,7 +136,7 @@ node scripts/maintenance_only.js <ID>     # Fuerza un ID específico
 3. **Flujo de Imágenes (Stitch → WordPress)**:
    - Las imágenes provienen **única y exclusivamente** de Google Stitch (URLs tipo `lh3.googleusercontent.com/*`).
    - El script `inject_all_pages.php` detecta estas URLs en los JSONs inyectados y las registra en la WordPress Media Library usando `media_sideload_image()` de forma nativa.
-   - **No se usan carpetas locales de imágenes**. No se descarga, comprime ni sube manualmente ningún asset de imagen.
+   - **No se usan carpetas locales de imágenes ni IMAGENES_FUENTES**. Solo se admite el logo del sitio en formato SVG dentro de `INFO_BrandBook/`. Utilizar imágenes locales de referencia como relleno causa graves deformaciones en la estructura de Elementor. No se descarga, comprime ni sube manualmente ningún otro asset de imagen.
    - **Vía Autónoma Híbrida (VÍA POR DEFECTO ESTRICTA)**: Ejecutar `scripts/sync_and_inject.js` que transporta el JSON vía FTP, inyecta el PHP actuante y lo dispara remotamente (`curl` / `fetch`) para que WordPress procese el sideload de media directamente desde las URLs de Stitch. El script Node auto-destruye el PHP por seguridad perimetral.
 
 ### 7.1 Inyección de Theme Builder (Header / Footer)

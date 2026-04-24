@@ -1,14 +1,46 @@
 # PROMPT: WEB MAESTRO V2 [v4.6.5] — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
 
+## ⚙️ Protocolo de Checkpoint (LEER PRIMERO)
+
+Antes de iniciar cada paso individual:
+1. Verifica si `pipeline_state.json` existe y tiene `trigger: "go!"`.
+   Si existe con datos, pregunta al usuario: `¿Continuar pipeline existente o iniciar nuevo?`
+
+Después de completar cada paso individual:
+1. Actualiza `pipeline_state.json` con el estado actual.
+2. Muestra `✅ [nombre del paso]` al usuario.
+3. Espera `conti!!` antes de ejecutar el siguiente paso.
+
+La lista de pasos para `pendientes[]` es:
+- "env-check-mcps"
+- "env-check-skills"
+- "brandbook-read"
+- "manifest-create"
+- "stitch-create-project"
+- "stitch-generate-[pagina]" (uno por página)
+- "stitch-approve-screens"
+- "compile-[pagina]" (uno por página)
+- "wp-create-pages"
+- "wp-inject-[pagina]" (uno por página)
+- "wp-inject-header"
+- "wp-inject-footer"
+- "post-fix-slugs"
+- "post-fix-symbols"
+- "post-fix-images"
+- "post-fix-links"
+- "seo-delegate"
+
+---
+
 Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma autónoma y secuencial. Cada fase depende de la correcta ejecución de la anterior. Verifica MCPs según SKILL.md antes de iniciar.
 
 ---
 
 ## PIPELINE COMPLETO (`go!`)
 
-### FASE 1: PREPARACIÓN BRANDBOOK E IMÁGENES
+### FASE 1: PREPARACIÓN BRANDBOOK Y LOGOS
 
-1. **Lee BrandBook**: Lee todos los archivos en `INFO_BrandBook/`. Extrae colores HEX exactos y tipografías. Genera `design-system/[Nombre]/MASTER.md`. Descarta colores "Material" temporales de Stitch.
+1. **Lee BrandBook**: Lee todos los archivos en `INFO_BrandBook/`. Extrae colores HEX exactos, tipografías y SOLO archivos de logo en formato SVG. NUNCA uses imágenes de referencia de carpetas locales (provocan deformación del layout). Genera `design-system/[Nombre]/MASTER.md`. Descarta colores "Material" temporales de Stitch.
 2. **Genera `design_system.json`**: Basándote en el BrandBook, crea o actualiza `design_system.json` en el root del skill con colores, fuentes, typoScale, logoUrl, etc. El compiler lo cargará automáticamente.
 3. **Crea el Manifest**: Genera `page_manifest.json` con: nombre de cada página, archivos HTML/JSON de origen/destino, slug URL final y título.
 
@@ -24,7 +56,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ### FASE 3: COMPILACIÓN Y POST-PROCESAMIENTO
 
-1. **Compilar JSONs**: Ejecuta `node compiler_v4.js`. Genera los N JSONs de páginas + `header.json` + `footer.json` en `elementor_jsons/`.
+1. **Compilar JSONs**: Ejecuta `node scripts/compiler_v4.js`. Genera los N JSONs de páginas + `header.json` + `footer.json` en `elementor_jsons/`.
 2. **Purgar Material Symbols**: Ejecuta `node scripts/fix_material_symbols.js` para eliminar residuos textuales de iconos.
 3. **Verificar JSONs**: Abre 2-3 archivos JSON al azar y confirma:
    - Son arrays `[{...}]` (nunca wrapper objects)

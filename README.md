@@ -42,7 +42,7 @@ This skill was born from real production migrations. Every protocol, every safet
 ```
   ┌─────────────────┐      ┌──────────────────┐      ┌─────────────────────┐      ┌─────────────┐
   │  Google Stitch  │ ───► │  HTML + Tailwind  │ ───► │  Elementor JSON V4  │ ───► │  WordPress  │
-  │   AI Design     │      │  Agent Download   │      │  compiler_v4.js     │      │  FTP + PHP  │
+  │   AI Design     │      │  Agent Download   │      │  scripts/compiler   │      │  FTP + PHP   │
   └─────────────────┘      └──────────────────┘      └─────────────────────┘      └─────────────┘
 ```
 
@@ -93,6 +93,14 @@ The agent targets a single component (Hero, Pricing Table, CTA, Footer...), comp
 
 ---
 
+### `conti!!` — Recuperación de Pipeline
+
+Si el pipeline se interrumpió, escribe `conti!!`. El agente leerá
+`pipeline_state.json` y retomará exactamente desde donde se cortó,
+sin consumir tokens re-leyendo el contexto completo.
+
+---
+
 ## 🔧 How It Works
 
 ### Pipeline Overview (`go!`)
@@ -111,7 +119,7 @@ Phase 3 — Generate in Google Stitch
   └── Create screens via StitchMCP → Download HTML via curl
 
 Phase 4 — Compile + Sanitize
-  └── node compiler_v4.js → N page JSONs + header.json + footer.json
+  └── node scripts/compiler_v4.js → N page JSONs + header.json + footer.json
   └── node scripts/fix_material_symbols.js → purge icon text ghosts
   └── Audit image URLs → replace CDN refs with WP Media Library paths
 
@@ -197,6 +205,22 @@ npm i -g elementor-mcp
 
 > ⚠️ Install globally to prevent timeout errors on long pipelines.
 
+### 3b. Crea tu `mcp_config.json` local (nunca en el repo)
+
+```bash
+cp mcp_config.example.json mcp_config.json
+# Edita mcp_config.json con tus credenciales reales
+# Este archivo está en .gitignore — nunca se subirá al repo
+```
+
+### 3c. Crea los directorios de trabajo
+
+```bash
+# Coloca tu identidad de marca y tu logo (SOLO en SVG) en INFO_BrandBook/
+# ATENCIÓN: No uses carpetas locales de imágenes fuente para el diseño (deforman el layout de Elementor).
+# Las imágenes del sitio son capturadas e inyectadas nativamente desde Google Stitch.
+```
+
 ### 4. Configure your `.env`
 
 ```env
@@ -243,7 +267,7 @@ segment!  ← Single component injection
 
 | Script | Type | Purpose |
 |---|---|---|
-| `compiler_v4.js` | Node.js | Core DOM walker. Transpiles HTML + Tailwind → Elementor JSON with `clamp()` typography. |
+| `scripts/compiler_v4.js` | Node.js | Core DOM walker. Transpiles HTML + Tailwind → Elementor JSON with `clamp()` typography. |
 | `sync_and_inject.js` | Node.js | Main orchestrator: FTP upload → PHP execution → cache flush → auto-cleanup. |
 | `maintenance_only.js` | Node.js | **Config-Only mode**: realigns Homepage + flushes cache without re-injecting content. |
 | `create_hf_native.php` | PHP | Creates Header/Footer as `elementor_library` CPT with global display conditions. |
@@ -274,6 +298,9 @@ This skill orchestrates other agent skills. Make sure these are available in you
 ```
 🚫  No local browsers (Playwright, Chromium, browser_subagent)
     → Use: read_url_content  /  REST API via MCP  /  curl
+
+🚫  No local image assets (IMAGENES_FUENTES)
+    → Use ONLY SVG logos in INFO_BrandBook/. All other images must use the automated Stitch CDN auto-sideload to prevent layout deformation.
 
 🚫  No Elementor JSON wrapper objects
     → Output MUST be: [{...}]  — plain array only, always

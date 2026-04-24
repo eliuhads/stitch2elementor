@@ -1,0 +1,288 @@
+[
+  {
+    "id": "tab_header",
+    "elType": "container",
+    "settings": {
+      "content_width": "full",
+      "flex_direction": "row",
+      "flex_direction_mobile": "column",
+      "flex_gap": {"column": "0", "row": "0", "isLinked": true, "unit": "px", "size": 0},
+      "flex_align_items": "stretch",
+      "padding": {"unit": "px", "top": "16", "right": "0", "bottom": "16", "left": "0", "isLinked": false},
+      "border_border": "solid",
+      "border_width": {"unit": "px", "top": "0", "right": "0", "bottom": "1", "left": "0", "isLinked": false},
+      "border_color": "rgba(255,255,255,0.1)"
+    },
+    "elements": [
+      {
+        "id": "th_feat",
+        "elType": "container",
+        "settings": {
+          "content_width": "full",
+          "width": {"unit": "%", "size": 25},
+          "width_mobile": {"unit": "%", "size": 100},
+          "padding": {"unit": "px", "top": "16", "right": "16", "bottom": "16", "left": "16", "isLinked": true}
+        },
+        "elements": [
+          {
+            "id": "th_feat_text",
+            "elType": "widget",
+            "widgetType": "heading",
+            "settings": {
+              "title": "Característica",
+              "header_size": "h4",
+              "title_color": "rgba(245,243,237,0.4)",
+              "typography_typography": "custom",
+              "typography_font_family": "Barlow Condensed",
+              "typography_font_size": {"unit": "px", "size": 18},
+              "typography_font_weight": "700",
+              "typography_text_transform": "uppercase"
+            }
+          }
+        ]
+      },
+      {
+        "id": "th_port",
+        "elType": "container",
+        "settings": {
+          "content_width": "full",
+          "width": {"unit": "%", "size": 25},
+          "width_mobile": {"unit": "%", "size": 33},
+          "padding": {"unit": "px", "top": "16", "right": "16", "bottom": "16", "left": "16", "isLinked": true}
+        },
+        "elements": [
+          {
+            "id": "th_port_text",
+            "elType": "widget",
+            "widgetType": "heading",
+            "settings": {
+              "title": "Portátil",
+              "header_size": "h4",
+              "title_color": "#8FDA3E",
+              "typography_typography": "custom",
+              "typography_font_family": "Barlow Condensed",
+              "typography_font_size": {"unit": "px", "size": 22},
+              "typography_font_weight": "700",
+              "typography_text_transform": "uppercase"
+            }
+          }
+        ]
+      },
+      {
+        "id": "th_res",
+        "elType": "container",
+        "settings": {
+          "content_width": "full",
+          "width": {"unit": "%", "size": 25},
+          "width_mobile": {"unit": "%", "size": 33},
+          "padding": {"unit": "px", "top": "16", "right": "16", "bottom": "16", "left": "16", "isLinked": true}
+        },
+        "elements": [
+          {
+            "id": "th_res_text",
+            "elType": "widget",
+            "widgetType": "heading",
+            "settings": {
+              "title": "Residencial",
+              "header_size": "h4",
+              "title_color": "#60D4FF",
+              "typography_typography": "custom",
+              "typography_font_family": "Barlow Condensed",
+              "typography_font_size": {"unit": "px", "size": 22},
+              "typography_font_weight": "700",
+              "typography_text_transform": "uppercase"
+            }
+          }
+        ]
+      },
+      {
+        "id": "th_ind",
+        "elType": "container",
+        "settings": {
+          "content_width": "full",
+          "width": {"unit": "%", "size": 25},
+          "width_mobile": {"unit": "%", "size": 33},
+          "padding": {"unit": "px", "top": "16", "right": "16", "bottom": "16", "left": "16", "isLinked": true}
+        },
+        "elements": [
+          {
+            "id": "th_ind_text",
+            "elType": "widget",
+            "widgetType": "heading",
+            "settings": {
+              "title": "Industrial",
+              "header_size": "h4",
+              "title_color": "#F5F3ED",
+              "typography_typography": "custom",
+              "typography_font_family": "Barlow Condensed",
+              "typography_font_size": {"unit": "px", "size": 22},
+              "typography_font_weight": "700",
+              "typography_text_transform": "uppercase"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "row_cap",
+    "elType": "container",
+    "settings": {
+      "content_width": "full",
+      "flex_direction": "row",
+      "flex_direction_mobile": "column",
+      "flex_gap": {"column": "0", "row": "0", "isLinked": true, "unit": "px", "size": 0},
+      "flex_align_items": "center",
+      "padding": {"unit": "px", "top": "0", "right": "0", "bottom": "0", "left": "0", "isLinked": true},
+      "border_border": "solid",
+      "border_width": {"unit": "px", "top": "0", "right": "0", "bottom": "1", "left": "0", "isLinked": false},
+      "border_color": "rgba(255,255,255,0.05)"
+    },
+    "elements": [
+      {
+        "id": "r1c1",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 100}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r1c1t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:rgba(245,243,237,0.6);font-weight:700\">Capacidad</p>"}}]
+      },
+      {
+        "id": "r1c2",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r1c2t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED;font-family:JetBrains Mono\">300Wh - 2kWh</p>"}}]
+      },
+      {
+        "id": "r1c3",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r1c3t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED;font-family:JetBrains Mono\">5kWh - 20kWh</p>"}}]
+      },
+      {
+        "id": "r1c4",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r1c4t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED;font-family:JetBrains Mono\">50kWh - 1MWh+</p>"}}]
+      }
+    ]
+  },
+  {
+    "id": "row_app",
+    "elType": "container",
+    "settings": {
+      "content_width": "full",
+      "flex_direction": "row",
+      "flex_direction_mobile": "column",
+      "flex_gap": {"column": "0", "row": "0", "isLinked": true, "unit": "px", "size": 0},
+      "flex_align_items": "center",
+      "padding": {"unit": "px", "top": "0", "right": "0", "bottom": "0", "left": "0", "isLinked": true},
+      "border_border": "solid",
+      "border_width": {"unit": "px", "top": "0", "right": "0", "bottom": "1", "left": "0", "isLinked": false},
+      "border_color": "rgba(255,255,255,0.05)"
+    },
+    "elements": [
+      {
+        "id": "r2c1",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 100}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r2c1t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:rgba(245,243,237,0.6);font-weight:700\">Aplicación</p>"}}]
+      },
+      {
+        "id": "r2c2",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r2c2t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED\">Camping / Móvil</p>"}}]
+      },
+      {
+        "id": "r2c3",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r2c3t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED\">Hogar / Oficinas</p>"}}]
+      },
+      {
+        "id": "r2c4",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r2c4t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED\">Plantas / Data Centers</p>"}}]
+      }
+    ]
+  },
+  {
+    "id": "row_inst",
+    "elType": "container",
+    "settings": {
+      "content_width": "full",
+      "flex_direction": "row",
+      "flex_direction_mobile": "column",
+      "flex_gap": {"column": "0", "row": "0", "isLinked": true, "unit": "px", "size": 0},
+      "flex_align_items": "center",
+      "padding": {"unit": "px", "top": "0", "right": "0", "bottom": "0", "left": "0", "isLinked": true},
+      "border_border": "solid",
+      "border_width": {"unit": "px", "top": "0", "right": "0", "bottom": "1", "left": "0", "isLinked": false},
+      "border_color": "rgba(255,255,255,0.05)"
+    },
+    "elements": [
+      {
+        "id": "r3c1",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 100}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r3c1t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:rgba(245,243,237,0.6);font-weight:700\">Instalación</p>"}}]
+      },
+      {
+        "id": "r3c2",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r3c2t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED\">Plug & Play</p>"}}]
+      },
+      {
+        "id": "r3c3",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r3c3t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED\">Profesional requerida</p>"}}]
+      },
+      {
+        "id": "r3c4",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r3c4t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED\">Ingeniería dedicada</p>"}}]
+      }
+    ]
+  },
+  {
+    "id": "row_price",
+    "elType": "container",
+    "settings": {
+      "content_width": "full",
+      "flex_direction": "row",
+      "flex_direction_mobile": "column",
+      "flex_gap": {"column": "0", "row": "0", "isLinked": true, "unit": "px", "size": 0},
+      "flex_align_items": "center",
+      "padding": {"unit": "px", "top": "0", "right": "0", "bottom": "0", "left": "0", "isLinked": true}
+    },
+    "elements": [
+      {
+        "id": "r4c1",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 100}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r4c1t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:rgba(245,243,237,0.6);font-weight:700\">Precio Estimado</p>"}}]
+      },
+      {
+        "id": "r4c2",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r4c2t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#8FDA3E;font-family:JetBrains Mono\">Desde $299</p>"}}]
+      },
+      {
+        "id": "r4c3",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r4c3t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#60D4FF;font-family:JetBrains Mono\">Desde $3,500</p>"}}]
+      },
+      {
+        "id": "r4c4",
+        "elType": "container",
+        "settings": {"content_width": "full", "width": {"unit": "%", "size": 25}, "width_mobile": {"unit": "%", "size": 33}, "padding": {"unit": "px", "top": "20", "right": "16", "bottom": "20", "left": "16", "isLinked": false}},
+        "elements": [{"id": "r4c4t", "elType": "widget", "widgetType": "text-editor", "settings": {"editor": "<p style=\"color:#F5F3ED;font-family:JetBrains Mono\">Cotización previa</p>"}}]
+      }
+    ]
+  }
+]

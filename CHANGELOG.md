@@ -4,6 +4,23 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [4.7.0] - 2026-04-24 — ARQUITECTURA DE RESILIENCIA Y REGLA ESTRICTA DE IMÁGENES
+
+### 🛡️ Arquitectura de Resiliencia (Checkpoint System)
+- **Protocolo de Recuperación (`CONTI!!.md`)**: Sistema implementado para permitir al agente reanudar migraciones interrumpidas sin perder contexto.
+- **`pipeline_state.json`**: Agregado como mecanismo de persistencia entre pasos del pipeline.
+
+### 🖼️ Regla Estricta de Imágenes
+- **Eliminación Definitiva de `IMAGENES_FUENTES`**: Borrado el directorio por completo y sus referencias.
+- **Logotipos SVG Exclusivos**: Se prohíbe el uso de imágenes de referencia locales para evitar deformaciones del layout. Se exige el uso del logo en formato SVG proveniente de `INFO_BrandBook/`.
+- **Sideloading Nativo**: Las imágenes inyectadas provienen exclusivamente de Google Stitch (vía URLs nativas de CDN de Google).
+
+### 🔒 Seguridad y Estructura
+- **Estandarización de `scripts/`**: Movido `compiler_v4.js` a `/scripts/` para unificar ejecutables. Actualizado `package.json` para reflejar esto.
+- **Mejora en Git y Secretos**: Configurado `.gitignore` robusto. Añadido `mcp_config.example.json`. Modificado `MCP_CONFIGURATION_GUIDE.txt` para enfatizar autenticación vía variables de entorno.
+
+---
+
 ## [4.6.5] - 2026-04-18 — PROTOCOLO ID SHIFTING & POST-INYECCIÓN
 
 ### 📄 Documentación — Protocolo ID Shifting Formalizado
