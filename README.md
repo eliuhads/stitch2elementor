@@ -373,3 +373,15 @@ Made with 🔌 by [@eliuhads](https://github.com/eliuhads)
 <img src="https://img.shields.io/badge/No_Premium_Plugins-Free-00D9A3?style=flat-square&labelColor=0D1117" />
 
 </div>
+
+---
+
+## 🧠 Conocimientos y Reglas Clave
+
+El ecosistema está respaldado por nuestra `stitch2elementor` skill. Aquí están los pilares fundamentales:
+*   **Condiciones Planas:** Todo Theme Builder en Elementor Pro requiere que `_elementor_conditions` sea un *flat array*. No usar arreglos asociativos.
+*   **Menús Estructurales:** Un menú vacío (`Ppal Desktop`) romperá el widget nav-menu de Elementor. Se debe auto-poblar programáticamente.
+*   **Plantilla `elementor_canvas`:** Los headers y footers no pueden usar `elementor_header_footer` o se anidarán recursivamente.
+*   **CSS Cache:** Todo cambio por DB requiere un flush inmediato de la caché estática mediante `\Elementor\Plugin::$instance->files_manager->clear_cache()`.
+
+Para más detalles operativos de depuración o mantenimiento puro, consultar el archivo `MAINTENANCE.md`.
