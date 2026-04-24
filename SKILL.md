@@ -152,3 +152,15 @@ Esto garantiza que los cambios de Base de Datos se reflejen en DOM inmediato y l
 
 -   **Tolerancia Cero**: Si un script interno de post-procesamiento arroja una excepción, **detén inmediatamente el pipeline**. No prosigas ignorando el fallo; diagnostica y repara.
 -   **Garantía de Fidelidad**: El Output Inyectado siempre debe garantizar la ausencia de "Material Symbol text-spans", estar provisto de un "design system" robusto (con su `clamp()` incrustado) y purgado de recursos volátiles.
+
+## 9. Documentos de Operación Asistida (Prompts de Utilidad)
+
+En la raíz del proyecto existen varios archivos `.md` con el sufijo `!!` (ej. `actual!!.md`, `clean!!.md`). Estos **NO se ejecutan automáticamente** ni son scripts. Son **Plantillas de Prompt (Prompt Templates)** diseñadas para estandarizar operaciones complejas del Agente IA.
+
+Para usarlos, el usuario simplemente debe pedírselo al agente (Ej: *"ejecuta clean!!.md"* o *"aplica auditoria!!.md"*). El agente leerá el documento y ejecutará las instrucciones paso a paso detalladas en él.
+
+*   **`actual!!.md`**: Ejecútalo al final de una sesión de trabajo para forzar al agente a extraer el conocimiento empírico adquirido (learnings, bugs resueltos) y actualizar la documentación del proyecto y GitHub.
+*   **`auditoria!!.md`**: Ejecútalo para forzar al agente a realizar un chequeo completo y exhaustivo del SEO, enlaces rotos, estructura de etiquetas y performance tras una migración.
+*   **`clean!!.md`**: Ejecútalo para realizar una limpieza profunda del espacio de trabajo (archivos temporales, scripts obsoletos) y del entorno de WordPress (caché, transitorios, etc.).
+*   **`continue!!.md`**: Ejecútalo al iniciar una nueva sesión para que el agente lea rápidamente el contexto anterior, los objetivos pendientes y retome el flujo de trabajo sin perder tiempo.
+*   **`MAINTENANCE.md`**: Referencia técnica (no prompt directo) para tareas de mantenimiento de la sincronización de Elementor sin necesidad de re-inyectar.
