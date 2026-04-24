@@ -1,12 +1,12 @@
 {
   "_comment": "⚠️  PROTOCOLO ID-SHIFTING: Cada re-inyección via sync_and_inject.js asigna NUEVOS IDs en WordPress. Los wp_id listados en 'pages' son un SNAPSHOT del 2026-04-15 (Evergreen VZLA) y quedan obsoletos tras cada ejecución. SIEMPRE captura el nuevo ID de la Homepage del log post-inyección y actualiza 'home_id'.",
-  "home_id": 1054,
+  "home_id": null,
   "blog_id": null,
-  "migration_status": "COMPLETED",
-  "last_injection_date": "2026-04-15",
+  "migration_status": "STARTED",
+  "last_injection_date": "2026-04-24",
   "pipeline_version": "4.6.0",
   "pages": [
-    { "html": "homepage.html", "json": "homepage.json", "wp_id": 1054, "slug": "homepage", "title": "Evergreen Venezuela", "is_homepage": true },
+    { "html": "homepage.html", "json": "homepage.json", "wp_id": null, "slug": "homepage", "title": "Evergreen Venezuela", "is_homepage": true },
     { "html": "soluciones-de-energia.html", "json": "soluciones-de-energia.json", "wp_id": null, "slug": "soluciones-de-energia", "title": "Soluciones de Energía" },
     { "html": "estaciones-de-energia-portatiles.html", "json": "estaciones-de-energia-portatiles.json", "wp_id": null, "slug": "estaciones-de-energia-portatiles", "title": "Estaciones de Energía Portátiles" },
     { "html": "respaldo-energetico-residencial.html", "json": "respaldo-energetico-residencial.json", "wp_id": null, "slug": "respaldo-energetico-residencial", "title": "Respaldo Energético Residencial" },

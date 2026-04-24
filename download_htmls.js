@@ -7,29 +7,8 @@ const screenMap = JSON.parse(fs.readFileSync('screen_map.json', 'utf8'));
 const outputDir = path.join(__dirname, 'assets_originales');
 if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-// Page slug mapping (same order as screen_map)
-const slugs = [
-  'homepage',
-  'estaciones-de-energia-portatiles',
-  'soluciones-de-energia',
-  'respaldo-energetico-residencial',
-  'iluminacion-led-industrial',
-  'iluminacion-led-residencial',
-  'iluminacion-led-comercial',
-  'arrancadores-portatiles',
-  'paneles-solares',
-  'accesorios-y-complementos',
-  'sobre-nosotros',
-  'contacto',
-  'blog',
-  'distribuidores',
-  'proyectos',
-  'garantia',
-  'preguntas-frecuentes',
-  'calculadora-solar',
-  'politica-de-privacidad',
-  'terminos-y-condiciones'
-];
+const manifest = JSON.parse(fs.readFileSync('page_manifest.json', 'utf8'));
+const slugs = manifest.pages.map(p => p.html.replace('.html', ''));
 
 function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
