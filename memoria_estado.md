@@ -4,10 +4,13 @@
 - Corrección aplicada en `compiler_v4.js` para reubicar Font Loader al final del JSON.
 - Resuelto Error Crítico de WP 500: corregida la estructura del array de condiciones en `create_hf_native.php` para `elementor_pro_theme_builder_conditions` y restaurada la asignación global.
 - `homepage.json` re-transpilado y subido vía `sync_and_inject.js` a WP ID 1417. Caché purgada.
+- Creado `learning.md` con aprendizajes técnicos sobre Elementor Pro y bypass de crash vía SHORTINIT.
+- Repositorio GitHub sincronizado con los últimos cambios de arquitectura y skills.
 
 [PENDIENTE]:
-- Generar y descargar el resto de los HTML pendientes (actualmente faltan 19 en `assets_originales/`).
-- Ejecutar transpilación y sincronización masiva para el resto de pantallas.
+- Descargar los 19 HTML restantes del proyecto Stitch V12 a `assets_originales/`.
+- Ejecutar transpilación masiva (`compiler_v4.js`) para generar los JSONs restantes.
+- Ejecutar inyección masiva vía `sync_and_inject.js` para completar el sitio.
 [VARIABLES CLAVE]:
 - Proyecto Stitch V12: `projects/800373799240149310`
 - Pantalla Homepage: `810fa2f5458a4e97bd625422138d8792`
