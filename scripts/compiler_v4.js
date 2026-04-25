@@ -805,6 +805,20 @@ function extractContainerSettings($, el) {
       s._element_width = 'custom';
       s.width = { unit: 'px', size: parseInt(wMatch[1]) * 4, sizes: [] };
     }
+    const fractionMatch = cls.match(/^(?:sm:|md:|lg:|xl:)?w-(\d+)\/(\d+)$/);
+    if (fractionMatch) {
+      const num = parseInt(fractionMatch[1]);
+      const den = parseInt(fractionMatch[2]);
+      const percent = Number(((num / den) * 100).toFixed(2));
+      s._element_width = 'custom';
+      s.width = { unit: '%', size: percent, sizes: [] };
+    }
+    if (cls === 'flex-1' || cls === 'grow' || cls.endsWith(':flex-1')) {
+      s.flex_grow = 1;
+    }
+    if (cls === 'shrink-0' || cls.endsWith(':shrink-0')) {
+      s.flex_shrink = 0;
+    }
     
     if (cls === 'max-w-4xl') { s.boxed_width = { unit: 'px', size: 896, sizes: [] }; s.content_width = 'boxed'; }
     if (cls === 'max-w-xl') { s.boxed_width = { unit: 'px', size: 576, sizes: [] }; s.content_width = 'boxed'; }
@@ -813,6 +827,20 @@ function extractContainerSettings($, el) {
     if (cls === 'max-w-2xl') { s.boxed_width = { unit: 'px', size: 672, sizes: [] }; s.content_width = 'boxed'; }
     if (cls === 'max-w-3xl') { s.boxed_width = { unit: 'px', size: 768, sizes: [] }; s.content_width = 'boxed'; }
     if (cls === 'container') { s.boxed_width = { unit: 'px', size: 1280, sizes: [] }; s.content_width = 'boxed'; }
+
+    // --- Grid → Flex conversion ---
+    // grid-cols-N on parent: set flex_direction = row + flex_wrap = wrap
+    const gridColsMatch = cls.match(/^(?:lg:|md:)?grid-cols-(\d+)$/);
+    if (gridColsMatch) {
+      s.flex_direction = 'row';
+      s.flex_wrap = 'wrap';
+      s.__gridCols = parseInt(gridColsMatch[1]);
+    }
+    // col-span-N on child: calculate width as percentage of parent grid
+    const colSpanMatch = cls.match(/^(?:lg:|md:)?col-span-(\d+)$/);
+    if (colSpanMatch) {
+      s.__colSpan = parseInt(colSpanMatch[1]);
+    }
   }
 
   // --- Border ---
@@ -1521,14 +1549,20 @@ function processElement($, el) {
       if (gridCols > 1) {
         containerSettings.flex_direction = 'row';
         containerSettings.flex_direction_mobile = 'column';
-        const childWidth = Math.floor(100 / gridCols);
+        const defaultChildWidth = Math.floor(100 / gridCols);
         childElements.forEach(child => {
           if (child.elType === 'container') {
             child.settings = child.settings || {};
             if (!child.settings.width) {
+              // If child has __colSpan from col-span-N, use proportional width
+              const span = child.settings.__colSpan || 0;
+              const pct = span > 0 ? Math.round((span / gridCols) * 100) : defaultChildWidth;
               child.settings._element_width = 'custom';
-              child.settings.width = { unit: '%', size: childWidth, sizes: [] };
+              child.settings.width = { unit: '%', size: pct, sizes: [] };
               child.settings.width_mobile = { unit: '%', size: 100, sizes: [] };
+              // Cleanup internal marker
+              delete child.settings.__colSpan;
+              delete child.settings.__gridCols;
             }
           }
         });
@@ -1724,21 +1758,28 @@ function htmlToElementorContent(htmlStr) {
   });
 
   // Font loader as last element to avoid breaking global headers
-  contentElements.push(buildFontLoader());
+  // contentElements.push(buildFontLoader());
 
   return contentElements;
 }
 
-/** Process nav → Header template */
+/** Process header-global.html → Header template
+ *  Parses the REAL DOM of header-global.html:
+ *    <header> → utility-bar (optional) + main-nav row (logo + nav + CTA)
+ *  Falls back to a simple nav if no <header> found.
+ */
 function processNavAsHeader(htmlStr) {
   const $ = cheerio.load(htmlStr, { decodeEntities: false });
   $('.material-symbols-outlined').remove();
-  const nav = $('nav').first();
-  if (!nav.length) return [];
+
+  // Try <header> first (header-global.html), then <nav> (homepage fallback)
+  const headerEl = $('header').first();
+  const navEl = headerEl.length ? headerEl.find('nav').first() : $('nav').first();
+  if (!navEl.length && !headerEl.length) return [];
 
   const navElements = [];
 
-  // 1. Logo Container (Constrained Width)
+  // ─── 1. Logo: use native Site Logo widget ───
   navElements.push({
     id: genId(),
     elType: 'container',
@@ -1750,28 +1791,17 @@ function processNavAsHeader(htmlStr) {
       flex_direction: 'row',
       flex_align_items: 'center',
     },
-    elements: [
-      {
-        id: genId(),
-        elType: 'widget',
-        widgetType: 'image',
-        isInner: false,
-        settings: {
-          image: { 
-            url: CONFIG.logoUrl, 
-            id: '', size: '', alt: CONFIG.logoAlt, source: 'library' 
-          },
-          image_size: 'full',
-          width: { unit: '%', size: 100, sizes: [] }, // 100% of the 220px container
-          link_to: 'custom',
-          link: { url: '/', is_external: '', nofollow: '' }
-        },
-        elements: []
-      }
-    ]
+    elements: [{
+      id: genId(),
+      elType: 'widget',
+      widgetType: 'theme-site-logo',
+      isInner: false,
+      settings: {},
+      elements: []
+    }]
   });
 
-  // 2. Nav-Menu Container
+  // ─── 2. Nav-Menu (Ppal Desktop) ───
   navElements.push({
     id: genId(),
     elType: 'container',
@@ -1781,32 +1811,38 @@ function processNavAsHeader(htmlStr) {
       flex_direction: 'row',
       flex_justify_content: 'center',
       flex_align_items: 'center',
-      flex_grow: 1, // Take remaining space
+      flex_grow: 1,
     },
-    elements: [
-      {
-        id: genId(),
-        elType: 'widget',
-        widgetType: 'nav-menu',
-        isInner: false,
-        settings: {
-          layout: 'horizontal',
-          align_items: 'center',
-          pointer: 'underline',
-          typography_typography: 'custom',
-          typography_font_family: CONFIG.fonts.headline,
-          typography_font_size: { unit: 'px', size: 15, sizes: [] },
-          typography_font_weight: '700',
-          color_menu_item: '#cbd5e1',
-          color_menu_item_hover: '#8FDA3E',
-          pointer_color: '#8FDA3E'
-        },
-        elements: []
-      }
-    ]
+    elements: [{
+      id: genId(),
+      elType: 'widget',
+      widgetType: 'nav-menu',
+      isInner: false,
+      settings: {
+        menu: 'ppal-desktop',
+        layout: 'horizontal',
+        align_items: 'center',
+        pointer: 'underline',
+        color_menu_item: '#cbd5e1',
+        color_menu_item_hover: CONFIG.colors.accentCta,
+        pointer_color: CONFIG.colors.accentCta,
+      },
+      elements: []
+    }]
   });
 
-  // 3. CTA Button Container
+  // ─── 3. CTA Button ───
+  // Parse the actual CTA text from the header HTML if possible
+  let ctaText = 'Solicitar Cotización';
+  let ctaHref = CONFIG.whatsappUrl || '#';
+  if (headerEl.length) {
+    const ctaBtn = headerEl.find('button').filter((i, btn) => {
+      const t = $(btn).text().trim().toLowerCase();
+      return t.includes('cotización') || t.includes('cotizacion') || t.includes('solicitar');
+    }).first();
+    if (ctaBtn.length) ctaText = ctaBtn.text().trim();
+  }
+
   navElements.push({
     id: genId(),
     elType: 'container',
@@ -1814,23 +1850,27 @@ function processNavAsHeader(htmlStr) {
     settings: {
       content_width: 'full',
       _element_width: 'custom',
-      width: { unit: 'px', size: 180, sizes: [] },
+      width: { unit: 'px', size: 240, sizes: [] },
       flex_direction: 'row',
       flex_justify_content: 'flex-end',
       flex_align_items: 'center',
     },
     elements: [
-      buildButton('WHATSAPP', CONFIG.whatsappUrl || '#', {
-        background_color: CONFIG.colors.primaryDark,
+      buildButton(ctaText, ctaHref, {
+        background_color: CONFIG.colors.primary,
         button_text_color: '#FFFFFF',
+        typography_typography: 'custom',
         typography_font_family: CONFIG.fonts.headline,
         typography_font_weight: '700',
-        typography_font_size: { unit: 'px', size: 14, sizes: [] },
-        border_radius: { unit: 'px', top: 4, right: 4, bottom: 4, left: 4 },
+        typography_font_size: { unit: 'px', size: 13, sizes: [] },
+        typography_text_transform: 'uppercase',
+        typography_letter_spacing: { unit: 'px', size: 0.8, sizes: [] },
+        border_radius: buildDimension(4, 4, 4, 4),
       })
     ]
   });
 
+  // ─── Assemble inner nav row ───
   const innerNav = buildContainer(
     {
       content_width: 'boxed',
@@ -1848,11 +1888,9 @@ function processNavAsHeader(htmlStr) {
       _element_width: 'custom',
       width: { unit: '%', size: 100, sizes: [] },
       background_background: 'classic',
-      background_color: '#0B0F1A',
-      padding: buildDimension(15, 30, 15, 30),
+      background_color: '#171b27',
+      padding: buildDimension(12, 0, 12, 0),
       margin: buildDimension(0, 0, 0, 0),
-      _position: 'fixed',
-      z_index: 999
     },
     [innerNav], false
   )];
@@ -1952,7 +1990,7 @@ async function batchConvert() {
   let errorCount = 0;
   let totalErrors = 0;
 
-  // Read homepage once for both Header and Footer extraction
+  // Read homepage once for Footer extraction + fallback header
   let homepageHtml;
   try {
     homepageHtml = await fs.promises.readFile(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
@@ -1961,11 +1999,22 @@ async function batchConvert() {
     errorCount += 2;
   }
 
-  if (homepageHtml) {
+  // Read dedicated header-global.html if it exists (preferred source)
+  let headerHtml;
+  const headerGlobalPath = path.join(CONFIG.inputDir, 'header-global.html');
+  try {
+    headerHtml = await fs.promises.readFile(headerGlobalPath, 'utf8');
+    console.log('📋 Using header-global.html as header source...');
+  } catch (err) {
+    headerHtml = homepageHtml; // fallback to homepage
+    console.log('📋 Using homepage.html as header source (no header-global.html)...');
+  }
+
+  if (headerHtml) {
     // Process Header
     console.log('📋 Processing Header template...');
     try {
-      const headerContent = processNavAsHeader(homepageHtml);
+      const headerContent = processNavAsHeader(headerHtml);
       const headerPath = path.join(CONFIG.outputDir, 'header.json');
       await fs.promises.writeFile(headerPath, JSON.stringify(headerContent), 'utf8');
       console.log(`  ✅ Header → ${path.basename(headerPath)} (${countNodes(headerContent)} nodes)`);
@@ -1987,9 +2036,12 @@ async function batchConvert() {
     }
   }
 
-  // Process only homepage for testing
-  console.log('\n📄 Processing ONLY homepage...\n');
-  const targetPages = pages.filter(p => p.html === 'homepage.html');
+  // Process ALL pages from manifest
+  console.log('\n📄 Processing ALL pages...\n');
+  const targetPages = pages.filter(p => {
+    const inputPath = path.join(CONFIG.inputDir, p.html);
+    return fs.existsSync(inputPath);
+  });
   const results = await Promise.all(targetPages.map(async (page) => {
     const htmlFile = page.html;
     const jsonFile = page.json;

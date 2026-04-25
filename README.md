@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-4.6.5-6C63FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/version-4.6.7-6C63FF?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/status-active_development-FF6B35?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/license-MIT-00D9A3?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/Elementor-Flexbox_Native-E2009F?style=for-the-badge&labelColor=0D1117" />
@@ -267,9 +267,10 @@ segment!  ← Single component injection
 
 | Script | Type | Purpose |
 |---|---|---|
-| `scripts/compiler_v4.js` | Node.js | Core DOM walker. Transpiles HTML + Tailwind → Elementor JSON with `clamp()` typography. |
+| `scripts/compiler_v4.js` | Node.js | Core DOM walker. Transpiles HTML + Tailwind → Elementor JSON with `clamp()` typography. Includes Grid-to-Flex converter with `col-span` proportional widths. |
 | `sync_and_inject.js` | Node.js | Main orchestrator: FTP upload → PHP execution → cache flush → auto-cleanup. |
 | `maintenance_only.js` | Node.js | **Config-Only mode**: realigns Homepage + flushes cache without re-injecting content. |
+| `download_all_htmls.js` | Node.js | Batch download of Stitch HTML files from CDN to `assets_originales/`. |
 | `create_hf_native.php` | PHP | Creates Header/Footer as `elementor_library` CPT with global display conditions. |
 | `inject_all_pages.php` | PHP | Batch page injector with sequential processing and manifest support. |
 | `flush_cache.php` | PHP | Sets `page_on_front`, regenerates Elementor CSS, syncs library, flushes permalinks. |
@@ -414,5 +415,9 @@ El ecosistema está respaldado por nuestra `stitch2elementor` skill. Aquí está
 *   **CSS Cache:** Todo cambio por DB requiere un flush inmediato de la caché estática mediante `\Elementor\Plugin::$instance->files_manager->clear_cache()`.
 *   **Elementor V4 Flexbox Widths:** Asignar `width: { size: X, unit: "%" }` a un flex-item provocará que este colapse si no se incluye estrictamente el declarador `_element_width: "custom"` en el mismo objeto de `settings`.
 *   **Estabilidad de Colores:** Elementor descarta valores `rgba(...)` durante la inyección en JSON si hay conflictos con colores globales o Theme Builder. Siempre forzar hexadecimales (ej. `#0B0F1A`) para backgrounds críticos.
+*   **Header Canónico:** `processNavAsHeader` debe buscar `$('header').first()` en `header-global.html`, no `$('nav').first()`. El `<header>` contiene utility bar + nav row + CTA. Nunca inyectar `_position: fixed` ni `z_index` — Elementor Theme Builder gestiona sticky nativamente.
+*   **Grid col-span → Porcentajes:** Los hijos con `col-span-N` dentro de un `grid-cols-M` deben recibir `width: (N/M)*100%`. Distribución uniforme ignora spans reales y colapsa el Hero.
+*   **Nav-Menu Slug:** El widget `nav-menu` requiere `menu: 'ppal-desktop'` (slug exacto del menú WP). Sin esta propiedad, Elementor no renderiza o usa un menú incorrecto.
+*   **FontLoader Prohibido:** `buildFontLoader()` inyecta un contenedor HTML con `<link>` y `<style>` globales que rompe el Flexbox del Theme Builder. Las fuentes deben cargarse vía Site Settings o `functions.php`.
 
 Para más detalles operativos de depuración o mantenimiento puro, consultar el archivo `MAINTENANCE.md`.
