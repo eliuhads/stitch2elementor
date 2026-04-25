@@ -1,7 +1,7 @@
 <?php
 /**
  * inject_all_pages.php — Batch Elementor Page Injector
- * stitch2elementor v4.6.4
+ * stitch2elementor v4.6.6
  *
  * Reads JSON payloads from /v9_json_payloads/ and injects them into WordPress pages.
  * Pages are defined in page_manifest.json (uploaded alongside the JSONs).

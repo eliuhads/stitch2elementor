@@ -1,7 +1,7 @@
 <?php
 /**
  * create_hf_native.php — Native Elementor Theme Builder Header/Footer Creator
- * stitch2elementor v4.6.4
+ * stitch2elementor v4.6.6
  *
  * Creates Header and Footer as native Elementor Theme Builder templates
  * with global display conditions. Reads JSON payloads from /v9_json_payloads/.
@@ -58,6 +58,9 @@ foreach($pages as $title => $info) {
     // Menu Auto-Discovery and Injection for Header Nav-Menu
     if ($tmpl_type === 'header') {
         $menu_term = get_term_by('name', 'Ppal Desktop', 'nav_menu');
+        if (!$menu_term) {
+            $menu_term = get_term_by('name', 'Main Menu', 'nav_menu');
+        }
         if (!$menu_term) {
             // Fallback: try to get the first available menu
             $menus = wp_get_nav_menus();

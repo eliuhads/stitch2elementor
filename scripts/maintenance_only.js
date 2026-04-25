@@ -1,6 +1,6 @@
 /**
  * maintenance_only.js — Modo Config-Only (Protocolo AHORA SI)
- * stitch2elementor v4.6.5
+ * stitch2elementor v4.6.6
  *
  * PROPÓSITO: Realinear Homepage en WordPress y limpiar caché Elementor
  *            SIN re-inyectar contenido ni alterar IDs de páginas.
@@ -55,7 +55,7 @@ function buildMaintenancePHP(homeId) {
 /**
  * maintenance_only_runner.php — Auto-destruible
  * Realinea Homepage + Flush Caché Elementor
- * Generado por maintenance_only.js — stitch2elementor v4.6.4
+ * Generado por maintenance_only.js — stitch2elementor v4.6.6
  */
 
 // Seguridad básica: solo desde localhost o con token
@@ -91,7 +91,7 @@ flush_rewrite_rules(false);
 $results['permalinks_flushed'] = true;
 
 // 3. Limpiar Caché Elementor
-if (class_exists('\\\\Elementor\\\\Plugin')) {
+if (class_exists('\\Elementor\\Plugin')) {
   \\Elementor\\Plugin::$instance->files_manager->clear_cache();
   $results['elementor_cache_cleared'] = true;
 } else {
@@ -100,7 +100,7 @@ if (class_exists('\\\\Elementor\\\\Plugin')) {
 }
 
 // 4. Sincronizar Biblioteca Elementor
-if (class_exists('\\\\Elementor\\\\Api')) {
+if (class_exists('\\Elementor\\Api')) {
   \\Elementor\\Api::get_library_data(true);
   $results['library_synced'] = true;
 }

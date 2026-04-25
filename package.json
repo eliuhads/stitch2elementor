@@ -1,26 +1,24 @@
 {
   "name": "stitch2elementor",
-  "version": "2.1.0",
-  "description": "Agentic pipeline: Google Stitch HTML → Native Elementor JSON → WordPress",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "version": "4.6.6",
+  "description": "Agentic AI Pipeline: From Google Stitch HTML to Native WordPress Elementor Pages automatically",
+  "main": "compiler_v4.js",
   "scripts": {
-    "compile": "node scripts/compiler_v4.js",
-    "fix-symbols": "node scripts/fix_material_symbols.js",
-    "fix-images": "node scripts/replace_stitch_images.js",
-    "fix-slugs": "node scripts/fix_slugs.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "elementor",
+    "wordpress",
+    "mcp",
+    "ai",
+    "stitch",
+    "antigravity"
+  ],
+  "author": "eliuhads",
+  "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0",
     "basic-ftp": "^5.0.3",
     "dotenv": "^16.4.5"
-  },
-  "peerDependencies": {
-    "wp-elementor-mcp": "latest",
-    "elementor-mcp": "latest"
-  },
-  "keywords": ["elementor", "wordpress", "stitch", "ai", "mcp", "antigravity"],
-  "author": "eliuhads"
+  }
 }

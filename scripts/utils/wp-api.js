@@ -1,7 +1,7 @@
 /**
  * wp-api.js
  * Centralized WordPress REST API Client for stitch2elementor pipeline
- * v4.6.4
+ * v4.6.6
  *
  * Env vars (matching .env convention):
  *   WORDPRESS_BASE_URL  or  WP_BASE_URL

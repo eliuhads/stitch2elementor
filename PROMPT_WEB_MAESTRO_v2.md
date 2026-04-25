@@ -1,4 +1,4 @@
-# PROMPT: WEB MAESTRO V2 [v4.6.5] — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
+# PROMPT: WEB MAESTRO V2 [v4.6.6] — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
 
 ## ⚙️ Protocolo de Checkpoint (LEER PRIMERO)
 

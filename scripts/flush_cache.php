@@ -1,7 +1,7 @@
 <?php
 /**
  * flush_cache.php — Cache Flush + Homepage Realignment
- * stitch2elementor v4.6.5
+ * stitch2elementor v4.6.6
  *
  * Actions:
  * 1. Sets page_on_front from page_manifest.json (if available)

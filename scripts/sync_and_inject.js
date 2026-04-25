@@ -1,6 +1,6 @@
 /**
  * sync_and_inject.js — Hybrid FTP+PHP Orchestrator
- * stitch2elementor v4.6.5
+ * stitch2elementor v4.6.6
  *
  * Uploads JSON payloads + PHP injector scripts via FTP,
  * triggers them remotely, then auto-deletes for security.
@@ -127,20 +127,105 @@ async function main() {
         // 3. Trigger Header/Footer injection
         console.log('🚀 [HTTP] Triggering Header/Footer injection...');
         const resultHF = await fetchUrl(`${WP_BASE_URL}/create_hf.php${tokenParam}`);
-        console.log('   SERVER OUTPUT (HF):');
-        console.log('   ' + stripHtml(resultHF).trim().replace(/\n/g, '\n   '));
+        try {
+            const hfData = JSON.parse(resultHF);
+            if (hfData.success) {
+                console.log('   ✅ Header/Footer injection successful.');
+                for (const [name, info] of Object.entries(hfData.results || {})) {
+                    console.log(`   📄 ${name}: ${info.status || 'unknown'} (ID: ${info.id || 'N/A'})`);
+                    if (info.menu_injected) console.log(`      🔗 Menu injected: ${info.menu_injected}`);
+                    if (info.menu_warning) console.log(`      ⚠️  ${info.menu_warning}`);
+                }
+            } else {
+                console.error('   ❌ Header/Footer injection FAILED:', hfData.error || 'unknown error');
+                process.exit(1);
+            }
+        } catch (parseErr) {
+            console.log('   ⚠️  Non-JSON response (HF):');
+            console.log('   ' + stripHtml(resultHF).trim().replace(/\n/g, '\n   '));
+        }
 
         // 4. Trigger page injection
         console.log('\n🚀 [HTTP] Triggering batch page injection...');
         const resultPages = await fetchUrl(`${WP_BASE_URL}/inject_all_pages.php${tokenParam}`);
-        console.log('   SERVER OUTPUT (Pages):');
-        console.log('   ' + stripHtml(resultPages).trim().replace(/\n/g, '\n   '));
+        let newHomeId = null;
+        try {
+            const pagesData = JSON.parse(resultPages);
+            if (pagesData.success) {
+                const summary = pagesData.summary || {};
+                console.log(`   ✅ Page injection successful: ${summary.created || 0} created, ${summary.errors || 0} errors.`);
+                if (pagesData.error_details && pagesData.error_details.length > 0) {
+                    for (const err of pagesData.error_details) {
+                        console.log(`   ⚠️  ${err}`);
+                    }
+                }
+
+                // Auto-update page_manifest.json with new IDs from id_map
+                const idMap = pagesData.id_map || {};
+                if (Object.keys(idMap).length > 0) {
+                    console.log('\n📝 [MANIFEST] Updating page_manifest.json with new WordPress IDs...');
+                    for (const page of manifest.pages) {
+                        if (idMap[page.slug] !== undefined) {
+                            const oldId = page.wp_id;
+                            page.wp_id = idMap[page.slug];
+                            console.log(`   ${page.slug}: ${oldId || 'null'} → ${page.wp_id}`);
+                            if (page.is_homepage) {
+                                newHomeId = page.wp_id;
+                            }
+                        }
+                    }
+                    // Update home_id in manifest
+                    if (newHomeId) {
+                        manifest.home_id = newHomeId;
+                        console.log(`\n   🏠 Homepage ID updated: ${newHomeId}`);
+                    }
+                    // Find blog_id
+                    const blogPage = manifest.pages.find(p => p.is_blog && p.wp_id);
+                    if (blogPage) {
+                        manifest.blog_id = blogPage.wp_id;
+                        console.log(`   📰 Blog ID updated: ${manifest.blog_id}`);
+                    }
+                    // Update metadata
+                    manifest.last_injection_date = new Date().toISOString().split('T')[0];
+                    manifest.migration_status = 'INJECTED';
+                    // Write updated manifest
+                    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
+                    console.log('   ✅ page_manifest.json updated with new IDs.\n');
+
+                    // Re-upload updated manifest for flush_cache.php to use
+                    await client.uploadFrom(manifestPath, `${FTP_REMOTE}page_manifest.json`);
+                    console.log('   ✅ Updated manifest re-uploaded to server.\n');
+                }
+            } else {
+                console.error('   ❌ Page injection FAILED:', pagesData.error || 'unknown error');
+                process.exit(1);
+            }
+        } catch (parseErr) {
+            console.log('   ⚠️  Non-JSON response (Pages):');
+            console.log('   ' + stripHtml(resultPages).trim().replace(/\n/g, '\n   '));
+        }
 
         // 5. Trigger cache flush + homepage realignment
-        console.log('\n🚀 [HTTP] Triggering cache flush & homepage config...');
+        console.log('🚀 [HTTP] Triggering cache flush & homepage config...');
         const resultCache = await fetchUrl(`${WP_BASE_URL}/flush_cache.php${tokenParam}`);
-        console.log('   SERVER OUTPUT (Cache):');
-        console.log('   ' + stripHtml(resultCache).trim().replace(/\n/g, '\n   '));
+        try {
+            const cacheData = JSON.parse(resultCache);
+            if (cacheData.success) {
+                const r = cacheData.results || {};
+                console.log('   ✅ Cache flush successful.');
+                if (r.page_on_front) console.log(`   🏠 Homepage set to ID: ${r.page_on_front} — "${r.page_on_front_title || 'unknown'}"`);
+                if (r.page_for_posts) console.log(`   📰 Blog set to ID: ${r.page_for_posts}`);
+                console.log(`   🔗 Permalinks flushed: ${r.permalinks_flushed ? 'OK' : 'FAIL'}`);
+                console.log(`   🧹 Elementor cache: ${r.elementor_cache_cleared ? 'OK' : 'FAIL'}`);
+                if (r.elementor_warning) console.log(`   ⚠️  ${r.elementor_warning}`);
+                console.log(`   📚 Library synced: ${r.library_synced ? 'OK' : 'N/A'}`);
+            } else {
+                console.error('   ❌ Cache flush FAILED:', cacheData.error || 'unknown error');
+            }
+        } catch (parseErr) {
+            console.log('   ⚠️  Non-JSON response (Cache):');
+            console.log('   ' + stripHtml(resultCache).trim().replace(/\n/g, '\n   '));
+        }
 
         // 6. Cleanup — delete PHP scripts + secret from server
         console.log('\n🧹 [FTP] Deleting temporary files for security...');
@@ -149,7 +234,12 @@ async function main() {
         }
         console.log('   ✅ Temporary files cleaned up.\n');
 
-        console.log('🏁 sync_and_inject.js completed successfully.\n');
+        console.log('\n📊 [SUMMARY]');
+        if (newHomeId) {
+            console.log(`   🏠 New Homepage ID: ${newHomeId}`);
+        }
+        console.log(`   📄 Manifest: ${manifestPath}`);
+        console.log(`   ✅ Protocolo AHORA SÍ: COMPLETED\n`);
 
     } catch (e) {
         console.error('❌ ERROR:', e.message);

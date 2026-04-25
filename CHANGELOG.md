@@ -4,20 +4,29 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
-## [4.7.0] - 2026-04-24 — ARQUITECTURA DE RESILIENCIA Y REGLA ESTRICTA DE IMÁGENES
+## [4.6.6] - 2026-04-18 — AUDIT-DRIVEN HARDENING
 
-### 🛡️ Arquitectura de Resiliencia (Checkpoint System)
-- **Protocolo de Recuperación (`CONTI!!.md`)**: Sistema implementado para permitir al agente reanudar migraciones interrumpidas sin perder contexto.
-- **`pipeline_state.json`**: Agregado como mecanismo de persistencia entre pasos del pipeline.
+### 🔧 Bug Fixes
+- **`maintenance_only.js`**: Fixed PHP namespace escaping bug — `class_exists()` was receiving double-backslash (`\\Elementor\\Plugin`) instead of single-backslash (`\Elementor\Plugin`), causing silent failure of Elementor cache flush.
+- **`sync_and_inject.js`**: Now parses JSON responses from all PHP scripts instead of logging raw text. Validates `success === true` and exits on failure. Previously reported "completed successfully" even when PHPs returned errors.
 
-### 🖼️ Regla Estricta de Imágenes
-- **Eliminación Definitiva de `IMAGENES_FUENTES`**: Borrado el directorio por completo y sus referencias.
-- **Logotipos SVG Exclusivos**: Se prohíbe el uso de imágenes de referencia locales para evitar deformaciones del layout. Se exige el uso del logo en formato SVG proveniente de `INFO_BrandBook/`.
-- **Sideloading Nativo**: Las imágenes inyectadas provienen exclusivamente de Google Stitch (vía URLs nativas de CDN de Google).
+### 🚀 Features
+- **`sync_and_inject.js`**: Auto-updates `page_manifest.json` with new WordPress IDs from `inject_all_pages.php` `id_map` response. This fully automates the "Protocolo AHORA SÍ" — no manual ID capture required. Also auto-updates `home_id`, `blog_id`, `last_injection_date`, and `migration_status`.
+- **`create_hf_native.php`**: Added `'Main Menu'` as intermediate fallback in menu discovery chain (Ppal Desktop → Main Menu → first available).
 
-### 🔒 Seguridad y Estructura
-- **Estandarización de `scripts/`**: Movido `compiler_v4.js` a `/scripts/` para unificar ejecutables. Actualizado `package.json` para reflejar esto.
-- **Mejora en Git y Secretos**: Configurado `.gitignore` robusto. Añadido `mcp_config.example.json`. Modificado `MCP_CONFIGURATION_GUIDE.txt` para enfatizar autenticación vía variables de entorno.
+### 🧹 Cleanup & Decontamination
+- **`page_manifest_example.json`**: Rewritten with generic placeholder data (`"My Website"`, `"About Us"`, etc.). Previously contained Evergreen Venezuela project-specific pages and IDs.
+- **`design_system_template.json`**: Rewritten with neutral placeholder colors (`#1A1A2E`, `#0F3460`, `#E94560`). Previously contained Evergreen Venezuela palette.
+- **`robust_inject_template.php`**: Moved to `archive/`. Had hardcoded Kit ID, Evergreen colors, and no auto-destruction. Functionality replaced by `flush_cache.php` + `sync_and_inject.js`.
+- **`fotos_web/`**: Deleted. Obsolete since v4.6.2 (deprecated local image folders).
+- **`archive/tests/`**: Deleted (empty directory).
+- **`logs/stitch_image_urls.json`**: Moved to `archive/` (project-specific snapshot, not part of generic skill).
+
+### ⚡ Performance
+- **`compiler_v4.js`**: Removed Material Symbols Outlined CSS from font loader. The pipeline purges all Material Symbols from JSON, so the ~400KB font was loading for nothing.
+
+### 📄 Version Sync
+- All PHP scripts, JS scripts, SKILL.md, README.md, package.json, and PROMPT_WEB_MAESTRO_v2.md synchronized to v4.6.6.
 
 ---
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-4.6.7-6C63FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/version-4.6.6-6C63FF?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/status-active_development-FF6B35?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/license-MIT-00D9A3?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/Elementor-Flexbox_Native-E2009F?style=for-the-badge&labelColor=0D1117" />
@@ -42,7 +42,7 @@ This skill was born from real production migrations. Every protocol, every safet
 ```
   ┌─────────────────┐      ┌──────────────────┐      ┌─────────────────────┐      ┌─────────────┐
   │  Google Stitch  │ ───► │  HTML + Tailwind  │ ───► │  Elementor JSON V4  │ ───► │  WordPress  │
-  │   AI Design     │      │  Agent Download   │      │  scripts/compiler   │      │  FTP + PHP   │
+  │   AI Design     │      │  Agent Download   │      │  compiler_v4.js     │      │  FTP + PHP  │
   └─────────────────┘      └──────────────────┘      └─────────────────────┘      └─────────────┘
 ```
 
@@ -93,14 +93,6 @@ The agent targets a single component (Hero, Pricing Table, CTA, Footer...), comp
 
 ---
 
-### `conti!!` — Recuperación de Pipeline
-
-Si el pipeline se interrumpió, escribe `conti!!`. El agente leerá
-`pipeline_state.json` y retomará exactamente desde donde se cortó,
-sin consumir tokens re-leyendo el contexto completo.
-
----
-
 ## 🔧 How It Works
 
 ### Pipeline Overview (`go!`)
@@ -109,17 +101,18 @@ sin consumir tokens re-leyendo el contexto completo.
 Phase 1 — Pre-Flight Check
   └── Verify MCPs (StitchMCP, wp-elementor-mcp, elementor-mcp) are live
 
-Phase 2 — BrandBook + Assets
-  └── Read INFO_BrandBook/ → Extract HEX colors + typography
-  └── Generate page_manifest.json (with home_id, blog_id)
-  └── Generate design_system.json (colors, fonts, typoScale, logoUrl)
+Phase 2 — BrandBook & Design System
+  └── Create INFO_BrandBook/ folder for the new project
+  └── Add BRANDBOOK_GUIDE.md or identity files to INFO_BrandBook/
+  └── Generate design_system.json from brand assets
+  └── Generate page_manifest.json (mapping slugs to titles)
 
 Phase 3 — Generate in Google Stitch
   └── Enhance prompts via enhance-prompt skill
   └── Create screens via StitchMCP → Download HTML via curl
 
 Phase 4 — Compile + Sanitize
-  └── node scripts/compiler_v4.js → N page JSONs + header.json + footer.json
+  └── node compiler_v4.js → N page JSONs + header.json + footer.json
   └── node scripts/fix_material_symbols.js → purge icon text ghosts
   └── Audit image URLs → replace CDN refs with WP Media Library paths
 
@@ -205,22 +198,6 @@ npm i -g elementor-mcp
 
 > ⚠️ Install globally to prevent timeout errors on long pipelines.
 
-### 3b. Crea tu `mcp_config.json` local (nunca en el repo)
-
-```bash
-cp mcp_config.example.json mcp_config.json
-# Edita mcp_config.json con tus credenciales reales
-# Este archivo está en .gitignore — nunca se subirá al repo
-```
-
-### 3c. Crea los directorios de trabajo
-
-```bash
-# Coloca tu identidad de marca y tu logo (SOLO en SVG) en INFO_BrandBook/
-# ATENCIÓN: No uses carpetas locales de imágenes fuente para el diseño (deforman el layout de Elementor).
-# Las imágenes del sitio son capturadas e inyectadas nativamente desde Google Stitch.
-```
-
 ### 4. Configure your `.env`
 
 ```env
@@ -267,10 +244,9 @@ segment!  ← Single component injection
 
 | Script | Type | Purpose |
 |---|---|---|
-| `scripts/compiler_v4.js` | Node.js | Core DOM walker. Transpiles HTML + Tailwind → Elementor JSON with `clamp()` typography. Includes Grid-to-Flex converter with `col-span` proportional widths. |
+| `compiler_v4.js` | Node.js | Core DOM walker. Transpiles HTML + Tailwind → Elementor JSON with `clamp()` typography. |
 | `sync_and_inject.js` | Node.js | Main orchestrator: FTP upload → PHP execution → cache flush → auto-cleanup. |
 | `maintenance_only.js` | Node.js | **Config-Only mode**: realigns Homepage + flushes cache without re-injecting content. |
-| `download_all_htmls.js` | Node.js | Batch download of Stitch HTML files from CDN to `assets_originales/`. |
 | `create_hf_native.php` | PHP | Creates Header/Footer as `elementor_library` CPT with global display conditions. |
 | `inject_all_pages.php` | PHP | Batch page injector with sequential processing and manifest support. |
 | `flush_cache.php` | PHP | Sets `page_on_front`, regenerates Elementor CSS, syncs library, flushes permalinks. |
@@ -299,9 +275,6 @@ This skill orchestrates other agent skills. Make sure these are available in you
 ```
 🚫  No local browsers (Playwright, Chromium, browser_subagent)
     → Use: read_url_content  /  REST API via MCP  /  curl
-
-🚫  No local image assets (IMAGENES_FUENTES)
-    → Use ONLY SVG logos in INFO_BrandBook/. All other images must use the automated Stitch CDN auto-sideload to prevent layout deformation.
 
 🚫  No Elementor JSON wrapper objects
     → Output MUST be: [{...}]  — plain array only, always
@@ -401,23 +374,3 @@ Made with 🔌 by [@eliuhads](https://github.com/eliuhads)
 <img src="https://img.shields.io/badge/No_Premium_Plugins-Free-00D9A3?style=flat-square&labelColor=0D1117" />
 
 </div>
-
----
-
-## 🧠 Conocimientos y Reglas Clave
-
-El ecosistema está respaldado por nuestra `stitch2elementor` skill. Aquí están los pilares fundamentales:
-*   **Condiciones Planas:** Todo Theme Builder en Elementor Pro requiere que `_elementor_conditions` sea un *flat array*. No usar arreglos asociativos.
-*   **Menús Estructurales:** Un menú vacío (`Ppal Desktop`) romperá el widget nav-menu de Elementor. Se debe auto-poblar programáticamente.
-*   **Plantilla `elementor_canvas`:** Los headers y footers no pueden usar `elementor_header_footer` o se anidarán recursivamente.
-*   **Condiciones Globales Theme Builder:** La opción `elementor_pro_theme_builder_conditions` DEBE usar el ID del post como clave principal (`$conditions[$page_id] = [...]`). Usar un string (ej. `'header'`) provocará un Fatal Error 500 global.
-*   **Bypass de Crash (SHORTINIT):** Si una opción corrupta tira el sitio (Error 500), cualquier script de rescate que haga `require_once('wp-load.php')` fallará. Usa `define('SHORTINIT', true);` antes del require para aislar Elementor y poder manipular la DB.
-*   **CSS Cache:** Todo cambio por DB requiere un flush inmediato de la caché estática mediante `\Elementor\Plugin::$instance->files_manager->clear_cache()`.
-*   **Elementor V4 Flexbox Widths:** Asignar `width: { size: X, unit: "%" }` a un flex-item provocará que este colapse si no se incluye estrictamente el declarador `_element_width: "custom"` en el mismo objeto de `settings`.
-*   **Estabilidad de Colores:** Elementor descarta valores `rgba(...)` durante la inyección en JSON si hay conflictos con colores globales o Theme Builder. Siempre forzar hexadecimales (ej. `#0B0F1A`) para backgrounds críticos.
-*   **Header Canónico:** `processNavAsHeader` debe buscar `$('header').first()` en `header-global.html`, no `$('nav').first()`. El `<header>` contiene utility bar + nav row + CTA. Nunca inyectar `_position: fixed` ni `z_index` — Elementor Theme Builder gestiona sticky nativamente.
-*   **Grid col-span → Porcentajes:** Los hijos con `col-span-N` dentro de un `grid-cols-M` deben recibir `width: (N/M)*100%`. Distribución uniforme ignora spans reales y colapsa el Hero.
-*   **Nav-Menu Slug:** El widget `nav-menu` requiere `menu: 'ppal-desktop'` (slug exacto del menú WP). Sin esta propiedad, Elementor no renderiza o usa un menú incorrecto.
-*   **FontLoader Prohibido:** `buildFontLoader()` inyecta un contenedor HTML con `<link>` y `<style>` globales que rompe el Flexbox del Theme Builder. Las fuentes deben cargarse vía Site Settings o `functions.php`.
-
-Para más detalles operativos de depuración o mantenimiento puro, consultar el archivo `MAINTENANCE.md`.
