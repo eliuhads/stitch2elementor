@@ -1,6 +1,6 @@
 {
   "_comment": "⚠️  PROTOCOLO ID-SHIFTING: Cada re-inyección via sync_and_inject.js asigna NUEVOS IDs en WordPress. Los wp_id listados en 'pages' son un SNAPSHOT del 2026-04-15 (Evergreen VZLA) y quedan obsoletos tras cada ejecución. SIEMPRE captura el nuevo ID de la Homepage del log post-inyección y actualiza 'home_id'.",
-  "home_id": null,
+  "home_id": 1417,
   "blog_id": null,
   "migration_status": "STARTED",
   "last_injection_date": "2026-04-24",

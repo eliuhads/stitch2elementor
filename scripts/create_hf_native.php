@@ -115,12 +115,12 @@ foreach($pages as $title => $info) {
     update_post_meta($page_id, '_elementor_conditions', ['include/general']);
     
     // Set Global Conditions in Elementor Pro Option
-    $conditions = get_option('elementor_theme_builder_conditions', []);
+    $conditions = get_option('elementor_pro_theme_builder_conditions', []);
     if (!is_array($conditions)) $conditions = [];
-    $conditions[$tmpl_type][$page_id] = [
+    $conditions[$page_id] = [
         [ 'type' => 'include', 'name' => 'general', 'sub_name' => '', 'sub_id' => '' ]
     ];
-    update_option('elementor_theme_builder_conditions', $conditions);
+    update_option('elementor_pro_theme_builder_conditions', $conditions);
 
     // Clear cache
     if (class_exists('Elementor\Plugin') && isset(\Elementor\Plugin::$instance->posts_manager)) {

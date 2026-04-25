@@ -31,10 +31,10 @@ const crypto = require('crypto');
 // CONFIG — Dynamic Design System
 // ============================================================
 const CONFIG = {
-  inputDir: path.join(__dirname, 'assets_originales'),
-  outputDir: path.join(__dirname, 'elementor_jsons'),
-  manifestPath: path.join(__dirname, 'page_manifest.json'),
-  designSystemPath: path.join(__dirname, 'design_system.json'),
+  inputDir: path.join(__dirname, '../assets_originales'),
+  outputDir: path.join(__dirname, '../elementor_jsons'),
+  manifestPath: path.join(__dirname, '../page_manifest.json'),
+  designSystemPath: path.join(__dirname, '../design_system.json'),
   
   // Default values that will be overwritten if design_system.json exists
   colors: {
@@ -1689,9 +1689,6 @@ function htmlToElementorContent(htmlStr) {
   const body = $('body');
   const contentElements = [];
 
-  // Font loader as first element
-  contentElements.push(buildFontLoader());
-
   let sectionIndex = 0;
 
   body.children().each((i, child) => {
@@ -1709,6 +1706,9 @@ function htmlToElementorContent(htmlStr) {
       sectionIndex++;
     }
   });
+
+  // Font loader as last element to avoid breaking global headers
+  contentElements.push(buildFontLoader());
 
   return contentElements;
 }

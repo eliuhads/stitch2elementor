@@ -409,6 +409,8 @@ El ecosistema está respaldado por nuestra `stitch2elementor` skill. Aquí está
 *   **Condiciones Planas:** Todo Theme Builder en Elementor Pro requiere que `_elementor_conditions` sea un *flat array*. No usar arreglos asociativos.
 *   **Menús Estructurales:** Un menú vacío (`Ppal Desktop`) romperá el widget nav-menu de Elementor. Se debe auto-poblar programáticamente.
 *   **Plantilla `elementor_canvas`:** Los headers y footers no pueden usar `elementor_header_footer` o se anidarán recursivamente.
+*   **Condiciones Globales Theme Builder:** La opción `elementor_pro_theme_builder_conditions` DEBE usar el ID del post como clave principal (`$conditions[$page_id] = [...]`). Usar un string (ej. `'header'`) provocará un Fatal Error 500 global.
+*   **Bypass de Crash (SHORTINIT):** Si una opción corrupta tira el sitio (Error 500), cualquier script de rescate que haga `require_once('wp-load.php')` fallará. Usa `define('SHORTINIT', true);` antes del require para aislar Elementor y poder manipular la DB.
 *   **CSS Cache:** Todo cambio por DB requiere un flush inmediato de la caché estática mediante `\Elementor\Plugin::$instance->files_manager->clear_cache()`.
 
 Para más detalles operativos de depuración o mantenimiento puro, consultar el archivo `MAINTENANCE.md`.

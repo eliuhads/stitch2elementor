@@ -49,7 +49,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 ### FASE 2: GENERACIÓN EN STITCH
 
 1. **Optimiza prompts**: Usa el skill `enhance-prompt` para refinar las directivas que enviarás a Stitch.
-2. **Genera pantallas**: Usa `StitchMCP` → `generate_screen_from_text` para crear cada pantalla del sitio.
+2. **Genera pantallas**: Usa `StitchMCP` → `generate_screen_from_text` para crear cada pantalla del sitio. **OBLIGATORIO**: Debes configurar siempre el parámetro `modelId` con el valor `GEMINI_3_PRO` o superior, y el parámetro `deviceType` con el valor `DESKTOP` para garantizar layouts expansivos y responsivos (nunca uses MOBILE ni dejes los valores por defecto).
 3. **Descarga HTML**: Para cada pantalla generada, descarga el HTML completo usando `curl` o `Invoke-WebRequest`. **NUNCA** uses `read_url_content` (destruye clases Tailwind). Guarda en `assets_originales/`.
 
 ---
