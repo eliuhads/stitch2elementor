@@ -32,20 +32,21 @@ require_once(__DIR__ . '/wp-load.php');
 
 $results = [];
 
-// 1. Set page_on_front from manifest (if available)
-$manifest_path = __DIR__ . '/v9_json_payloads/page_manifest.json';
-if (file_exists($manifest_path)) {
-    $manifest = json_decode(file_get_contents($manifest_path), true);
-    if (!empty($manifest['home_id'])) {
-        update_option('show_on_front', 'page');
-        update_option('page_on_front', intval($manifest['home_id']));
-        $results['page_on_front'] = intval($manifest['home_id']);
-        $results['page_on_front_title'] = get_the_title(intval($manifest['home_id']));
-    }
-    if (!empty($manifest['blog_id'])) {
-        update_option('page_for_posts', intval($manifest['blog_id']));
-        $results['page_for_posts'] = intval($manifest['blog_id']);
-    }
+// 1. Set page_on_front by finding the page with slug 'homepage'
+$home_page = get_page_by_path('homepage');
+if ($home_page) {
+    update_option('show_on_front', 'page');
+    update_option('page_on_front', $home_page->ID);
+    $results['page_on_front'] = $home_page->ID;
+    $results['page_on_front_title'] = $home_page->post_title;
+} else {
+    $results['page_on_front'] = 'not found';
+}
+
+$blog_page = get_page_by_path('blog');
+if ($blog_page) {
+    update_option('page_for_posts', $blog_page->ID);
+    $results['page_for_posts'] = $blog_page->ID;
 }
 
 // 2. Flush rewrite rules

@@ -296,8 +296,10 @@ function buildFontLoader() {
 /** Build a container with CORRECT Elementor keys */
 function buildContainer(settings = {}, elements = [], isInner = true) {
   const s = { ...settings };
-  // Ensure content_width is always set
-  if (!s.content_width) s.content_width = 'full';
+  // Default outer containers to 'boxed' unless specified, inner to 'full'
+  if (!s.content_width) {
+    s.content_width = isInner ? 'full' : 'boxed';
+  }
   
   return {
     id: genId(),
@@ -794,16 +796,23 @@ function extractContainerSettings($, el) {
 
   // --- Width ---
   for (const cls of classes) {
-    if (cls === 'w-full') s.width = { unit: '%', size: 100, sizes: [] };
+    if (cls === 'w-full') {
+      s._element_width = 'custom';
+      s.width = { unit: '%', size: 100, sizes: [] };
+    }
     const wMatch = cls.match(/^w-(\d+)$/);
-    if (wMatch) s.width = { unit: 'px', size: parseInt(wMatch[1]) * 4, sizes: [] };
+    if (wMatch) {
+      s._element_width = 'custom';
+      s.width = { unit: 'px', size: parseInt(wMatch[1]) * 4, sizes: [] };
+    }
     
-    if (cls === 'max-w-4xl') s.boxed_width = { unit: 'px', size: 896, sizes: [] };
-    if (cls === 'max-w-xl') s.boxed_width = { unit: 'px', size: 576, sizes: [] };
-    if (cls === 'max-w-xs') s.boxed_width = { unit: 'px', size: 320, sizes: [] };
-    if (cls === 'max-w-7xl') s.boxed_width = { unit: 'px', size: 1280, sizes: [] };
-    if (cls === 'max-w-2xl') s.boxed_width = { unit: 'px', size: 672, sizes: [] };
-    if (cls === 'max-w-3xl') s.boxed_width = { unit: 'px', size: 768, sizes: [] };
+    if (cls === 'max-w-4xl') { s.boxed_width = { unit: 'px', size: 896, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-xl') { s.boxed_width = { unit: 'px', size: 576, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-xs') { s.boxed_width = { unit: 'px', size: 320, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-7xl') { s.boxed_width = { unit: 'px', size: 1280, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-2xl') { s.boxed_width = { unit: 'px', size: 672, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-3xl') { s.boxed_width = { unit: 'px', size: 768, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'container') { s.boxed_width = { unit: 'px', size: 1280, sizes: [] }; s.content_width = 'boxed'; }
   }
 
   // --- Border ---
@@ -1442,27 +1451,33 @@ function processElement($, el) {
     // This fixes side-by-side layouts like "Why Evergreen" (image 50% + text 50%)
     for (const cls of classes) {
       if (cls === 'w-full' || cls === 'md:w-full') {
-        containerSettings.width = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-1/2' || cls === 'md:w-1/2') {
-        containerSettings.width = { unit: '%', size: 50 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 50, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-1/3' || cls === 'md:w-1/3') {
-        containerSettings.width = { unit: '%', size: 33 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 33, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-2/3' || cls === 'md:w-2/3') {
-        containerSettings.width = { unit: '%', size: 66 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 66, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-1/4') {
-        containerSettings.width = { unit: '%', size: 25 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 25, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-3/4') {
-        containerSettings.width = { unit: '%', size: 75 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 75, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
     }
 
@@ -1511,8 +1526,9 @@ function processElement($, el) {
           if (child.elType === 'container') {
             child.settings = child.settings || {};
             if (!child.settings.width) {
-              child.settings.width = { unit: '%', size: childWidth };
-              child.settings.width_mobile = { unit: '%', size: 100 };
+              child.settings._element_width = 'custom';
+              child.settings.width = { unit: '%', size: childWidth, sizes: [] };
+              child.settings.width_mobile = { unit: '%', size: 100, sizes: [] };
             }
           }
         });
@@ -1729,6 +1745,7 @@ function processNavAsHeader(htmlStr) {
     isInner: true,
     settings: {
       content_width: 'full',
+      _element_width: 'custom',
       width: { unit: 'px', size: 220, sizes: [] },
       flex_direction: 'row',
       flex_align_items: 'center',
@@ -1796,6 +1813,7 @@ function processNavAsHeader(htmlStr) {
     isInner: true,
     settings: {
       content_width: 'full',
+      _element_width: 'custom',
       width: { unit: 'px', size: 180, sizes: [] },
       flex_direction: 'row',
       flex_justify_content: 'flex-end',
@@ -1813,20 +1831,30 @@ function processNavAsHeader(htmlStr) {
     ]
   });
 
-  return [buildContainer(
+  const innerNav = buildContainer(
     {
       content_width: 'boxed',
       boxed_width: { unit: 'px', size: 1200, sizes: [] },
-      background_background: 'classic',
-      background_color: 'rgba(11, 15, 26, 0.95)',
       flex_direction: 'row',
       flex_justify_content: 'space-between',
       flex_align_items: 'center',
+    },
+    navElements, true
+  );
+
+  return [buildContainer(
+    {
+      content_width: 'full',
+      _element_width: 'custom',
+      width: { unit: '%', size: 100, sizes: [] },
+      background_background: 'classic',
+      background_color: '#0B0F1A',
       padding: buildDimension(15, 30, 15, 30),
       margin: buildDimension(0, 0, 0, 0),
-      position: 'fixed'
+      _position: 'fixed',
+      z_index: 999
     },
-    navElements, false
+    [innerNav], false
   )];
 }
 
@@ -1959,9 +1987,10 @@ async function batchConvert() {
     }
   }
 
-  // Process all pages concurrently
-  console.log('\n📄 Processing pages...\n');
-  const results = await Promise.all(pages.map(async (page) => {
+  // Process only homepage for testing
+  console.log('\n📄 Processing ONLY homepage...\n');
+  const targetPages = pages.filter(p => p.html === 'homepage.html');
+  const results = await Promise.all(targetPages.map(async (page) => {
     const htmlFile = page.html;
     const jsonFile = page.json;
     if (!htmlFile || !jsonFile) {

@@ -412,5 +412,7 @@ El ecosistema está respaldado por nuestra `stitch2elementor` skill. Aquí está
 *   **Condiciones Globales Theme Builder:** La opción `elementor_pro_theme_builder_conditions` DEBE usar el ID del post como clave principal (`$conditions[$page_id] = [...]`). Usar un string (ej. `'header'`) provocará un Fatal Error 500 global.
 *   **Bypass de Crash (SHORTINIT):** Si una opción corrupta tira el sitio (Error 500), cualquier script de rescate que haga `require_once('wp-load.php')` fallará. Usa `define('SHORTINIT', true);` antes del require para aislar Elementor y poder manipular la DB.
 *   **CSS Cache:** Todo cambio por DB requiere un flush inmediato de la caché estática mediante `\Elementor\Plugin::$instance->files_manager->clear_cache()`.
+*   **Elementor V4 Flexbox Widths:** Asignar `width: { size: X, unit: "%" }` a un flex-item provocará que este colapse si no se incluye estrictamente el declarador `_element_width: "custom"` en el mismo objeto de `settings`.
+*   **Estabilidad de Colores:** Elementor descarta valores `rgba(...)` durante la inyección en JSON si hay conflictos con colores globales o Theme Builder. Siempre forzar hexadecimales (ej. `#0B0F1A`) para backgrounds críticos.
 
 Para más detalles operativos de depuración o mantenimiento puro, consultar el archivo `MAINTENANCE.md`.
