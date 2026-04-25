@@ -1,0 +1,1 @@
+<?php define('SHORTINIT', true); require_once(__DIR__ . '/wp-load.php'); delete_option('elementor_pro_theme_builder_conditions'); echo 'Option deleted with SHORTINIT'; ?>

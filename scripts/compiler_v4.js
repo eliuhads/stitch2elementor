@@ -31,10 +31,10 @@ const crypto = require('crypto');
 // CONFIG — Dynamic Design System
 // ============================================================
 const CONFIG = {
-  inputDir: path.join(__dirname, 'assets_originales'),
-  outputDir: path.join(__dirname, 'elementor_jsons'),
-  manifestPath: path.join(__dirname, 'page_manifest.json'),
-  designSystemPath: path.join(__dirname, 'design_system.json'),
+  inputDir: path.join(__dirname, '../assets_originales'),
+  outputDir: path.join(__dirname, '../elementor_jsons'),
+  manifestPath: path.join(__dirname, '../page_manifest.json'),
+  designSystemPath: path.join(__dirname, '../design_system.json'),
   
   // Default values that will be overwritten if design_system.json exists
   colors: {
@@ -296,8 +296,10 @@ function buildFontLoader() {
 /** Build a container with CORRECT Elementor keys */
 function buildContainer(settings = {}, elements = [], isInner = true) {
   const s = { ...settings };
-  // Ensure content_width is always set
-  if (!s.content_width) s.content_width = 'full';
+  // Default outer containers to 'boxed' unless specified, inner to 'full'
+  if (!s.content_width) {
+    s.content_width = isInner ? 'full' : 'boxed';
+  }
   
   return {
     id: genId(),
@@ -794,16 +796,51 @@ function extractContainerSettings($, el) {
 
   // --- Width ---
   for (const cls of classes) {
-    if (cls === 'w-full') s.width = { unit: '%', size: 100, sizes: [] };
+    if (cls === 'w-full') {
+      s._element_width = 'custom';
+      s.width = { unit: '%', size: 100, sizes: [] };
+    }
     const wMatch = cls.match(/^w-(\d+)$/);
-    if (wMatch) s.width = { unit: 'px', size: parseInt(wMatch[1]) * 4, sizes: [] };
+    if (wMatch) {
+      s._element_width = 'custom';
+      s.width = { unit: 'px', size: parseInt(wMatch[1]) * 4, sizes: [] };
+    }
+    const fractionMatch = cls.match(/^(?:sm:|md:|lg:|xl:)?w-(\d+)\/(\d+)$/);
+    if (fractionMatch) {
+      const num = parseInt(fractionMatch[1]);
+      const den = parseInt(fractionMatch[2]);
+      const percent = Number(((num / den) * 100).toFixed(2));
+      s._element_width = 'custom';
+      s.width = { unit: '%', size: percent, sizes: [] };
+    }
+    if (cls === 'flex-1' || cls === 'grow' || cls.endsWith(':flex-1')) {
+      s.flex_grow = 1;
+    }
+    if (cls === 'shrink-0' || cls.endsWith(':shrink-0')) {
+      s.flex_shrink = 0;
+    }
     
-    if (cls === 'max-w-4xl') s.boxed_width = { unit: 'px', size: 896, sizes: [] };
-    if (cls === 'max-w-xl') s.boxed_width = { unit: 'px', size: 576, sizes: [] };
-    if (cls === 'max-w-xs') s.boxed_width = { unit: 'px', size: 320, sizes: [] };
-    if (cls === 'max-w-7xl') s.boxed_width = { unit: 'px', size: 1280, sizes: [] };
-    if (cls === 'max-w-2xl') s.boxed_width = { unit: 'px', size: 672, sizes: [] };
-    if (cls === 'max-w-3xl') s.boxed_width = { unit: 'px', size: 768, sizes: [] };
+    if (cls === 'max-w-4xl') { s.boxed_width = { unit: 'px', size: 896, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-xl') { s.boxed_width = { unit: 'px', size: 576, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-xs') { s.boxed_width = { unit: 'px', size: 320, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-7xl') { s.boxed_width = { unit: 'px', size: 1280, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-2xl') { s.boxed_width = { unit: 'px', size: 672, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'max-w-3xl') { s.boxed_width = { unit: 'px', size: 768, sizes: [] }; s.content_width = 'boxed'; }
+    if (cls === 'container') { s.boxed_width = { unit: 'px', size: 1280, sizes: [] }; s.content_width = 'boxed'; }
+
+    // --- Grid → Flex conversion ---
+    // grid-cols-N on parent: set flex_direction = row + flex_wrap = wrap
+    const gridColsMatch = cls.match(/^(?:lg:|md:)?grid-cols-(\d+)$/);
+    if (gridColsMatch) {
+      s.flex_direction = 'row';
+      s.flex_wrap = 'wrap';
+      s.__gridCols = parseInt(gridColsMatch[1]);
+    }
+    // col-span-N on child: calculate width as percentage of parent grid
+    const colSpanMatch = cls.match(/^(?:lg:|md:)?col-span-(\d+)$/);
+    if (colSpanMatch) {
+      s.__colSpan = parseInt(colSpanMatch[1]);
+    }
   }
 
   // --- Border ---
@@ -1442,27 +1479,33 @@ function processElement($, el) {
     // This fixes side-by-side layouts like "Why Evergreen" (image 50% + text 50%)
     for (const cls of classes) {
       if (cls === 'w-full' || cls === 'md:w-full') {
-        containerSettings.width = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-1/2' || cls === 'md:w-1/2') {
-        containerSettings.width = { unit: '%', size: 50 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 50, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-1/3' || cls === 'md:w-1/3') {
-        containerSettings.width = { unit: '%', size: 33 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 33, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-2/3' || cls === 'md:w-2/3') {
-        containerSettings.width = { unit: '%', size: 66 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 66, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-1/4') {
-        containerSettings.width = { unit: '%', size: 25 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 25, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
       if (cls === 'w-3/4') {
-        containerSettings.width = { unit: '%', size: 75 };
-        containerSettings.width_mobile = { unit: '%', size: 100 };
+        containerSettings._element_width = 'custom';
+        containerSettings.width = { unit: '%', size: 75, sizes: [] };
+        containerSettings.width_mobile = { unit: '%', size: 100, sizes: [] };
       }
     }
 
@@ -1506,13 +1549,20 @@ function processElement($, el) {
       if (gridCols > 1) {
         containerSettings.flex_direction = 'row';
         containerSettings.flex_direction_mobile = 'column';
-        const childWidth = Math.floor(100 / gridCols);
+        const defaultChildWidth = Math.floor(100 / gridCols);
         childElements.forEach(child => {
           if (child.elType === 'container') {
             child.settings = child.settings || {};
             if (!child.settings.width) {
-              child.settings.width = { unit: '%', size: childWidth };
-              child.settings.width_mobile = { unit: '%', size: 100 };
+              // If child has __colSpan from col-span-N, use proportional width
+              const span = child.settings.__colSpan || 0;
+              const pct = span > 0 ? Math.round((span / gridCols) * 100) : defaultChildWidth;
+              child.settings._element_width = 'custom';
+              child.settings.width = { unit: '%', size: pct, sizes: [] };
+              child.settings.width_mobile = { unit: '%', size: 100, sizes: [] };
+              // Cleanup internal marker
+              delete child.settings.__colSpan;
+              delete child.settings.__gridCols;
             }
           }
         });
@@ -1689,9 +1739,6 @@ function htmlToElementorContent(htmlStr) {
   const body = $('body');
   const contentElements = [];
 
-  // Font loader as first element
-  contentElements.push(buildFontLoader());
-
   let sectionIndex = 0;
 
   body.children().each((i, child) => {
@@ -1710,51 +1757,51 @@ function htmlToElementorContent(htmlStr) {
     }
   });
 
+  // Font loader as last element to avoid breaking global headers
+  // contentElements.push(buildFontLoader());
+
   return contentElements;
 }
 
-/** Process nav → Header template */
+/** Process header-global.html → Header template
+ *  Parses the REAL DOM of header-global.html:
+ *    <header> → utility-bar (optional) + main-nav row (logo + nav + CTA)
+ *  Falls back to a simple nav if no <header> found.
+ */
 function processNavAsHeader(htmlStr) {
   const $ = cheerio.load(htmlStr, { decodeEntities: false });
   $('.material-symbols-outlined').remove();
-  const nav = $('nav').first();
-  if (!nav.length) return [];
+
+  // Try <header> first (header-global.html), then <nav> (homepage fallback)
+  const headerEl = $('header').first();
+  const navEl = headerEl.length ? headerEl.find('nav').first() : $('nav').first();
+  if (!navEl.length && !headerEl.length) return [];
 
   const navElements = [];
 
-  // 1. Logo Container (Constrained Width)
+  // ─── 1. Logo: use native Site Logo widget ───
   navElements.push({
     id: genId(),
     elType: 'container',
     isInner: true,
     settings: {
       content_width: 'full',
+      _element_width: 'custom',
       width: { unit: 'px', size: 220, sizes: [] },
       flex_direction: 'row',
       flex_align_items: 'center',
     },
-    elements: [
-      {
-        id: genId(),
-        elType: 'widget',
-        widgetType: 'image',
-        isInner: false,
-        settings: {
-          image: { 
-            url: CONFIG.logoUrl, 
-            id: '', size: '', alt: CONFIG.logoAlt, source: 'library' 
-          },
-          image_size: 'full',
-          width: { unit: '%', size: 100, sizes: [] }, // 100% of the 220px container
-          link_to: 'custom',
-          link: { url: '/', is_external: '', nofollow: '' }
-        },
-        elements: []
-      }
-    ]
+    elements: [{
+      id: genId(),
+      elType: 'widget',
+      widgetType: 'theme-site-logo',
+      isInner: false,
+      settings: {},
+      elements: []
+    }]
   });
 
-  // 2. Nav-Menu Container
+  // ─── 2. Nav-Menu (Ppal Desktop) ───
   navElements.push({
     id: genId(),
     elType: 'container',
@@ -1764,69 +1811,88 @@ function processNavAsHeader(htmlStr) {
       flex_direction: 'row',
       flex_justify_content: 'center',
       flex_align_items: 'center',
-      flex_grow: 1, // Take remaining space
+      flex_grow: 1,
     },
-    elements: [
-      {
-        id: genId(),
-        elType: 'widget',
-        widgetType: 'nav-menu',
-        isInner: false,
-        settings: {
-          layout: 'horizontal',
-          align_items: 'center',
-          pointer: 'underline',
-          typography_typography: 'custom',
-          typography_font_family: CONFIG.fonts.headline,
-          typography_font_size: { unit: 'px', size: 15, sizes: [] },
-          typography_font_weight: '700',
-          color_menu_item: '#cbd5e1',
-          color_menu_item_hover: '#8FDA3E',
-          pointer_color: '#8FDA3E'
-        },
-        elements: []
-      }
-    ]
+    elements: [{
+      id: genId(),
+      elType: 'widget',
+      widgetType: 'nav-menu',
+      isInner: false,
+      settings: {
+        menu: 'ppal-desktop',
+        layout: 'horizontal',
+        align_items: 'center',
+        pointer: 'underline',
+        color_menu_item: '#cbd5e1',
+        color_menu_item_hover: CONFIG.colors.accentCta,
+        pointer_color: CONFIG.colors.accentCta,
+      },
+      elements: []
+    }]
   });
 
-  // 3. CTA Button Container
+  // ─── 3. CTA Button ───
+  // Parse the actual CTA text from the header HTML if possible
+  let ctaText = 'Solicitar Cotización';
+  let ctaHref = CONFIG.whatsappUrl || '#';
+  if (headerEl.length) {
+    const ctaBtn = headerEl.find('button').filter((i, btn) => {
+      const t = $(btn).text().trim().toLowerCase();
+      return t.includes('cotización') || t.includes('cotizacion') || t.includes('solicitar');
+    }).first();
+    if (ctaBtn.length) ctaText = ctaBtn.text().trim();
+  }
+
   navElements.push({
     id: genId(),
     elType: 'container',
     isInner: true,
     settings: {
       content_width: 'full',
-      width: { unit: 'px', size: 180, sizes: [] },
+      _element_width: 'custom',
+      width: { unit: 'px', size: 240, sizes: [] },
       flex_direction: 'row',
       flex_justify_content: 'flex-end',
       flex_align_items: 'center',
     },
     elements: [
-      buildButton('WHATSAPP', CONFIG.whatsappUrl || '#', {
-        background_color: CONFIG.colors.primaryDark,
+      buildButton(ctaText, ctaHref, {
+        background_color: CONFIG.colors.primary,
         button_text_color: '#FFFFFF',
+        typography_typography: 'custom',
         typography_font_family: CONFIG.fonts.headline,
         typography_font_weight: '700',
-        typography_font_size: { unit: 'px', size: 14, sizes: [] },
-        border_radius: { unit: 'px', top: 4, right: 4, bottom: 4, left: 4 },
+        typography_font_size: { unit: 'px', size: 13, sizes: [] },
+        typography_text_transform: 'uppercase',
+        typography_letter_spacing: { unit: 'px', size: 0.8, sizes: [] },
+        border_radius: buildDimension(4, 4, 4, 4),
       })
     ]
   });
 
-  return [buildContainer(
+  // ─── Assemble inner nav row ───
+  const innerNav = buildContainer(
     {
       content_width: 'boxed',
       boxed_width: { unit: 'px', size: 1200, sizes: [] },
-      background_background: 'classic',
-      background_color: 'rgba(11, 15, 26, 0.95)',
       flex_direction: 'row',
       flex_justify_content: 'space-between',
       flex_align_items: 'center',
-      padding: buildDimension(15, 30, 15, 30),
-      margin: buildDimension(0, 0, 0, 0),
-      position: 'fixed'
     },
-    navElements, false
+    navElements, true
+  );
+
+  return [buildContainer(
+    {
+      content_width: 'full',
+      _element_width: 'custom',
+      width: { unit: '%', size: 100, sizes: [] },
+      background_background: 'classic',
+      background_color: '#171b27',
+      padding: buildDimension(12, 0, 12, 0),
+      margin: buildDimension(0, 0, 0, 0),
+    },
+    [innerNav], false
   )];
 }
 
@@ -1924,7 +1990,7 @@ async function batchConvert() {
   let errorCount = 0;
   let totalErrors = 0;
 
-  // Read homepage once for both Header and Footer extraction
+  // Read homepage once for Footer extraction + fallback header
   let homepageHtml;
   try {
     homepageHtml = await fs.promises.readFile(path.join(CONFIG.inputDir, 'homepage.html'), 'utf8');
@@ -1933,11 +1999,22 @@ async function batchConvert() {
     errorCount += 2;
   }
 
-  if (homepageHtml) {
+  // Read dedicated header-global.html if it exists (preferred source)
+  let headerHtml;
+  const headerGlobalPath = path.join(CONFIG.inputDir, 'header-global.html');
+  try {
+    headerHtml = await fs.promises.readFile(headerGlobalPath, 'utf8');
+    console.log('📋 Using header-global.html as header source...');
+  } catch (err) {
+    headerHtml = homepageHtml; // fallback to homepage
+    console.log('📋 Using homepage.html as header source (no header-global.html)...');
+  }
+
+  if (headerHtml) {
     // Process Header
     console.log('📋 Processing Header template...');
     try {
-      const headerContent = processNavAsHeader(homepageHtml);
+      const headerContent = processNavAsHeader(headerHtml);
       const headerPath = path.join(CONFIG.outputDir, 'header.json');
       await fs.promises.writeFile(headerPath, JSON.stringify(headerContent), 'utf8');
       console.log(`  ✅ Header → ${path.basename(headerPath)} (${countNodes(headerContent)} nodes)`);
@@ -1959,9 +2036,13 @@ async function batchConvert() {
     }
   }
 
-  // Process all pages concurrently
-  console.log('\n📄 Processing pages...\n');
-  const results = await Promise.all(pages.map(async (page) => {
+  // Process ALL pages from manifest
+  console.log('\n📄 Processing ALL pages...\n');
+  const targetPages = pages.filter(p => {
+    const inputPath = path.join(CONFIG.inputDir, p.html);
+    return fs.existsSync(inputPath);
+  });
+  const results = await Promise.all(targetPages.map(async (page) => {
     const htmlFile = page.html;
     const jsonFile = page.json;
     if (!htmlFile || !jsonFile) {

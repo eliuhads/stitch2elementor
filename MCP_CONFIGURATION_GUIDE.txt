@@ -1,5 +1,15 @@
+⚠️ NUNCA hagas commit de mcp_config.json. Está en .gitignore. Copia mcp_config.example.json y renómbralo.
+
 GUÍA DE CONFIGURACIÓN DE MCP SERVERS PARA STITCH → ELEMENTOR
 ============================================================
+
+SEGURIDAD — USUARIO DE WORDPRESS
+---------------------------------
+IMPORTANTE: No uses tu usuario Admin para el agente.
+Crea un usuario WordPress dedicado con rol "Editor".
+Ve a WP Admin > Usuarios > Añadir nuevo.
+Rol: Editor. Luego genera su Application Password desde su perfil.
+El agente nunca necesita acceso de Admin para inyectar páginas.
 
 1. INSTALACIÓN GLOBAL (Obligatorio — evita timeouts de compilación in-time)
 
@@ -28,8 +38,10 @@ GUÍA DE CONFIGURACIÓN DE MCP SERVERS PARA STITCH → ELEMENTOR
 
   "StitchMCP": {
     "command": "npx",
-    "args": ["-y", "mcp-remote", "https://stitch.googleapis.com/mcp",
-             "--header", "X-Goog-Api-Key: TU_API_KEY"],
+    "args": ["-y", "mcp-remote", "https://stitch.googleapis.com/mcp"],
+    "env": {
+      "STITCH_API_KEY": "TU_GOOGLE_CLOUD_API_KEY_AQUI"
+    },
     "disabled": false
   },
 
@@ -38,11 +50,9 @@ GUÍA DE CONFIGURACIÓN DE MCP SERVERS PARA STITCH → ELEMENTOR
     "args": [],
     "env": {
       "WORDPRESS_BASE_URL": "https://tu-dominio.com",
-      "WORDPRESS_USERNAME": "TU_USUARIO_ADMIN",
+      "WORDPRESS_USERNAME": "usuario-editor-dedicado",
       "WORDPRESS_APPLICATION_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx",
       "WP_MCP_MODE": "advanced"
-      // "advanced" habilita operaciones de Theme Builder (headers/footers globales)
-      // Usa "basic" si solo necesitas inyectar páginas individuales
     },
     "disabled": false
   },
@@ -52,7 +62,7 @@ GUÍA DE CONFIGURACIÓN DE MCP SERVERS PARA STITCH → ELEMENTOR
     "args": [],
     "env": {
       "WP_URL": "https://tu-dominio.com",
-      "WP_APP_USER": "TU_USUARIO_ADMIN",
+      "WP_APP_USER": "usuario-editor-dedicado",
       "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
     },
     "disabled": false

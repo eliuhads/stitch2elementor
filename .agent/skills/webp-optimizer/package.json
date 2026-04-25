@@ -1,0 +1,10 @@
+{
+  "name": "webp-optimizer",
+  "version": "1.0.0",
+  "description": "Skill para optimizar imagenes y convertirlas a WebP",
+  "main": "optimize.js",
+  "type": "module",
+  "dependencies": {
+    "sharp": "^0.33.3"
+  }
+}

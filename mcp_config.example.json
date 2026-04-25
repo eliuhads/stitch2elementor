@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "StitchMCP": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://stitch.googleapis.com/mcp"],
+      "env": {
+        "STITCH_API_KEY": "TU_GOOGLE_CLOUD_API_KEY_AQUI"
+      },
+      "disabled": false
+    },
+    "wp-elementor-mcp": {
+      "command": "wp-elementor-mcp",
+      "args": [],
+      "env": {
+        "WORDPRESS_BASE_URL": "https://tu-dominio.com",
+        "WORDPRESS_USERNAME": "usuario-editor-dedicado",
+        "WORDPRESS_APPLICATION_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx",
+        "WP_MCP_MODE": "advanced"
+      },
+      "disabled": false
+    },
+    "elementor-mcp": {
+      "command": "elementor-mcp",
+      "args": [],
+      "env": {
+        "WP_URL": "https://tu-dominio.com",
+        "WP_APP_USER": "usuario-editor-dedicado",
+        "WP_APP_PASSWORD": "xxxx xxxx xxxx xxxx xxxx xxxx"
+      },
+      "disabled": false
+    }
+  }
+}
