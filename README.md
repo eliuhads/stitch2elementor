@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/version-4.6.6-6C63FF?style=for-the-badge&labelColor=0D1117" />
+<img src="https://img.shields.io/badge/version-4.7.0-6C63FF?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/status-active_development-FF6B35?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/license-MIT-00D9A3?style=for-the-badge&labelColor=0D1117" />
 <img src="https://img.shields.io/badge/Elementor-Flexbox_Native-E2009F?style=for-the-badge&labelColor=0D1117" />

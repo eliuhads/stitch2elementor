@@ -1,6 +1,6 @@
 ---
 name: stitch2elementor
-version: 4.6.7
+version: 4.7.0
 description: Orquestador principal para migraciones automatizadas de Google Stitch a WordPress (Elementor Pro). Activa este skill cuando el usuario pida "migrar stitch a elementor", "ejecutar go!", "aplicar web maestro" o "hacer migración modular/segmentada". Este skill controla el pipeline completo "Web Maestro v2", gestionando MCPs de WordPress, Elementor y manipulación de AST/JSON local para transpilación. (Modo modular unificado nativo 100% en PROMPT_WEB_MAESTRO_v2).
 ---
 
@@ -57,21 +57,11 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 2.  **Lectura Referencial**: Tu única fuente de verdad técnica obligatoria es `Stitch_Elementor_Guide_GENERAL_V1.md`. **Consúltalo específicamente cuando enfrentes: layout roto, mapeo responsive fallido, errores de contenedor o rechazos HTTP por ModSecurity.**
 3.  **Sub-Delegación Inteligente**: En el transcurso de tu pipeline, delegarás sub-tareas asumiendo el alcance de las skills compañeras de tu repositorio. No intentes re-inventar sus funciones; aprovecha sus lógicas.
 4.  **INYECCIONES SECUENCIALES**: Nunca hagas peticiones concurrentes al WP REST API. Espera HTTP 200 de cada página antes de continuar con la siguiente.
-<<<<<<< HEAD
 5.  **CALIDAD DEL MODELO STITCH Y RESPONSIVIDAD**: Al llamar a `generate_screen_from_text` o `edit_screens`, **SIEMPRE** debes pasar los argumentos `modelId: GEMINI_3_PRO` (o superior) y `deviceType: DESKTOP`. Queda terminantemente prohibido usar los modelos por defecto (Simple/Flash) o permitir que las pantallas se generen en dimensiones de celular (MOBILE) por defecto.
-=======
-5.  **CHECKPOINT OBLIGATORIO**: Tras completar cada paso individual, escribe
-    `pipeline_state.json` antes de continuar. Si el pipeline se interrumpe,
-    el trigger `conti!!` (ver `CONTI!!.md`) reanuda desde el último checkpoint.
-6.  **VERIFICACIÓN DE SKILLS HERMANOS EN FASE -1**: Comprueba existencia de
-    `webp-optimizer`, `Agentic-SEO-Skill` y `ui-ux-pro-max` en el directorio
-    de skills del agente. Si alguno falta, notifica al usuario con:
-    `⚠️ Skill [nombre] no encontrado. La fase [X] se ejecutará sin él.`
-    Continúa el pipeline; no abortes por un skill faltante.
-7.  **OUTPUT LOCAL ANTES DE INYECTAR**: Guarda cada JSON compilado en
-    `output/[nombre-pagina].json` antes de inyectarlo en WordPress.
-    Esto permite reanudar desde FASE 3 sin recompilar si hay un corte.
->>>>>>> f5e98a8ac71956568351f39c9b52674656e6b30d
+6.  **CHECKPOINT OBLIGATORIO**: Tras completar cada paso individual, escribe `pipeline_state.json` antes de continuar. Si el pipeline se interrumpe, el trigger `conti!!` (ver `CONTI!!.md`) reanuda desde el último checkpoint.
+7.  **VERIFICACIÓN DE SKILLS HERMANOS EN FASE -1**: Comprueba existencia de `webp-optimizer`, `Agentic-SEO-Skill` y `ui-ux-pro-max` en el directorio de skills del agente. Si alguno falta, notifica al usuario con: `⚠️ Skill [nombre] no encontrado. La fase [X] se ejecutará sin él.` Continúa el pipeline; no abortes por un skill faltante.
+8.  **OUTPUT LOCAL ANTES DE INYECTAR**: Guarda cada JSON compilado en `output/[nombre-pagina].json` antes de inyectarlo en WordPress. Esto permite reanudar desde FASE 3 sin recompilar si hay un corte.
+
 ## 4. Skills Transversales
 
 - **enhance-prompt**: Refinamiento de directivas para Stitch (usado en modo `go!` y `segment!`). 
@@ -136,9 +126,11 @@ node scripts/maintenance_only.js <ID>     # Fuerza un ID específico
 
 ## 7. Tipografía Fluida y Sincronización Global (ADN de Marca)
 
-1. **Inyección Nativa de Clamp**: El `compiler_v4.js` inyecta fórmulas `clamp(...)` a nivel widget. Esto garantiza responsividad inmediata sin depender del Global Kit.
-2. **Sincronización vía PHP (Carrier Script)**: Debido a que el WP REST API bloquea el acceso al "Default Kit" (ID 8) con error `401 Forbidden`, se debe utilizar un script inyector PHP robusto (`robust_inject.php`) para sincronizar el BrandBook en la base de datos una sola vez al inicio del proyecto.
-3. **Flujo de Imágenes (Stitch → WordPress)**:
+1.  **Inyección Nativa de Clamp**: El `compiler_v4.js` inyecta fórmulas `clamp(...)` a nivel widget. Esto garantiza responsividad inmediata sin depender del Global Kit.
+2.  **Grid-to-Flex Engine (v4.5+)**: El compilador integra un conversor de `grid-cols-X` y `col-span-X` de Tailwind a anchos porcentuales de Elementor (`_width`). Si el layout colapsa, verifica que el contenedor padre tenga `flex-direction: row` y `flex-wrap: wrap`.
+3.  **Ancho de Elemento 'Custom'**: Para evitar que las columnas colapsen en Elementor Flexbox, el compilador debe forzar `_element_width: "custom"` en los widgets internos.
+4.  **Sincronización vía PHP (Carrier Script)**: Debido a que el WP REST API bloquea el acceso al "Default Kit" (ID 8) con error `401 Forbidden`, se debe utilizar un script inyector PHP robusto (`robust_inject.php`) para sincronizar el BrandBook en la base de datos una sola vez al inicio del proyecto.
+5.  **Flujo de Imágenes (Stitch → WordPress)**:
    - Las imágenes provienen **única y exclusivamente** de Google Stitch (URLs tipo `lh3.googleusercontent.com/*`).
    - El script `inject_all_pages.php` detecta estas URLs en los JSONs inyectados y las registra en la WordPress Media Library usando `media_sideload_image()` de forma nativa.
    - **No se usan carpetas locales de imágenes ni IMAGENES_FUENTES**. Solo se admite el logo del sitio en formato SVG dentro de `INFO_BrandBook/`. Utilizar imágenes locales de referencia como relleno causa graves deformaciones en la estructura de Elementor. No se descarga, comprime ni sube manualmente ningún otro asset de imagen.
@@ -149,10 +141,11 @@ Nunca crees páginas estándar para el Header o el Footer. Utiliza de forma obli
 1. Inyecta los JSON bajo el Custom Post Type interno de Elementor: `elementor_library`.
 2. Asigna las llaves `_elementor_template_type` como `header` y `footer`.
 3. **Mapeo de Menú Robusto**: Auto-descubre e inyecta el ID del Menú Nativo (fallback sequence: 'Ppal Desktop' -> 'Main Menu' -> First available). **Si el menú está vacío, debe auto-poblarse usando `wp_update_nav_menu_item()`**, ya que un menú sin ítems hará que el widget `nav-menu` desaparezca del frontend.
-4. **Diseño Premium Boxed**: Los headers deben seguir la jerarquía `Container (Full Width) > Container (Boxed 1200px)`.
-5. **Logo Constraint**: El logo horizontal debe ser forzado a `192px` de ancho para evitar distorsiones visuales.
-6. Sobrescribe la opción maestra `elementor_theme_builder_conditions` en la tabla `wp_options` y **OBLIGATORIAMENTE** el meta field `_elementor_conditions` con un arreglo plano `['include/general']`.
-7. **Limpieza de Transients**: Elimina `elementor_conditions_cache` y `elementor_pro_condition_cache` para forzar que Elementor lea las nuevas reglas.
+4. **Header Restoration (Protocolo de Fidelidad)**: Ante regresiones en el header, redirige la compilación para usar `header-global.html` como fuente canónica. Esto asegura que la barra de utilidades, el menú dinámico y el logo mantengan la estructura de la Kinetic Monolith.
+5. **Diseño Premium Boxed**: Los headers deben seguir la jerarquía `Container (Full Width) > Container (Boxed 1200px)`.
+6. **Logo Constraint**: El logo horizontal debe ser forzado a `192px` de ancho para evitar distorsiones visuales.
+7. Sobrescribe la opción maestra `elementor_theme_builder_conditions` en la tabla `wp_options` y **OBLIGATORIAMENTE** el meta field `_elementor_conditions` con un arreglo plano `['include/general']`.
+8. **Limpieza de Transients**: Elimina `elementor_conditions_cache` y `elementor_pro_condition_cache` para forzar que Elementor lea las nuevas reglas.
 
 ### 7.2 Rutina Final Obligatoria de Limpieza y Sincronización (Cache Flush & Config)
 
@@ -277,11 +270,7 @@ El `buildFontLoader()` (contenedor con widget `html` que carga Font Awesome, Goo
 -   **Tolerancia Cero**: Si un script interno de post-procesamiento arroja una excepción, **detén inmediatamente el pipeline**. No prosigas ignorando el fallo; diagnostica y repara.
 -   **Garantía de Fidelidad**: El Output Inyectado siempre debe garantizar la ausencia de "Material Symbol text-spans", estar provisto de un "design system" robusto (con su `clamp()` incrustado) y purgado de recursos volátiles.
 
-<<<<<<< HEAD
 ## 10. Documentos de Operación Asistida (Prompts de Utilidad)
-=======
-## 9. Documentos de Operación Asistida (Prompts de Utilidad)
->>>>>>> f5e98a8ac71956568351f39c9b52674656e6b30d
 
 En la raíz del proyecto existen varios archivos `.md` con el sufijo `!!` (ej. `actual!!.md`, `clean!!.md`). Estos **NO se ejecutan automáticamente** ni son scripts. Son **Plantillas de Prompt (Prompt Templates)** diseñadas para estandarizar operaciones complejas del Agente IA.
 
