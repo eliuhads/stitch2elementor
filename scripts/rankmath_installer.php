@@ -1,17 +1,20 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-$secret = isset($_GET['secret']) ? $_GET['secret'] : '';
-$expected = getenv('INJECT_SECRET') ?: (defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : '');
 
-if (empty($expected) || !hash_equals($expected, $secret)) {
-    http_response_code(403);
-    die(json_encode(['success' => false, 'error' => 'Forbidden']));
-}
 
 define('WP_USE_THEMES', false);
 require_once(__DIR__ . '/wp-load.php');
+
+$auth_path = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once($auth_path);
+verify_api_token();
+
 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 require_once(ABSPATH . 'wp-admin/includes/file.php');
 require_once(ABSPATH . 'wp-admin/includes/misc.php');

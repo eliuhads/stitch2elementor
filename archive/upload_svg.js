@@ -19,7 +19,7 @@ async function uploadSVG() {
             user: user,
             password: password,
             secure: true,
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
         });
         
         const remoteDir = "/public_html/wp-content/uploads/2026/04/";

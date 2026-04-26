@@ -39,7 +39,7 @@ async function run() {
             user: user,
             password: password,
             secure: true,
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
         });
 
         console.log(`\n📂 Navigating to remote path: ${remotePath}...`);
@@ -86,7 +86,7 @@ async function run() {
             user: user,
             password: password,
             secure: true,
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
         });
         await client.cd(remotePath);
         console.log(`🗑️ Deleting remote 'inject_all_pages.php'...`);

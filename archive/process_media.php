@@ -1,10 +1,19 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 /**
  * Script for V9: Media Library Registration and JSON Injection
  * Bypasses ModSecurity by reading FTP-uploaded files.
  */
 define('WP_USE_THEMES', false);
 require_once('./wp-load.php');
+
+$auth_path = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once($auth_path);
+verify_api_token();
+
 require_once(ABSPATH . 'wp-admin/includes/image.php');
 require_once(ABSPATH . 'wp-admin/includes/file.php');
 require_once(ABSPATH . 'wp-admin/includes/media.php');

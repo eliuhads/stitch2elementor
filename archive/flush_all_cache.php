@@ -1,4 +1,8 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 /**
  * flush_elementor_cache.php
  * Forces Elementor to regenerate all CSS files and clear all caches.
@@ -7,12 +11,12 @@
 define('WP_USE_THEMES', false);
 require_once(__DIR__ . '/wp-load.php');
 
-$provided = isset($_GET['secret']) ? $_GET['secret'] : '';
-$expected = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : getenv('WP_SCRIPT_TOKEN');
-if (empty($expected) || !hash_equals($expected, $provided)) {
-    http_response_code(403);
-    wp_die('Unauthorized');
-}
+
+
+
+$auth_path = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once($auth_path);
+verify_api_token();
 
 header('Content-Type: text/plain');
 echo "=== Elementor Full Cache Flush ===\n\n";

@@ -22,11 +22,11 @@
   - 0 conexiones FTP sin TLS
   - 0 comparaciones vulnerables a timing attacks (todas usan hash_equals)
   - 22 endpoints PHP protegidos con auth
-- ⚠️ ACCIONES MANUALES SERVIDOR (pendientes):
+- ✅ ACCIONES SERVIDOR (COMPLETADAS):
   1. ✅ `git rm --cached .env veclas.env` → (Verificado: no están en el índice de Git)
-  2. Rotar Application Passwords en WP Admin
-  3. Definir `WP_SCRIPT_TOKEN` e `INJECT_SECRET` en wp-config.php del servidor
-  4. Test de scripts refactorizados en staging
+  2. ✅ Rotar Application Passwords en WP Admin → (Rotado automatizado, .env actualizado)
+  3. ✅ Definir `WP_SCRIPT_TOKEN` e `INJECT_SECRET` en wp-config.php del servidor → (Verificado activo)
+  4. ✅ Test de scripts refactorizados en staging → (Pruebas TLS y auth pasaron exitosamente. Corregido el fatal error 500 por el orden de require wp-load).
 - Proyecto Stitch V12: `projects/800373799240149310`
 - Homepage WP ID: `1586`
 - Header WP ID: `1584`

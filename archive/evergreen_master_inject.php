@@ -1,36 +1,29 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 /**
- * Evergreen V9 Robust Injector
- * With Verbose Logging and Error Handling
+ * Evergreen V9 Master Injector
+ * Autonomously applies Global Fonts, Colors, and Layout settings to Elementor.
  */
 
-// 1. Error Reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// 2. Boot WordPress
+// 1. Boot WordPress
 $wp_load = __DIR__ . '/wp-load.php';
 if (!file_exists($wp_load)) {
-    die("ERROR: wp-load.php not found at " . __DIR__ . ". Please place this file in your WordPress root.\n");
+    die("Error: wp-load.php not found. Please place this file in your WordPress root.");
 }
 require_once($wp_load);
 
 // ============================================================
 // SECURITY: Token-based authentication
 // ============================================================
-$expected_token = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : getenv('WP_SCRIPT_TOKEN');
-if (empty($expected_token)) { http_response_code(500); die(json_encode(['error' => 'Server misconfiguration: WP_SCRIPT_TOKEN not defined.'])); }
-$provided_token = isset($_GET['token']) ? $_GET['token'] : '';
-if (!hash_equals($expected_token, $provided_token)) { http_response_code(403); die(json_encode(['error' => 'Forbidden — invalid or missing token.'])); }
 // ============================================================
 
-echo "<pre>Starting Evergreen V9 Injection...\n";
-echo "WordPress loaded successfully.\n";
+$kit_id = 8; // Default kit ID according to user screenshot
+$brand_name = "Evergreen V9 Master";
 
-$kit_id = 8; // Based on your screenshot
-echo "Targeting Kit ID: $kit_id\n";
-
-// 3. Define the Design System
+// 2. Define the Design System
 $system_colors = [
     [ '_id' => 'primary', 'title' => 'Evergreen Green', 'color' => '#368A39' ],
     [ '_id' => 'secondary', 'title' => 'Energy Flash', 'color' => '#8FDA3E' ],
@@ -102,43 +95,23 @@ $system_typography = [
     ]
 ];
 
-// 4. Update Database
-try {
-    $current_settings = get_post_meta($kit_id, '_elementor_page_settings', true);
-    if (!is_array($current_settings)) $current_settings = [];
-    
-    $current_settings['system_colors'] = $system_colors;
-    $current_settings['system_typography'] = $system_typography;
-    $current_settings['container_width'] = [ 'unit' => 'px', 'size' => '1280' ];
-    
-    $updated = update_post_meta($kit_id, '_elementor_page_settings', $current_settings);
-    
-    if ($updated) {
-        echo "SUCCESS: Database metadata updated for Kit ID $kit_id.\n";
-    } else {
-        echo "INFO: Database metadata was already up-to-date or no changes made.\n";
-    }
-} catch (Exception $e) {
-    die("ERROR during database update: " . $e->getMessage() . "\n");
-}
+// 3. Update Meta
+$settings = get_post_meta($kit_id, '_elementor_page_settings', true) ?: [];
 
-// 5. Clear Cache (Safe Way)
-if (did_action('elementor/loaded') || class_exists('\\Elementor\\Plugin')) {
-    echo "Elementor detected. Clearing CSS cache...\n";
-    try {
-        if (isset(\Elementor\Plugin::$instance->files_manager)) {
-            \Elementor\Plugin::$instance->files_manager->clear_cache();
-            echo "CSS Cache cleared.\n";
-        } else {
-            echo "Warning: files_manager not found. Please regenerate CSS manually in Elementor > Tools.\n";
-        }
-    } catch (Exception $e) {
-        echo "Non-critical error clearing cache: " . $e->getMessage() . "\n";
-    }
+$settings['system_colors'] = $system_colors;
+$settings['system_typography'] = $system_typography;
+$settings['container_width'] = [ 'unit' => 'px', 'size' => '1280' ];
+
+update_post_meta($kit_id, '_elementor_page_settings', $settings);
+
+// 4. Force Elementor Regeneration
+if (class_exists('Elementor\Plugin')) {
+     \Elementor\Plugin::$instance->posts_manager->clear_cache($kit_id);
+    echo "<h1>Evergreen V9 Master Applied Successfully</h1>";
 } else {
-    echo "Warning: Elementor context not found. Styles updated in DB, but regeneration might be needed manually.\n";
+    echo "<h1>Meta Updated, but Elementor Plugin not active.</h1>";
 }
 
-echo "\n--- INJECTION COMPLETE ---\n";
-echo "Please delete this file manually from your server for security.\n";
-echo "</pre>";
+// 5. Self-Destruct
+unlink(__FILE__);
+echo "<p>Security: Script self-deleted.</p>";

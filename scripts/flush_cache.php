@@ -1,4 +1,8 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 /**
  * flush_cache.php — Cache Flush + Homepage Realignment
  * stitch2elementor v4.6.6
@@ -12,23 +16,15 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// --- Authentication ---
-$token = isset($_GET['token']) ? $_GET['token'] : '';
-$expected = getenv('INJECT_SECRET') ?: (defined('INJECT_SECRET') ? INJECT_SECRET : '');
-if (empty($expected)) {
-    // Try reading from a companion file uploaded by sync_and_inject.js
-    $secret_file = __DIR__ . '/v9_json_payloads/.inject_secret';
-    if (file_exists($secret_file)) {
-        $expected = trim(file_get_contents($secret_file));
-    }
-}
-if (empty($token) || empty($expected) || $token !== $expected) {
-    http_response_code(403);
-    die(json_encode(['success' => false, 'error' => 'Forbidden — invalid or missing token']));
-}
+
 
 define('WP_USE_THEMES', false);
 require_once(__DIR__ . '/wp-load.php');
+$auth_path = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once($auth_path);
+verify_api_token();
+
+
 
 $results = [];
 

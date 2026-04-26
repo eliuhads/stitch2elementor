@@ -21,10 +21,10 @@ const FTP_HOST = process.env.FTP_HOST;
 const FTP_USER = process.env.FTP_USER;
 const FTP_PASS = process.env.FTP_PASS || process.env.FTP_PASSWORD;
 const FTP_REMOTE = process.env.FTP_REMOTE_DIR || '/v9_json_payloads/';
-const INJECT_SECRET = process.env.INJECT_SECRET || '';
+const WP_SCRIPT_TOKEN = process.env.WP_SCRIPT_TOKEN || '';
 
-if (!WP_BASE_URL || !FTP_HOST || !FTP_USER || !FTP_PASS) {
-    console.error('❌ Missing required env vars: WP_BASE_URL, FTP_HOST, FTP_USER, FTP_PASS');
+if (!WP_BASE_URL || !FTP_HOST || !FTP_USER || !FTP_PASS || !WP_SCRIPT_TOKEN) {
+    console.error('❌ Missing required env vars: WP_BASE_URL, FTP_HOST, FTP_USER, FTP_PASS, WP_SCRIPT_TOKEN');
     console.error('   Check your .env file at the project root.');
     process.exit(1);
 }
@@ -34,10 +34,10 @@ if (!INJECT_SECRET) {
     process.exit(1);
 }
 
-function fetchUrl(url) {
+function fetchUrl(url, options = {}) {
     const client = url.startsWith('https') ? https : http;
     return new Promise((resolve, reject) => {
-        client.get(url, (res) => {
+        client.get(url, options, (res) => {
             let data = '';
             res.on('data', chunk => data += chunk);
             res.on('end', () => resolve(data));
@@ -63,7 +63,7 @@ async function main() {
     }
 
     const jsonDir = path.join(__dirname, '..', 'elementor_jsons');
-    const tokenParam = `?token=${INJECT_SECRET}`;
+    const fetchOptions = { headers: { 'Authorization': `Bearer ${INJECT_SECRET}` } };
 
     const client = new ftp.Client();
     client.ftp.verbose = false;
@@ -75,7 +75,7 @@ async function main() {
             user: FTP_USER,
             password: FTP_PASS,
             secure: true, // TLS enforced
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
         });
         console.log('✅ FTP connection established.\n');
 
@@ -120,6 +120,7 @@ async function main() {
         // 2. Upload PHP scripts
         await client.cd('/');
         console.log('📤 [FTP] Uploading PHP injection scripts...');
+        await client.uploadFrom(path.join(__dirname, '..', 'auth_helper.php'), '/auth_helper.php');
         await client.uploadFrom(path.join(__dirname, 'create_hf_native.php'), '/create_hf.php');
         await client.uploadFrom(path.join(__dirname, 'inject_all_pages.php'), '/inject_all_pages.php');
         await client.uploadFrom(path.join(__dirname, 'flush_cache.php'), '/flush_cache.php');
@@ -127,7 +128,7 @@ async function main() {
 
         // 3. Trigger Header/Footer injection
         console.log('🚀 [HTTP] Triggering Header/Footer injection...');
-        const resultHF = await fetchUrl(`${WP_BASE_URL}/create_hf.php${tokenParam}`);
+        const resultHF = await fetchUrl(`${WP_BASE_URL}/create_hf.php`, fetchOptions);
         try {
             const hfData = JSON.parse(resultHF);
             if (hfData.success) {
@@ -148,7 +149,7 @@ async function main() {
 
         // 4. Trigger page injection
         console.log('\n🚀 [HTTP] Triggering batch page injection...');
-        const resultPages = await fetchUrl(`${WP_BASE_URL}/inject_all_pages.php${tokenParam}`);
+        const resultPages = await fetchUrl(`${WP_BASE_URL}/inject_all_pages.php`, fetchOptions);
         let newHomeId = null;
         try {
             const pagesData = JSON.parse(resultPages);
@@ -208,7 +209,7 @@ async function main() {
 
         // 5. Trigger cache flush + homepage realignment
         console.log('🚀 [HTTP] Triggering cache flush & homepage config...');
-        const resultCache = await fetchUrl(`${WP_BASE_URL}/flush_cache.php${tokenParam}`);
+        const resultCache = await fetchUrl(`${WP_BASE_URL}/flush_cache.php`, fetchOptions);
         try {
             const cacheData = JSON.parse(resultCache);
             if (cacheData.success) {
@@ -230,7 +231,7 @@ async function main() {
 
         // 6. Cleanup — delete PHP scripts + secret from server
         console.log('\n🧹 [FTP] Deleting temporary files for security...');
-        for (const tmpFile of ['/create_hf.php', '/inject_all_pages.php', '/flush_cache.php', `${FTP_REMOTE}.inject_secret`]) {
+        for (const tmpFile of ['/create_hf.php', '/inject_all_pages.php', '/flush_cache.php', '/auth_helper.php', `${FTP_REMOTE}.inject_secret`]) {
             try { await client.remove(tmpFile); } catch (e) { /* already deleted or not found */ }
         }
         console.log('   ✅ Temporary files cleaned up.\n');

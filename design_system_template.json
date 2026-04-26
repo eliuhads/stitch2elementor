@@ -44,5 +44,6 @@
   "logoText": "YOUR_BRAND",
   "whatsappUrl": "",
   "instagramUrl": "",
-  "facebookUrl": ""
+  "facebookUrl": "",
+  "footerData": []
 }

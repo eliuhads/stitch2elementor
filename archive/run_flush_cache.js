@@ -3,9 +3,9 @@ const path = require('path');
 const https = require('https');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-function fetchUrl(url) {
+function fetchUrl(url, options = {}) {
     return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
+        https.get(url, options, (res) => {
             let data = '';
             res.on('data', chunk => data += chunk);
             res.on('end', () => resolve({ status: res.statusCode, body: data }));
@@ -22,7 +22,7 @@ async function main() {
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
             secure: true,
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
         });
 
         console.log('[FTP] Uploading flush_all_cache.php...');
@@ -33,7 +33,8 @@ async function main() {
         const wpUrl = process.env.WP_BASE_URL;
         if (!wpUrl) { console.error('❌ ERROR: WP_BASE_URL environment variable not set.'); process.exit(1); }
         console.log('[HTTP] Executing...');
-        const result = await fetchUrl(`${wpUrl}/flush_all_cache.php?secret=${encodeURIComponent(flushKey)}`);
+        const options = { headers: { 'Authorization': `Bearer ${flushKey}` } };
+        const result = await fetchUrl(`${wpUrl}/flush_all_cache.php`, options);
         console.log('Status:', result.status);
         console.log(result.body.replace(/<[^>]*>?/gm, ''));
 

@@ -10,12 +10,12 @@
 
 require_once('wp-load.php');
 
-$expected_token = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : '';
-$provided_token = isset($_GET['secret']) ? $_GET['secret'] : '';
-if (empty($expected_token) || !hash_equals($expected_token, $provided_token)) {
-    http_response_code(403);
-    die('Unauthorized');
-}
+
+
+
+$auth_path = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once($auth_path);
+verify_api_token();
 
 $manifest_json = <<<'JSON'
 [

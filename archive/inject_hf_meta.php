@@ -1,4 +1,8 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 /**
  * inject_hf_meta.php
  * One-time script to set Elementor meta fields on Header/Footer templates.
@@ -10,6 +14,11 @@
 // Bootstrap WordPress
 define('ABSPATH', dirname(__FILE__) . '/');
 require_once(ABSPATH . 'wp-load.php');
+
+
+$auth_path = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once($auth_path);
+verify_api_token();
 
 // Verify we're authenticated or running from CLI
 if (php_sapi_name() !== 'cli' && !current_user_can('manage_options')) {

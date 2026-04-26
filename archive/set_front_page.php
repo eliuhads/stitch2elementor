@@ -1,4 +1,8 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -11,10 +15,6 @@ require_once($wp_load);
 // ============================================================
 // SECURITY: Token-based authentication
 // ============================================================
-$expected_token = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : getenv('WP_SCRIPT_TOKEN');
-if (empty($expected_token)) { http_response_code(500); die(json_encode(['error' => 'Server misconfiguration: WP_SCRIPT_TOKEN not defined.'])); }
-$provided_token = isset($_GET['token']) ? $_GET['token'] : '';
-if (!hash_equals($expected_token, $provided_token)) { http_response_code(403); die(json_encode(['error' => 'Forbidden — invalid or missing token.'])); }
 // ============================================================
 
 global $wpdb;

@@ -18,17 +18,23 @@ async function run() {
             user: process.env.FTP_USER,
             password: process.env.FTP_PASS,
             secure: true,
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
         });
 
         console.log(`Uploading ${scriptName}...`);
         await client.uploadFrom(scriptPath, scriptName);
 
-        const url = `${process.env.WP_BASE_URL}/${scriptName}?secret=${process.env.INJECT_SECRET}`;
+        const url = `${process.env.WP_BASE_URL}/${scriptName}`;
         console.log(`Executing: ${url}`);
         
+        const options = {
+            headers: {
+                'Authorization': `Bearer ${process.env.WP_SCRIPT_TOKEN || process.env.INJECT_SECRET}`
+            }
+        };
+
         await new Promise((resolve, reject) => {
-            https.get(url, (res) => {
+            https.get(url, options, (res) => {
                 let data = '';
                 res.on('data', (chunk) => { data += chunk; });
                 res.on('end', () => {

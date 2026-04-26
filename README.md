@@ -200,13 +200,20 @@ npm i -g elementor-mcp
 
 ### 4. Configure your `.env`
 
+Copy the provided example file to create your local environment configuration:
+```bash
+cp .env.example .env
+```
+
+Ensure the following critical variables are set in your new `.env` file:
 ```env
 FTP_HOST=ftp.yoursite.com
 FTP_USER=your_ftp_user
 FTP_PASS=your_ftp_password
 FTP_REMOTE_DIR=/public_html/v9_json_payloads/
 WP_BASE_URL=https://yoursite.com
-INJECT_SECRET=your_secret_token
+WP_SCRIPT_TOKEN=your_32_char_secret_token
+INJECT_SECRET=your_32_char_secret_token
 ```
 
 ### 5. Configure WordPress credentials

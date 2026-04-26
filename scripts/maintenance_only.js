@@ -58,13 +58,8 @@ function buildMaintenancePHP(homeId) {
  * Generado por maintenance_only.js — stitch2elementor v4.6.6
  */
 
-// Seguridad básica: solo desde localhost o con token
-$token = isset($_GET['token']) ? $_GET['token'] : '';
-$expected = '${process.env.INJECT_SECRET || ''}';
-if ($token !== $expected) {
-  http_response_code(403);
-  die('Forbidden');
-}
+require_once(dirname(__DIR__) . '/auth_helper.php');
+verify_api_token();
 
 define('ABSPATH', dirname(__FILE__) . '/wp/');
 $wp_load = dirname(__FILE__) . '/wp-load.php';
@@ -139,7 +134,7 @@ async function run() {
       user: FTP_USER,
       password: FTP_PASS,
       secure: true,
-      secureOptions: { rejectUnauthorized: false },
+      secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' },
     });
     console.log('✅  Conexión FTP establecida.\n');
 
@@ -150,17 +145,17 @@ async function run() {
     console.log(`✅  PHP subido a: ${FTP_REMOTE}${phpFilename}\n`);
 
     // 3. Disparar PHP
-    const phpUrl = `${WP_BASE_URL.replace(/\/$/, '')}/v9_json_payloads/${phpFilename}?token=${secret}`;
+    const phpUrl = `${WP_BASE_URL.replace(/\/$/, '')}/v9_json_payloads/${phpFilename}`;
     console.log(`🚀  Disparando script de mantenimiento...`);
     console.log(`    URL: ${phpUrl}\n`);
 
     const { execSync } = require('child_process');
     let response;
     try {
-      response = execSync(`curl -s "${phpUrl}"`, { timeout: 30000 }).toString();
+      response = execSync(`curl -s -H "Authorization: Bearer ${secret}" "${phpUrl}"`, { timeout: 30000 }).toString();
     } catch (e) {
       // Fallback PowerShell
-      response = execSync(`powershell -Command "(Invoke-WebRequest -Uri '${phpUrl}' -UseBasicParsing).Content"`, { timeout: 30000 }).toString();
+      response = execSync(`powershell -Command "(Invoke-WebRequest -Uri '${phpUrl}' -Headers @{Authorization='Bearer ${secret}'} -UseBasicParsing).Content"`, { timeout: 30000 }).toString();
     }
 
     console.log('📋  Respuesta del servidor:');

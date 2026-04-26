@@ -11,7 +11,7 @@ async function main() {
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
             secure: true,
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
         });
 
         // 1. Upload OG Image
@@ -38,11 +38,17 @@ async function main() {
         await client.uploadFrom(phpPath, '/fase3_og_config.php');
 
         const https = require('https');
-        const url = `${process.env.WP_BASE_URL}/fase3_og_config.php?secret=${process.env.INJECT_SECRET}`;
+        const url = `${process.env.WP_BASE_URL}/fase3_og_config.php`;
         console.log(`[HTTP] Executing: ${url}`);
         
+        const options = {
+            headers: {
+                'Authorization': `Bearer ${process.env.WP_SCRIPT_TOKEN || process.env.INJECT_SECRET}`
+            }
+        };
+
         await new Promise((resolve, reject) => {
-            https.get(url, (res) => {
+            https.get(url, options, (res) => {
                 let data = '';
                 res.on('data', (chunk) => { data += chunk; });
                 res.on('end', () => {

@@ -1,4 +1,8 @@
 <?php
+ = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
+require_once();
+verify_api_token();
+
 /**
  * Evergreen V9 Robust Injector
  * With Verbose Logging and Error Handling
