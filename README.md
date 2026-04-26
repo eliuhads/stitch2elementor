@@ -312,6 +312,17 @@ This skill orchestrates other agent skills. Make sure these are available in you
 | `docs/widget-mapping.md` | Complete Tailwind → Elementor widget mapping reference |
 | `docs/elementor-json-schema.md` | Elementor Flexbox JSON schema specification |
 
+### Agent Assist Prompts (`!!` files)
+
+These files are Prompt Templates specifically designed for the AI Agent. You trigger them by explicitly asking the agent to run them (e.g., "run `clean!!.md`").
+
+| Prompt Template | Purpose |
+|---|---|
+| `actual!!.md` | Forces the agent to extract and document newly learned knowledge, update state, and push everything to GitHub. |
+| `auditoria!!.md` | Triggers a full repository audit looking for errors, logic loops, leaked credentials, and performance improvements. |
+| `clean!!.md` | Deep cleans all temporary files (JSONs, downloaded HTMLs, logs) resetting the pipeline for a fresh `go!` run. |
+| `continue!!.md` | Cold start prompt. Forces the agent to strictly read `memoria_estado.md` before doing anything else, saving context tokens. |
+
 ---
 
 ## 🙋 FAQ
