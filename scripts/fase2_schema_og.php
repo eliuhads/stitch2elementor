@@ -27,26 +27,26 @@ $rm_titles = get_option('rank-math-options-titles', []);
 
 // Set Knowledge Graph type to Organization (company)
 $rm_titles['knowledgegraph_type'] = 'company';
-$rm_titles['knowledgegraph_name'] = 'Evergreen Venezuela';
-$rm_titles['knowledgegraph_logo'] = home_url('/wp-content/uploads/evergreen-logo.svg');
-$rm_titles['knowledgegraph_url'] = 'https://evergreenvzla.com';
+$rm_titles['knowledgegraph_name'] = get_bloginfo('name');
+$rm_titles['knowledgegraph_logo'] = '';
+$rm_titles['knowledgegraph_url'] = home_url();
 
 // Social profiles
-$rm_titles['social_url_facebook'] = 'https://www.facebook.com/evergreenvzla';
-$rm_titles['social_url_instagram'] = 'https://www.instagram.com/evergreenvzla';
+$rm_titles['social_url_facebook'] = '';
+$rm_titles['social_url_instagram'] = '';
 $rm_titles['social_url_twitter'] = '';
 $rm_titles['social_url_linkedin'] = '';
 
 // Local Business info
 $rm_titles['local_business_type'] = 'ElectricalStore';
-$rm_titles['local_address']       = 'Caracas, Venezuela';
-$rm_titles['local_address_country'] = 'VE';
+$rm_titles['local_address']       = '';
+$rm_titles['local_address_country'] = '';
 
 // Phone
 $rm_titles['phone_numbers'] = [
     [
         'type'   => 'customer support',
-        'number' => '+58 412-555-0000'
+        'number' => ''
     ]
 ];
 
@@ -67,56 +67,17 @@ $results[] = 'Organization + LocalBusiness schema configured.';
 // 2. SCHEMA: Product (per product page)
 // =============================================
 // Map slugs to product schema data
-$product_pages = [
-    'estaciones-de-energia-portatiles' => [
-        'name' => 'Estaciones de Energía Portátiles',
-        'description' => 'Estaciones de energía portátil recargables con paneles solares, ideales para camping, emergencias y uso profesional en Venezuela.',
-        'brand' => 'Evergreen',
-        'category' => 'Energía Portátil',
-    ],
-    'baterias-de-energia-solar' => [
-        'name' => 'Baterías de Energía Solar',
-        'description' => 'Baterías de litio y AGM para almacenamiento de energía solar, con alta durabilidad y eficiencia para hogares y negocios.',
-        'brand' => 'Evergreen',
-        'category' => 'Almacenamiento Solar',
-    ],
-    'paneles-solares' => [
-        'name' => 'Paneles Solares Fotovoltaicos',
-        'description' => 'Paneles solares monocristalinos y policristalinos de alta eficiencia para instalaciones residenciales y comerciales en Venezuela.',
-        'brand' => 'Evergreen',
-        'category' => 'Energía Solar',
-    ],
-    'iluminacion-led-solar' => [
-        'name' => 'Iluminación LED Solar',
-        'description' => 'Luminarias LED alimentadas por energía solar para exteriores, calles, jardines y áreas industriales.',
-        'brand' => 'Evergreen',
-        'category' => 'Iluminación Solar',
-    ],
-    'iluminacion-convencional' => [
-        'name' => 'Iluminación LED Convencional',
-        'description' => 'Luminarias LED de bajo consumo para interiores y exteriores, con alta eficiencia lumínica y larga vida útil.',
-        'brand' => 'Evergreen',
-        'category' => 'Iluminación LED',
-    ],
-    'jump-starters-arrancadores' => [
-        'name' => 'Jump Starters y Arrancadores',
-        'description' => 'Arrancadores portátiles de baterías para vehículos con funciones de carga USB y linterna LED de emergencia.',
-        'brand' => 'Evergreen',
-        'category' => 'Accesorios Automotriz',
-    ],
-    'respaldo-energetico-residencial' => [
-        'name' => 'Respaldo Energético Residencial',
-        'description' => 'Sistemas de respaldo energético con baterías de litio e inversores para hogares, protección contra apagones.',
-        'brand' => 'Evergreen',
-        'category' => 'Respaldo Residencial',
-    ],
-    'respaldo-energetico-comercial' => [
-        'name' => 'Respaldo Energético Comercial',
-        'description' => 'Soluciones de respaldo energético industrial y comercial con plantas eléctricas e inversores de alta capacidad.',
-        'brand' => 'Evergreen',
-        'category' => 'Respaldo Comercial',
-    ],
-];
+$pages = get_posts(['post_type' => 'page', 'post_status' => 'publish', 'posts_per_page' => -1]);
+$product_pages = [];
+$site_name = get_bloginfo('name');
+foreach ($pages as $p) {
+    $product_pages[$p->post_name] = [
+        'name' => $p->post_title,
+        'description' => wp_trim_words($p->post_content, 20),
+        'brand' => $site_name,
+        'category' => 'Product'
+    ];
+}
 
 global $wpdb;
 
@@ -147,12 +108,12 @@ foreach ($product_pages as $slug => $product) {
             'priceCurrency' => 'USD',
             'seller'        => [
                 '@type' => 'Organization',
-                'name'  => 'Evergreen Venezuela',
+                'name' => $site_name,
             ],
         ],
         'manufacturer' => [
             '@type' => 'Organization',
-            'name'  => 'Evergreen',
+            'name' => $site_name,
         ],
     ];
     
@@ -186,3 +147,4 @@ $results[] = 'Open Graph defaults configured.';
 
 echo json_encode(['success' => true, 'results' => $results], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 ?>
+

@@ -35,17 +35,9 @@ $results[] = "Deleted $deleted2 rank_math_schema_Product entries.";
 delete_transient('rank_math_schema_cache');
 $results[] = "RankMath schema cache cleared.";
 
-// Now test ALL the previously-failing pages
-$test_slugs = [
-    'estaciones-de-energia-portatiles',
-    'iluminacion-led-solar',
-    'paneles-solares',
-    'baterias-de-energia-solar',
-    'iluminacion-convencional',
-    'jump-starters-arrancadores',
-    'respaldo-energetico-residencial',
-    'respaldo-energetico-industrial',
-];
+// Retrieve all page slugs dynamically to avoid hardcoding client-specific data
+$pages = get_posts(['post_type' => 'page', 'post_status' => 'publish', 'posts_per_page' => -1]);
+$test_slugs = wp_list_pluck($pages, 'post_name');
 
 foreach ($test_slugs as $slug) {
     $url = home_url("/$slug/");

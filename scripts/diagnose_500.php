@@ -16,17 +16,9 @@ verify_api_token();
 
 global $wpdb;
 
-// Check pages that might have issues
-$slugs = [
-    'estaciones-de-energia-portatiles',
-    'iluminacion-led-solar',
-    'paneles-solares',
-    'baterias-de-energia-solar',
-    'iluminacion-convencional',
-    'jump-starters-arrancadores',
-    'respaldo-energetico-residencial',
-    'respaldo-energetico-industrial',
-];
+// Check pages that might have issues (dynamic fetch to avoid hardcoded client data)
+$pages = get_posts(['post_type' => 'page', 'post_status' => 'publish', 'posts_per_page' => -1]);
+$slugs = wp_list_pluck($pages, 'post_name');
 
 $results = [];
 

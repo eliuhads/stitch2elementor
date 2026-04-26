@@ -30,21 +30,9 @@ if (!WP_BASE_URL || !FTP_HOST || !FTP_USER || !FTP_PASS || !WP_SCRIPT_TOKEN) {
     process.exit(1);
 }
 
-if (!INJECT_SECRET) {
-    console.error('❌ Missing INJECT_SECRET in .env. All PHP scripts require authentication.');
-    process.exit(1);
-}
 
-if (false) {
-    console.error('❌ Missing required env vars: WP_BASE_URL, FTP_HOST, FTP_USER, FTP_PASS, WP_SCRIPT_TOKEN');
-    console.error('   Check your .env file at the project root.');
-    process.exit(1);
-}
 
-if (!INJECT_SECRET) {
-    console.error('❌ Missing INJECT_SECRET in .env. All PHP scripts require authentication.');
-    process.exit(1);
-}
+
 
 function fetchUrl(url, options = {}) {
     const client = url.startsWith('https') ? https : http;
@@ -264,3 +252,4 @@ async function main() {
 }
 
 main();
+

@@ -27,7 +27,7 @@ verify_api_token();
 $results = [];
 
 // 1. Set page_on_front by finding the page with slug 'homepage'
-$home_page = get_page_by_path('homepage');
+$home_page = get_page_by_path('homepage') ?: get_page_by_path('home') ?: get_page_by_path('inicio');
 if ($home_page) {
     update_option('show_on_front', 'page');
     update_option('page_on_front', $home_page->ID);
@@ -66,3 +66,4 @@ if (class_exists('\Elementor\Api')) {
 
 echo json_encode(['success' => true, 'results' => $results, 'timestamp' => date('c')]);
 ?>
+
