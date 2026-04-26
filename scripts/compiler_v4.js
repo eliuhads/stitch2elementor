@@ -170,15 +170,16 @@ function parseDimensionShorthand(val, defaultUnit = 'px') {
 }
 
 /** Build proper Elementor flex_gap object */
-function buildFlexGap(sizePx) {
-  const s = String(sizePx);
+function buildFlexGap(sizePxColumn, sizePxRow = null) {
+  const col = String(sizePxColumn);
+  const row = sizePxRow !== null ? String(sizePxRow) : col;
   return {
     unit: 'px',
-    size: s,
+    size: col,
     sizes: [],
-    column: s,
-    row: s,
-    isLinked: true
+    column: col,
+    row: row,
+    isLinked: col === row
   };
 }
 
@@ -681,27 +682,44 @@ function extractContainerSettings($, el) {
   if (classes.includes('text-right')) s.text_align = 'right';
 
   // --- Gap (CORRECT KEY: flex_gap with full format) ---
+  let gapX = null;
+  let gapY = null;
   for (const cls of classes) {
     const gapMatch = cls.match(/^gap-(\d+)$/);
     if (gapMatch) {
-      s.flex_gap = buildFlexGap(parseInt(gapMatch[1]) * 4);
+      gapX = gapY = parseInt(gapMatch[1]) * 4;
     }
+    const gapXMatch = cls.match(/^gap-x-(\d+)$/);
+    if (gapXMatch) gapX = parseInt(gapXMatch[1]) * 4;
+    
+    const gapYMatch = cls.match(/^gap-y-(\d+)$/);
+    if (gapYMatch) gapY = parseInt(gapYMatch[1]) * 4;
+
     // space-y-* → flex_gap + column direction
     const spaceYMatch = cls.match(/^space-y-(\d+)$/);
     if (spaceYMatch) {
-      s.flex_gap = buildFlexGap(parseInt(spaceYMatch[1]) * 4);
+      gapY = parseInt(spaceYMatch[1]) * 4;
       if (!s.flex_direction) s.flex_direction = 'column';
     }
     // space-x-* → flex_gap + row direction  
     const spaceXMatch = cls.match(/^space-x-(\d+)$/);
     if (spaceXMatch) {
-      s.flex_gap = buildFlexGap(parseInt(spaceXMatch[1]) * 4);
+      gapX = parseInt(spaceXMatch[1]) * 4;
       if (!s.flex_direction) s.flex_direction = 'row';
     }
   }
+
+  if (gapX !== null || gapY !== null) {
+    s.flex_gap = buildFlexGap(gapX !== null ? gapX : 0, gapY !== null ? gapY : 0);
+  }
+
   if (inlineStyles['gap']) {
-    const gv = parseCSSValue(inlineStyles['gap']);
-    if (gv) s.flex_gap = buildFlexGap(gv.size);
+    const parts = inlineStyles['gap'].split(' ').map(v => parseCSSValue(v)).filter(Boolean);
+    if (parts.length === 1) {
+       s.flex_gap = buildFlexGap(parts[0].size);
+    } else if (parts.length === 2) {
+       s.flex_gap = buildFlexGap(parts[1].size, parts[0].size); // CSS gap is row col
+    }
   }
 
   // --- Padding ---
