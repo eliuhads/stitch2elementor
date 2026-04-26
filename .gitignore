@@ -1,9 +1,9 @@
-# ============================================================
-# STITCH2ELEMENTOR — .gitignore
-# REGLA: Todo lo que sea específico de un cliente va aquí.
+﻿# ============================================================
+# STITCH2ELEMENTOR â€” .gitignore
+# REGLA: Todo lo que sea especÃ­fico de un cliente va aquÃ­.
 # ============================================================
 
-# ── Configuración de credenciales (NUNCA commitear) ──────────
+# â”€â”€ ConfiguraciÃ³n de credenciales (NUNCA commitear) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 mcp_config.json
 .env
 pipeline_state.json
@@ -11,19 +11,19 @@ design_system.json
 temp_vars.txt
 screen_map.json
 
-# ── Datos privados del cliente (NUNCA commitear) ─────────────
-INFO_BrandBook/
-INFO_BrandBook_*/
+# â”€â”€ Datos privados del cliente (NUNCA commitear) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+client_data/INFO_BrandBook/
+client_data/INFO_BrandBook_*/
 v9_images_temp/
 assets_originales_backup/
 stitch_html/
 homepage_stitch.html
-INVENTARIO*/
-IMAGENES_FUENTES/
-og-image-*.png
+client_data/INVENTARIO*/
+client_data/IMAGENES_FUENTES/
+assets/og-image-*.png
 *.webp
 
-# ── Notas operacionales internas ─────────────────────────────
+# â”€â”€ Notas operacionales internas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 *!!.md
 FULL-AUDIT-REPORT.md
 ACTION-PLAN.md
@@ -39,13 +39,13 @@ actual!!.md
 clean!!.md
 continue!!.md
 
-# ── Datos de cliente en manifest y SEO ───────────────────────
+# â”€â”€ Datos de cliente en manifest y SEO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 page_manifest.json
-seo-report-*.html
-seo_reaudit_*.html
-seo_test_*.html
+seo_reports/seo-report-*.html
+seo_reports/seo_reaudit_*.html
+seo_reports/seo_test_*.html
 
-# ── Outputs generados (mantener estructura, ignorar contenido) ─
+# â”€â”€ Outputs generados (mantener estructura, ignorar contenido) â”€
 elementor_jsons/*
 !elementor_jsons/README.md
 exports/*
@@ -55,17 +55,17 @@ logs/*
 assets_originales/*
 !assets_originales/README.md
 
-# ── Dependencias y build artifacts ───────────────────────────
+# â”€â”€ Dependencias y build artifacts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 node_modules/
 *.log
 scratch/
 design-system/
 output/
 
-# ── Archivos de sistema ───────────────────────────────────────
+# â”€â”€ Archivos de sistema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 .DS_Store
 Thumbs.db
-# Archivos locales de proyecto — NO commitear
+# Archivos locales de proyecto â€” NO commitear
 screen_map.json
 memoria_estado.md
 logs/
@@ -73,6 +73,7 @@ exports/
 mcp_config.json
 
 # Mantener ejemplos
-!screen_map.example.json
-!page_manifest_example.json
-!mcp_config.example.json
+!templates/screen_map.example.json
+!templates/page_manifest_example.json
+!templates/mcp_config.example.json
+
