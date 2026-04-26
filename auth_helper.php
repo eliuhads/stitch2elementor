@@ -17,7 +17,18 @@ if (!function_exists('getallheaders')) {
     }
 }
 
+function check_rate_limit($max_requests = 10, $window_seconds = 60) {
+    $ip_key = 'ratelimit_' . md5($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+    $current = (int) get_transient($ip_key);
+    if ($current >= $max_requests) {
+        http_response_code(429);
+        die(json_encode(['error' => 'Too Many Requests. Try again later.']));
+    }
+    set_transient($ip_key, $current + 1, $window_seconds);
+}
+
 function verify_api_token() {
+    check_rate_limit();
     $expected_token = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : getenv('WP_SCRIPT_TOKEN');
     
     // For local development testing, allow fallback to a default token if explicitly configured

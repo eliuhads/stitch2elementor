@@ -1,7 +1,4 @@
 <?php
- = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
-require_once();
-verify_api_token();
 
 /**
  * flush_cache.php — Cache Flush + Homepage Realignment
@@ -14,7 +11,8 @@ verify_api_token();
  * 4. Syncs Elementor library
  */
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 
 

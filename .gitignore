@@ -65,3 +65,14 @@ output/
 # ── Archivos de sistema ───────────────────────────────────────
 .DS_Store
 Thumbs.db
+# Archivos locales de proyecto — NO commitear
+screen_map.json
+memoria_estado.md
+logs/
+exports/
+mcp_config.json
+
+# Mantener ejemplos
+!screen_map.example.json
+!page_manifest_example.json
+!mcp_config.example.json

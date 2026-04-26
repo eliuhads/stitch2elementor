@@ -1,10 +1,8 @@
 <?php
- = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
-require_once();
-verify_api_token();
 
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 
 
@@ -47,7 +45,11 @@ $results['memory_limit'] = ini_get('memory_limit');
 $results['max_execution_time'] = ini_get('max_execution_time');
 
 // 4. Try to render a failing page in isolation to capture the error
-$test_slug = isset($_GET['slug']) ? $_GET['slug'] : 'estaciones-de-energia-portatiles';
+if (!isset($_GET['slug']) || empty(trim($_GET['slug']))) {
+    http_response_code(400);
+    die(json_encode(['error' => 'Missing required parameter: slug. Usage: ?slug=your-page-slug']));
+}
+$test_slug = sanitize_title($_GET['slug']);
 $test_page = $wpdb->get_row($wpdb->prepare(
     "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_name = %s AND post_type = 'page' LIMIT 1",
     $test_slug

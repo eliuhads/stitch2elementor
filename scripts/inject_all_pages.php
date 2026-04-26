@@ -1,7 +1,4 @@
 <?php
- = file_exists(__DIR__ . '/auth_helper.php') ? __DIR__ . '/auth_helper.php' : __DIR__ . '/../auth_helper.php';
-require_once();
-verify_api_token();
 
 /**
  * inject_all_pages.php — Batch Elementor Page Injector
@@ -13,7 +10,8 @@ verify_api_token();
  * This file is uploaded via FTP and executed remotely once, then auto-deleted for security.
  */
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 
 

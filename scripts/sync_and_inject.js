@@ -1,3 +1,4 @@
+'use strict';
 /**
  * sync_and_inject.js — Hybrid FTP+PHP Orchestrator
  * stitch2elementor v4.6.6
@@ -22,8 +23,19 @@ const FTP_USER = process.env.FTP_USER;
 const FTP_PASS = process.env.FTP_PASS || process.env.FTP_PASSWORD;
 const FTP_REMOTE = process.env.FTP_REMOTE_DIR || '/v9_json_payloads/';
 const WP_SCRIPT_TOKEN = process.env.WP_SCRIPT_TOKEN || '';
+const INJECT_SECRET = process.env.INJECT_SECRET || '';
 
 if (!WP_BASE_URL || !FTP_HOST || !FTP_USER || !FTP_PASS || !WP_SCRIPT_TOKEN) {
+    console.error('❌ Missing required env vars: WP_BASE_URL, FTP_HOST, FTP_USER, FTP_PASS, WP_SCRIPT_TOKEN');
+    process.exit(1);
+}
+
+if (!INJECT_SECRET) {
+    console.error('❌ Missing INJECT_SECRET in .env. All PHP scripts require authentication.');
+    process.exit(1);
+}
+
+if (false) {
     console.error('❌ Missing required env vars: WP_BASE_URL, FTP_HOST, FTP_USER, FTP_PASS, WP_SCRIPT_TOKEN');
     console.error('   Check your .env file at the project root.');
     process.exit(1);
@@ -75,7 +87,7 @@ async function main() {
             user: FTP_USER,
             password: FTP_PASS,
             secure: true, // TLS enforced
-            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
+            secureOptions: { rejectUnauthorized: true }
         });
         console.log('✅ FTP connection established.\n');
 

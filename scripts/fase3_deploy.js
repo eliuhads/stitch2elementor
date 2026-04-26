@@ -1,3 +1,4 @@
+'use strict';
 const ftp = require('basic-ftp');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
@@ -11,7 +12,7 @@ async function main() {
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
             secure: true,
-            secureOptions: { rejectUnauthorized: process.env.FTP_REJECT_UNAUTHORIZED !== 'false' }
+            secureOptions: { rejectUnauthorized: true }
         });
 
         // 1. Upload OG Image
