@@ -1,6 +1,6 @@
 ---
 name: stitch2elementor
-version: 4.7.0
+version: 4.6.7
 description: Orchestrates automated migrations from Google Stitch HTML designs to native Elementor Pro JSON templates for WordPress. Activate with 'stitch2elementor go!', 'stitch2elementor segment!', or explicit migration requests.
 ---
 

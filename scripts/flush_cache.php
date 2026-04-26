@@ -1,15 +1,5 @@
 <?php
 
-/**
- * flush_cache.php — Cache Flush + Homepage Realignment
- * stitch2elementor v4.6.6
- *
- * Actions:
- * 1. Sets page_on_front from page_manifest.json (if available)
- * 2. Flushes rewrite rules (permalinks)
- * 3. Clears Elementor CSS cache
- * 4. Syncs Elementor library
- */
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);

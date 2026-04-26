@@ -2,7 +2,7 @@
 
 /**
  * create_hf_native.php — Native Elementor Theme Builder Header/Footer Creator
- * stitch2elementor v4.6.6
+ * stitch2elementor v4.6.7
  *
  * Creates Header and Footer as native Elementor Theme Builder templates
  * with global display conditions. Reads JSON payloads from /v9_json_payloads/.

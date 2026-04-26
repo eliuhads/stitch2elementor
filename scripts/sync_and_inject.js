@@ -1,9 +1,10 @@
 'use strict';
 /**
- * sync_and_inject.js — Hybrid FTP+PHP Orchestrator
- * stitch2elementor v4.6.6
- *
- * Uploads JSON payloads + PHP injector scripts via FTP,
+ * SYNC AND INJECT - Master Pipeline Controller
+ * 
+ * stitch2elementor v4.6.7
+ * Auto-creates WAF-bypassing PHP endpoints, uploads JSON payloads,
+ * PHP injector scripts via FTP,
  * triggers them remotely, then auto-deletes for security.
  *
  * Reads ALL pages from page_manifest.json — no hardcoded filenames.

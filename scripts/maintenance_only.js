@@ -55,7 +55,8 @@ function buildMaintenancePHP(homeId) {
 /**
  * maintenance_only_runner.php — Auto-destruible
  * Realinea Homepage + Flush Caché Elementor
- * Generado por maintenance_only.js — stitch2elementor v4.6.6
+ * MAINTENANCE ONLY - Config & Realign 
+ * stitch2elementor v4.6.7
  */
 
 require_once(dirname(__DIR__) . '/auth_helper.php');
