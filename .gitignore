@@ -1,19 +1,51 @@
+# ============================================================
+# STITCH2ELEMENTOR — .gitignore
+# REGLA: Todo lo que sea específico de un cliente va aquí.
+# ============================================================
+
+# ── Configuración de credenciales (NUNCA commitear) ──────────
 mcp_config.json
+.env
 pipeline_state.json
-design-system/
-output/
+design_system.json
+temp_vars.txt
+screen_map.json
+
+# ── Datos privados del cliente (NUNCA commitear) ─────────────
 INFO_BrandBook/
-INFO_BrandBook_Evegreen/
+INFO_BrandBook_*/
 v9_images_temp/
 assets_originales_backup/
-node_modules/
-*.log
+stitch_html/
+homepage_stitch.html
+INVENTARIO*/
+IMAGENES_FUENTES/
+og-image-*.png
+*.webp
 
-# Environment
-.env
-.DS_Store
+# ── Notas operacionales internas ─────────────────────────────
+*!!.md
+FULL-AUDIT-REPORT.md
+ACTION-PLAN.md
+LEARNING_LOG.md
+MAINTENANCE.md
+memoria_estado.md
+to_fix_skill.md
+learning.md
+CONTI!!.md
+stitch2elementor_audit_prompt.md
+auditoria!!.md
+actual!!.md
+clean!!.md
+continue!!.md
 
-# Generated output folders (ignore content, keep READMEs)
+# ── Datos de cliente en manifest y SEO ───────────────────────
+page_manifest.json
+seo-report-*.html
+seo_reaudit_*.html
+seo_test_*.html
+
+# ── Outputs generados (mantener estructura, ignorar contenido) ─
 elementor_jsons/*
 !elementor_jsons/README.md
 exports/*
@@ -23,38 +55,13 @@ logs/*
 assets_originales/*
 !assets_originales/README.md
 
-# Scratch/temp files
+# ── Dependencias y build artifacts ───────────────────────────
+node_modules/
+*.log
 scratch/
+design-system/
+output/
 
-# Page manifest with real site data (use page_manifest_example.json as template)
-page_manifest.json
-
-# Client-specific data files
-design_system.json
-temp_vars.txt
-screen_map.json
-og-image-evergreen.png
-
-# Personal/operational notes
-*!!.md
-FULL-AUDIT-REPORT.md
-ACTION-PLAN.md
-LEARNING_LOG.md
-MAINTENANCE.md
-memoria_estado.md
-to_fix_skill.md
-learning.md
-
-# SEO reports (client-specific)
-seo-report-*.html
-seo_reaudit_*.html
-seo_test_*.html
-
-# Stitch HTML exports (client-specific)
-stitch_html/
-homepage_stitch.html
-
-# WebP images
-*.webp
-INVENTARIO PRODUCTOS PARA WEB by claude/
-IMAGENES_FUENTES/
+# ── Archivos de sistema ───────────────────────────────────────
+.DS_Store
+Thumbs.db
