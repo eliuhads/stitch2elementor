@@ -381,3 +381,12 @@ Made with 🔌 by [@eliuhads](https://github.com/eliuhads)
 <img src="https://img.shields.io/badge/No_Premium_Plugins-Free-00D9A3?style=flat-square&labelColor=0D1117" />
 
 </div>
+
+### Archivos locales (no commitear)
+Los siguientes archivos contienen información sensible del cliente y configuración local, por lo que nunca deben ser commiteados:
+- mcp_config.json: Configuración real de los servidores MCP.
+- screen_map.json: URLs con tokens de acceso temporal a Google Stitch.
+- memoria_estado.md: Diario operativo del proyecto y sus IDs internos en WordPress.
+- page_manifest.json: Manifiesto de migración con datos del cliente y estado de despliegue.
+- logs/ y exports/: Artefactos generados localmente.
+Para evitar filtraciones, el repositorio cuenta con ejemplos vacíos (.example) que sí deben commitearse.
