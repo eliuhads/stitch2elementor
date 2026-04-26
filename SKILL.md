@@ -272,6 +272,12 @@ Antes de ejecutar `compiler_v4.js`, purga y optimiza masivamente el HTML crudo d
 ### 8.25 Inyección Aislada (Evitando ID Shifting)
 Para actualizar una **única página** sin desencadenar un ID Shifting masivo mediante `sync_and_inject.js`, usa el MCP de Elementor (`mcp_elementor-mcp-EVERGREEN_update_page_from_file`) pasando el `pageId` actual (obtenido por slug). Esto preserva el ID de Base de Datos y evita tener que remapear `home_id` o vaciar el caché repetidamente.
 
+### 8.26 RankMath Schema Product: Fatal Error (HTTP 500)
+RankMath espera que el meta `rank_math_schema` sea estrictamente un array anidado (ej. `['product-schema' => ['@type' => 'Product', ...]]`) manejado internamente por sus módulos. Inyectar JSON crudo directamente en keys estáticas (ej. `rank_math_schema_Product`) causa un fatal error (HTTP 500) en su módulo frontend (`class-frontend.php`), destruyendo silenciosamente el renderizado de la página en Elementor. **Solución:** En migraciones, elimina todas las keys de esquema inyectadas manualmente y permite que RankMath autogenere los esquemas, o inyecta el array serializado exacto con `wp_slash()`.
+
+### 8.27 Encoding UTF-8 en Meta Tags y Base de Datos
+Al inyectar meta tags SEO remotamente (Títulos, Descripciones), caracteres especiales del español (á, é, í, ó, ú) pueden corromperse en la DB de WordPress (mostrándose como `Ǹ` o `ǭ`). **Prevención y Corrección:** Usa siempre `wp_slash()` al inyectar strings en `update_post_meta()` durante scripts remotos. Si ocurre corrupción, realiza un pass de limpieza directo con `str_replace()` en la DB (ej. reemplazando caracteres corruptos por sus versiones UTF-8 válidas).
+
 ---
 
 ## 9. Control de Calidad Final
