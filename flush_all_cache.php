@@ -7,7 +7,10 @@
 define('WP_USE_THEMES', false);
 require_once(__DIR__ . '/wp-load.php');
 
-if ($_GET['key'] !== 'ev3rgr33n_2026_flush') {
+$provided = isset($_GET['secret']) ? $_GET['secret'] : '';
+$expected = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : getenv('WP_SCRIPT_TOKEN');
+if (empty($expected) || !hash_equals($expected, $provided)) {
+    http_response_code(403);
     wp_die('Unauthorized');
 }
 

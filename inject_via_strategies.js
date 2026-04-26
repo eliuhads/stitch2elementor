@@ -10,16 +10,17 @@ const fs = require('fs');
 const path = require('path');
 const { uploadFileToFTP } = require('./ftp_utils'); // Injecting FTP deployer
 
-const WP_URL = 'https://evergreenvzla.com';
-const WP_USER = 'eliu.h.ads';
-const WP_APP_PASS = 'wNl4 uNBx t9cJ T1To pDAV NWbT';
-const AUTH = Buffer.from(`${WP_USER}:${WP_APP_PASS}`).toString('base64');
+require('dotenv').config();
+const WP_URL = process.env.WP_BASE_URL;
+if (!WP_URL) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const WP_HOST = new URL(WP_URL).hostname;
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 
 function request(method, fullPath, body, contentType = 'application/json') {
   return new Promise((resolve, reject) => {
     const postData = contentType === 'application/json' ? JSON.stringify(body) : body;
     const options = {
-      hostname: 'evergreenvzla.com',
+      hostname: WP_HOST,
       port: 443,
       path: fullPath,
       method: method,

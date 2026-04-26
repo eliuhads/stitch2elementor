@@ -22,7 +22,8 @@ async function main() {
             host: process.env.FTP_HOST,
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
 
         // Upload the PHP script
@@ -51,8 +52,12 @@ async function main() {
         console.log('[FTP] ✅ JSON payloads uploaded');
 
         // Execute the script via HTTP
+        const injectKey = process.env.WP_INJECT_KEY;
+        if (!injectKey) { console.error('❌ ERROR: WP_INJECT_KEY environment variable not set.'); process.exit(1); }
+        const wpUrl = process.env.WP_BASE_URL;
+        if (!wpUrl) { console.error('❌ ERROR: WP_BASE_URL environment variable not set.'); process.exit(1); }
         console.log('\n[HTTP] Triggering injection script...');
-        const result = await fetchUrl('https://evergreenvzla.com/inject_hf_meta.php?key=ev3rgr33n_2026_inject');
+        const result = await fetchUrl(`${wpUrl}/inject_hf_meta.php?key=${encodeURIComponent(injectKey)}`);
         console.log('HTTP Status:', result.status);
         console.log('SERVER OUTPUT:');
         console.log(result.body.replace(/<[^>]*>?/gm, '')); // Strip HTML

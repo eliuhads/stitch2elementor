@@ -8,10 +8,10 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const WP_URL = 'https://evergreenvzla.com';
-const WP_USER = 'eliu.h.ads';
-const WP_APP_PASS = 'wNl4 uNBx t9cJ T1To pDAV NWbT';
-const AUTH = Buffer.from(`${WP_USER}:${WP_APP_PASS}`).toString('base64');
+require('dotenv').config();
+const WP_URL = process.env.WP_BASE_URL;
+if (!WP_URL) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 
 function wpRequest(method, apiPath, body) {
   return new Promise((resolve, reject) => {

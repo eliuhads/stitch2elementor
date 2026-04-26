@@ -17,18 +17,21 @@ async function main() {
     const client = new ftp.Client();
     try {
         console.log(`[FTP] Connecting to ${process.env.FTP_HOST}...`);
+        const wpUrl = process.env.WP_BASE_URL;
+        if (!wpUrl) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
         await client.access({
             host: process.env.FTP_HOST,
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
 
         console.log(`[FTP] Uploading set_front_page.php...`);
         await client.uploadFrom(path.join(__dirname, 'set_front_page.php'), '/set_front_page.php');
 
         console.log(`\n[HTTP] Triggering script...`);
-        const result = await fetchUrl('https://evergreenvzla.com/set_front_page.php');
+        const result = await fetchUrl(`${wpUrl}/set_front_page.php`);
         console.log(result.replace(/<[^>]*>?/gm, ''));
 
         await client.remove('/set_front_page.php');

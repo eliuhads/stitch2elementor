@@ -1,5 +1,8 @@
 const https = require('https');
-const AUTH = Buffer.from('eliu.h.ads:2Vdy eyX9 3PV9 fktR vJT7 TucF').toString('base64');
+require('dotenv').config();
+const WP_HOST = new URL(process.env.WP_BASE_URL || '').hostname;
+if (!WP_HOST) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 
 // Sample pages to verify
 const PAGES = [
@@ -17,7 +20,7 @@ const TEMPLATES = [1149, 1150];
 function getPage(id) {
   return new Promise((resolve) => {
     https.get({
-      hostname: 'evergreenvzla.com',
+      hostname: WP_HOST,
       path: '/wp-json/wp/v2/pages/' + id,
       headers: { 'Authorization': 'Basic ' + AUTH }
     }, (r) => {
@@ -45,7 +48,7 @@ function getPage(id) {
 function getTemplate(id) {
   return new Promise((resolve) => {
     https.get({
-      hostname: 'evergreenvzla.com',
+      hostname: WP_HOST,
       path: '/wp-json/wp/v2/elementor_library/' + id,
       headers: { 'Authorization': 'Basic ' + AUTH }
     }, (r) => {
@@ -100,7 +103,7 @@ async function main() {
   // Check front page setting
   console.log('\n=== FRONT PAGE SETTING ===');
   https.get({
-    hostname: 'evergreenvzla.com',
+    hostname: WP_HOST,
     path: '/wp-json/wp/v2/settings',
     headers: { 'Authorization': 'Basic ' + AUTH }
   }, (r) => {

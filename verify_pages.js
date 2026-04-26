@@ -1,7 +1,10 @@
 const fs = require('fs');
+require('dotenv').config();
 
 async function checkPages() {
     console.log("🔍 Verificando URLs del sitio...");
+    const wpUrl = process.env.WP_BASE_URL;
+    if (!wpUrl) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
     const manifest = JSON.parse(fs.readFileSync('page_manifest.json', 'utf8'));
     
     let successCount = 0;
@@ -11,8 +14,8 @@ async function checkPages() {
         if (!page.slug) continue;
         
         let url = page.slug === '/' 
-            ? 'https://evergreenvzla.com/' 
-            : `https://evergreenvzla.com/${page.slug}/`;
+            ? `${wpUrl}/` 
+            : `${wpUrl}/${page.slug}/`;
             
         try {
             const res = await fetch(url);

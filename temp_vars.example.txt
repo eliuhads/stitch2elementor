@@ -1,0 +1,4 @@
+[VARIABLES CLAVE]:
+- Proyecto Stitch: `projects/YOUR_PROJECT_ID_HERE`
+- Pantalla Homepage (Desktop): `YOUR_SCREEN_UUID_HERE`
+- Pantalla [Página N] (Desktop): `YOUR_SCREEN_UUID_HERE`

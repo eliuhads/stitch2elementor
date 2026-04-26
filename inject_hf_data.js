@@ -7,13 +7,16 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const AUTH = Buffer.from('eliu.h.ads:2Vdy eyX9 3PV9 fktR vJT7 TucF').toString('base64');
+require('dotenv').config();
+const WP_HOST = new URL(process.env.WP_BASE_URL || '').hostname;
+if (!WP_HOST) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 
 function apiCall(method, endpoint, body) {
     return new Promise((resolve, reject) => {
         const postData = body ? JSON.stringify(body) : '';
         const opts = {
-            hostname: 'evergreenvzla.com',
+            hostname: WP_HOST,
             path: '/wp-json/wp/v2/' + endpoint,
             method,
             headers: {

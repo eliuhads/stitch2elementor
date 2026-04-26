@@ -5,6 +5,15 @@ ini_set('display_errors', 1);
 define('WP_USE_THEMES', false);
 require_once(__DIR__ . '/wp-load.php');
 
+// ============================================================
+// SECURITY: Token-based authentication
+// ============================================================
+$expected_token = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : getenv('WP_SCRIPT_TOKEN');
+if (empty($expected_token)) { http_response_code(500); die(json_encode(['error' => 'Server misconfiguration: WP_SCRIPT_TOKEN not defined.'])); }
+$provided_token = isset($_GET['token']) ? $_GET['token'] : '';
+if (!hash_equals($expected_token, $provided_token)) { http_response_code(403); die(json_encode(['error' => 'Forbidden — invalid or missing token.'])); }
+// ============================================================
+
 $json_dir = __DIR__ . '/v9_json_payloads/';
 $templates = [
     'Header Master' => ['file' => 'header.json', 'type' => 'header'],

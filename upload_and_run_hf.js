@@ -2,7 +2,7 @@ const ftp = require('basic-ftp');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-require('dotenv').config({ path: path.join(__dirname, 'veclas.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 function fetchUrl(url) {
     return new Promise((resolve, reject) => {
@@ -18,18 +18,21 @@ async function main() {
     const client = new ftp.Client();
     try {
         console.log(`[FTP] Connecting to ${process.env.FTP_HOST}...`);
+        const wpUrl = process.env.WP_BASE_URL;
+        if (!wpUrl) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
         await client.access({
             host: process.env.FTP_HOST,
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
 
         console.log(`[FTP] Uploading create_hf.php...`);
         await client.uploadFrom(path.join(__dirname, 'create_hf.php'), '/create_hf.php');
 
         console.log(`\n[HTTP] Triggering injection script via internet...`);
-        const result = await fetchUrl('https://evergreenvzla.com/create_hf.php');
+        const result = await fetchUrl(`${wpUrl}/create_hf.php`);
         console.log("SERVER OUTPUT:");
         console.log(result.replace(/<[^>]*>?/gm, '')); // Strip basic HTML
 

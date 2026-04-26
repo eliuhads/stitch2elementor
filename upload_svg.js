@@ -18,7 +18,8 @@ async function uploadSVG() {
             host: host,
             user: user,
             password: password,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
         
         const remoteDir = "/public_html/wp-content/uploads/2026/04/";

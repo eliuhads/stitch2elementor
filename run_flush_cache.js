@@ -21,14 +21,19 @@ async function main() {
             host: process.env.FTP_HOST,
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
 
         console.log('[FTP] Uploading flush_all_cache.php...');
         await client.uploadFrom(path.join(__dirname, 'flush_all_cache.php'), '/flush_all_cache.php');
 
+        const flushKey = process.env.WP_SCRIPT_TOKEN;
+        if (!flushKey) { console.error('❌ ERROR: WP_SCRIPT_TOKEN environment variable not set.'); process.exit(1); }
+        const wpUrl = process.env.WP_BASE_URL;
+        if (!wpUrl) { console.error('❌ ERROR: WP_BASE_URL environment variable not set.'); process.exit(1); }
         console.log('[HTTP] Executing...');
-        const result = await fetchUrl('https://evergreenvzla.com/flush_all_cache.php?key=ev3rgr33n_2026_flush');
+        const result = await fetchUrl(`${wpUrl}/flush_all_cache.php?secret=${encodeURIComponent(flushKey)}`);
         console.log('Status:', result.status);
         console.log(result.body.replace(/<[^>]*>?/gm, ''));
 

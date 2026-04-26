@@ -24,7 +24,8 @@ async function uploadFileToFTP(localFilePath, remoteFileName = null) {
             host: host,
             user: user,
             password: password,
-            secure: false // Standard FTP based on provided creds
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
         
         console.log(`[FTP] Navigating to ${remoteDir}...`);

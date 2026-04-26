@@ -18,19 +18,22 @@ async function main() {
     const client = new ftp.Client();
     try {
         console.log(`[FTP] Connecting to ${process.env.FTP_HOST}...`);
+        const wpUrl = process.env.WP_BASE_URL;
+        if (!wpUrl) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
         await client.access({
             host: process.env.FTP_HOST,
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
 
         console.log(`[FTP] Uploading updated JSON payloads...`);
-        await client.ensureDir('/v9_json_payloads');
-        await client.ensureDir('/v9_json_payloads');
-        const jsonFiles = fs.readdirSync(path.join(__dirname, 'v9_json_payloads')).filter(f => f.endsWith('.json'));
+        await client.ensureDir('/elementor_jsons');
+        await client.ensureDir('/elementor_jsons');
+        const jsonFiles = fs.readdirSync(path.join(__dirname, 'elementor_jsons')).filter(f => f.endsWith('.json'));
         for (const file of jsonFiles) {
-            await client.uploadFrom(path.join(__dirname, 'v9_json_payloads', file), '/v9_json_payloads/' + file);
+            await client.uploadFrom(path.join(__dirname, 'elementor_jsons', file), '/elementor_jsons/' + file);
         }
         await client.cd('/');
 
@@ -41,12 +44,12 @@ async function main() {
         await client.uploadFrom(path.join(__dirname, 'inject_all_pages.php'), '/inject_all_pages.php');
 
         console.log(`\n[HTTP] Triggering Header/Footer injection script via internet...`);
-        const resultHF = await fetchUrl('https://evergreenvzla.com/create_hf.php');
+        const resultHF = await fetchUrl(`${wpUrl}/create_hf.php`);
         console.log("SERVER OUTPUT (HF):");
         console.log(resultHF.replace(/<[^>]*>?/gm, ''));
 
         console.log(`\n[HTTP] Triggering Pages injection script via internet...`);
-        const resultPages = await fetchUrl('https://evergreenvzla.com/inject_all_pages.php');
+        const resultPages = await fetchUrl(`${wpUrl}/inject_all_pages.php`);
         console.log("SERVER OUTPUT (Pages):");
         console.log(resultPages.replace(/<[^>]*>?/gm, ''));
 
@@ -58,7 +61,7 @@ async function main() {
         const homePage = manifest.pages.find(p => p.title.toLowerCase() === 'homepage');
         const blogPage = manifest.pages.find(p => p.title.toLowerCase() === 'blog');
         
-        let flushUrl = 'https://evergreenvzla.com/flush_cache.php';
+        let flushUrl = `${wpUrl}/flush_cache.php`;
 
         console.log(`[HTTP] Triggering Elementor Cache Flush & Sync (Targeting Home: ${homePage?.wp_id || 'N/A'})...`);
         const resultCache = await fetchUrl(flushUrl);
@@ -79,3 +82,4 @@ async function main() {
 }
 
 main();
+

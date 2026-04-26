@@ -4,8 +4,10 @@
  */
 const https = require('https');
 
-const WP_URL = 'https://evergreenvzla.com';
-const AUTH = Buffer.from('eliu.h.ads:2Gcx siE4 JGD0 72UK B3u1 5tlM').toString('base64');
+require('dotenv').config();
+const WP_URL = process.env.WP_BASE_URL;
+if (!WP_URL) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 
 // Map from manifest: wp_id → desired slug
 const SLUG_FIXES = [

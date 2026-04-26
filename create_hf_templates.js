@@ -6,9 +6,11 @@
 const https = require('https');
 const fs = require('fs');
 
-const WP_USER = 'eliu.h.ads';
-const WP_PASS = '2Vdy eyX9 3PV9 fktR vJT7 TucF';
-const AUTH = Buffer.from(`${WP_USER}:${WP_PASS}`).toString('base64');
+require('dotenv').config();
+const WP_URL = process.env.WP_BASE_URL;
+if (!WP_URL) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const WP_HOST = new URL(WP_URL).hostname;
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 
 // Read the header/footer JSON data from files
 const HEADER_DATA = JSON.parse(fs.readFileSync('./v9_json_payloads/header_template.json', 'utf8'));
@@ -18,7 +20,7 @@ function apiCall(method, path, body) {
   return new Promise((resolve, reject) => {
     const postData = body ? JSON.stringify(body) : '';
     const opts = {
-      hostname: 'evergreenvzla.com',
+      hostname: WP_HOST,
       path: `/wp-json/wp/v2/${path}`,
       method,
       headers: {

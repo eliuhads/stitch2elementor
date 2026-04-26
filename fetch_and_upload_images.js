@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-require('dotenv').config({ path: path.join(__dirname, 'veclas.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const WP_URL = 'https://evergreenvzla.com';
-const AUTH = process.env.WP_AUTH || Buffer.from('eliu.h.ads:2Gcx siE4 JGD0 72UK B3u1 5tlM').toString('base64');
+const WP_URL = process.env.WP_BASE_URL;
+if (!WP_URL) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 const JSON_DIR = path.join(__dirname, '.agent/skills/stitch2elementor/elementor_jsons');
 const TEMP_DIR = path.join(__dirname, 'v9_images_temp');
 

@@ -38,7 +38,8 @@ async function run() {
             host: host,
             user: user,
             password: password,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
 
         console.log(`\n📂 Navigating to remote path: ${remotePath}...`);
@@ -84,7 +85,8 @@ async function run() {
             host: host,
             user: user,
             password: password,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
         await client.cd(remotePath);
         console.log(`🗑️ Deleting remote 'inject_all_pages.php'...`);

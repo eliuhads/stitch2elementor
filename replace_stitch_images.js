@@ -9,8 +9,10 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 
-const WP_URL = 'https://evergreenvzla.com';
-const AUTH = Buffer.from('eliu.h.ads:2Gcx siE4 JGD0 72UK B3u1 5tlM').toString('base64');
+require('dotenv').config();
+const WP_URL = process.env.WP_BASE_URL;
+if (!WP_URL) { console.error('❌ ERROR: WP_BASE_URL not set in .env'); process.exit(1); }
+const AUTH = Buffer.from(`${process.env.WORDPRESS_USERNAME}:${process.env.WORDPRESS_APPLICATION_PASSWORD}`).toString('base64');
 
 const REPORT_PATH = path.join(__dirname, 'stitch_images_report.json');
 const JSON_DIR = path.join(__dirname, 'elementor_json');
@@ -167,7 +169,7 @@ async function main() {
       console.log(`     ✅ ${uploadedUrl}`);
     } else {
       console.log(`     ⚠ Failed. Using generic fallback.`);
-      POOL_URLS[media.id] = 'https://evergreenvzla.com/wp-content/uploads/2026/04/hero_escena_familia_casa_segura_iluminada.webp';
+      POOL_URLS[media.id] = `${WP_URL}/wp-content/uploads/placeholder.webp`;
     }
   }
 

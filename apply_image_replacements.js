@@ -4,21 +4,24 @@ const path = require('path');
 const REPORT_PATH = path.join(__dirname, 'stitch_images_report.json');
 const JSON_DIR = path.join(__dirname, 'elementor_json');
 
+require('dotenv').config();
+const wpUrl = process.env.WP_BASE_URL || '';
+
 const POOL_URLS = {
-  solar_res: 'https://evergreenvzla.com/wp-content/uploads/2026/04/casa_moderna_paneles_solares.webp',
-  solar_com: 'https://evergreenvzla.com/wp-content/uploads/2026/04/edificio_paneles_solares.webp',
-  solar_install: 'https://evergreenvzla.com/wp-content/uploads/2026/04/operario_perforando.webp',
-  light_solar: 'https://evergreenvzla.com/wp-content/uploads/2026/04/alumbrado_publico_solar_residencial.webp',
-  backup_com: 'https://evergreenvzla.com/wp-content/uploads/2026/04/estacion_energia_telecomunicaciones_4x4.webp',
-  backup_res: 'https://evergreenvzla.com/wp-content/uploads/2026/04/bateria_pared_interior_residencial.webp',
-  portable_camp: 'https://evergreenvzla.com/wp-content/uploads/2026/04/powerstation_2400w_exterior_lago_naturaleza.webp',
-  portable_prod: 'https://evergreenvzla.com/wp-content/uploads/2026/04/powerstation_1200w_frontal_controles_evergreen.webp',
-  jump_starter: 'https://evergreenvzla.com/wp-content/uploads/2026/04/jump_starter_1200_demo_motor_manos.png',
-  light_conv: 'https://evergreenvzla.com/wp-content/uploads/2026/04/iglesia_plaza_noche.webp',
-  light_bulb: 'https://evergreenvzla.com/wp-content/uploads/2026/04/bombillo_t80_led_20w_encendido_colgante.webp',
-  inverter: 'https://evergreenvzla.com/wp-content/uploads/2026/04/inversor_5000w_limpio_estudio.webp',
-  family_blog: 'https://evergreenvzla.com/wp-content/uploads/2026/04/familia_casa_paneles_solares.webp',
-  industry: 'https://evergreenvzla.com/wp-content/uploads/2026/04/trabajador_taladrando_hormigon.webp'
+  solar_res: `${wpUrl}/wp-content/uploads/2026/04/casa_moderna_paneles_solares.webp`,
+  solar_com: `${wpUrl}/wp-content/uploads/2026/04/edificio_paneles_solares.webp`,
+  solar_install: `${wpUrl}/wp-content/uploads/2026/04/operario_perforando.webp`,
+  light_solar: `${wpUrl}/wp-content/uploads/2026/04/alumbrado_publico_solar_residencial.webp`,
+  backup_com: `${wpUrl}/wp-content/uploads/2026/04/estacion_energia_telecomunicaciones_4x4.webp`,
+  backup_res: `${wpUrl}/wp-content/uploads/2026/04/bateria_pared_interior_residencial.webp`,
+  portable_camp: `${wpUrl}/wp-content/uploads/2026/04/powerstation_2400w_exterior_lago_naturaleza.webp`,
+  portable_prod: `${wpUrl}/wp-content/uploads/2026/04/powerstation_1200w_frontal_controles_evergreen.webp`,
+  jump_starter: `${wpUrl}/wp-content/uploads/2026/04/jump_starter_1200_demo_motor_manos.png`,
+  light_conv: `${wpUrl}/wp-content/uploads/2026/04/iglesia_plaza_noche.webp`,
+  light_bulb: `${wpUrl}/wp-content/uploads/2026/04/bombillo_t80_led_20w_encendido_colgante.webp`,
+  inverter: `${wpUrl}/wp-content/uploads/2026/04/inversor_5000w_limpio_estudio.webp`,
+  family_blog: `${wpUrl}/wp-content/uploads/2026/04/familia_casa_paneles_solares.webp`,
+  industry: `${wpUrl}/wp-content/uploads/2026/04/trabajador_taladrando_hormigon.webp`
 };
 
 function matchImageId(pageName, altText) {

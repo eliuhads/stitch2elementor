@@ -23,7 +23,8 @@ async function main() {
             host: process.env.FTP_HOST,
             user: process.env.FTP_USER,
             password: process.env.FTP_PASSWORD,
-            secure: false
+            secure: true,
+            secureOptions: { rejectUnauthorized: false }
         });
 
         await uploadDir(client, path.join(__dirname, 'v9_json_payloads'), '/v9_json_payloads');

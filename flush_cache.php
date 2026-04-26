@@ -6,6 +6,15 @@ ini_set('display_errors', 1);
 define('WP_USE_THEMES', false);
 require_once(__DIR__ . '/wp-load.php');
 
+// ============================================================
+// SECURITY: Token-based authentication
+// ============================================================
+$expected_token = defined('WP_SCRIPT_TOKEN') ? WP_SCRIPT_TOKEN : getenv('WP_SCRIPT_TOKEN');
+if (empty($expected_token)) { http_response_code(500); die(json_encode(['error' => 'Server misconfiguration: WP_SCRIPT_TOKEN not defined.'])); }
+$provided_token = isset($_GET['token']) ? $_GET['token'] : '';
+if (!hash_equals($expected_token, $provided_token)) { http_response_code(403); die(json_encode(['error' => 'Forbidden — invalid or missing token.'])); }
+// ============================================================
+
 echo "<h2>🔧 Ejecutando mantenimiento del sistema...</h2>";
 
 // 1. Guardar cambios en enlaces permanentes
@@ -19,12 +28,12 @@ if (isset($_GET['home_id']) || isset($_GET['blog_id'])) {
     
     if (isset($_GET['home_id']) && !empty($_GET['home_id'])) {
         update_option('page_on_front', intval($_GET['home_id']));
-        echo "✅ Portada (Homepage) establecida al ID: " . $_GET['home_id'] . "<br>";
+        echo "✅ Portada (Homepage) establecida al ID: " . intval($_GET['home_id']) . "<br>";
     }
     
     if (isset($_GET['blog_id']) && !empty($_GET['blog_id'])) {
         update_option('page_for_posts', intval($_GET['blog_id']));
-        echo "✅ Página de entradas (Blog) establecida al ID: " . $_GET['blog_id'] . "<br>";
+        echo "✅ Página de entradas (Blog) establecida al ID: " . intval($_GET['blog_id']) . "<br>";
     }
 }
 

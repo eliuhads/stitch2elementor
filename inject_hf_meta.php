@@ -14,7 +14,10 @@ require_once(ABSPATH . 'wp-load.php');
 // Verify we're authenticated or running from CLI
 if (php_sapi_name() !== 'cli' && !current_user_can('manage_options')) {
     // Allow with a secret key for remote execution
-    if ($_GET['key'] !== 'ev3rgr33n_2026_inject') {
+    $provided = isset($_GET['key']) ? $_GET['key'] : '';
+    $expected = defined('WP_INJECT_KEY') ? WP_INJECT_KEY : getenv('WP_INJECT_KEY');
+    if (empty($expected) || !hash_equals($expected, $provided)) {
+        http_response_code(403);
         wp_die('Unauthorized');
     }
 }
