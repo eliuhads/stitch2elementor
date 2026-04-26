@@ -1,4 +1,4 @@
-# Referencia Técnica: Stitch → Elementor V4.1
+# Referencia Técnica: Stitch a Elementor V4.6.7 — Compiler Build 4
 
 Consulta este documento ante errores técnicos, dudas sobre mapeos responsivos o para obtener las especificaciones exactas del patrón de layout.
 

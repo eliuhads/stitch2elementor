@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # STITCH2ELEMENTOR â€” .gitignore
 # REGLA: Todo lo que sea especÃ­fico de un cliente va aquÃ­.
 # ============================================================
@@ -77,3 +77,7 @@ mcp_config.json
 !templates/page_manifest_example.json
 !templates/mcp_config.example.json
 
+# Agregados de seguridad
+.env.local
+*.env
+npm-debug.log*

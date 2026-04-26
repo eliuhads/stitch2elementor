@@ -50,7 +50,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 1. **Optimiza prompts**: Usa el skill `enhance-prompt` para refinar las directivas que enviarás a Stitch.
 2. **Genera pantallas**: Usa `StitchMCP` → `generate_screen_from_text` para crear cada pantalla del sitio. **OBLIGATORIO**: Debes configurar siempre el parámetro `modelId` con el valor `GEMINI_3_PRO` o superior, y el parámetro `deviceType` con el valor `DESKTOP` para garantizar layouts expansivos y responsivos (nunca uses MOBILE ni dejes los valores por defecto).
-3. **Descarga HTML**: Para cada pantalla generada, descarga el HTML completo usando `curl` o `Invoke-WebRequest`. **NUNCA** uses `read_url_content` (destruye clases Tailwind). Guarda en `assets_originales/`.
+3. **Extracción Segura**: Descarga el HTML con flag de error fatal: `curl --fail --max-time 30 -L -o [nombre].html "$URL"`. Si curl retorna código distinto de 0, detén la fase y reporta el error HTTP al usuario. NUNCA proceses un HTML vacío o de error. **NUNCA** uses `read_url_content` (destruye clases Tailwind). Guarda en `assets_originales/`.
 
 ---
 
@@ -70,7 +70,9 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 > **⚠️ DOCTRINA ID-SHIFTING**: Cada ejecución de `sync_and_inject.js` asigna **NUEVOS IDs** en WordPress. Cualquier `wp_id` previo queda OBSOLETO inmediatamente. El flujo correcto es SIEMPRE: inyectar → capturar nuevos IDs → realinear Homepage → limpiar caché.
 
-1. **Inyección Híbrida Autónoma (VÍA ÚNICA)**: Ejecuta `node scripts/sync_and_inject.js` que automáticamente:
+1. **Validación Pre-Inyección**: Antes de inyectar cualquier página, valida su JSON contra `schemas/elementor_data.schema.json`. Comando: `node -e "const s=require('./schemas/elementor_data.schema.json'); const d=require('./[archivo].json'); const Ajv=require('ajv'); const ajv=new Ajv(); const valid=ajv.validate(s,d); if(!valid){console.error(ajv.errors);process.exit(1);}"`. Si la validación falla, NO inyectes y reporta el error al usuario.
+
+2. **Inyección Híbrida Autónoma (VÍA ÚNICA)**: Ejecuta `node scripts/sync_and_inject.js` que automáticamente:
     - Sube JSONs y PHPs inyectores vía FTP a `v9_json_payloads/`
     - Copia `page_manifest.json` al servidor para el inyector PHP
     - Dispara `create_hf_native.php` (Header/Footer como `elementor_library`)
@@ -79,7 +81,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
     - **Paso Crítico de Realineación ("Protocolo AHORA SI")**: Dispara `flush_cache.php` pasándole los nuevos IDs para fijar la Homepage/Blog y limpiar caché (OBLIGATORIO)
     - Auto-elimina los PHPs del servidor por seguridad perimetral
 
-2. **Protocolo AHORA SI — Flujo de Éxito Confirmado** (ejecutar SIEMPRE post-inyección):
+3. **Protocolo AHORA SI — Flujo de Éxito Confirmado** (ejecutar SIEMPRE post-inyección):
     ```
     1. Inyectar páginas → Los IDs cambian en WordPress
     2. Capturar el NUEVO ID de Homepage (del log de sync_and_inject.js o via MCP get_pages)
@@ -87,12 +89,12 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
     4. Ejecutar flush_cache.php con el nuevo ID → Fija Homepage + limpia caché Elementor
     ```
 
-3. **Modo Config-Only** (usar cuando NO se quiere re-inyectar contenido):
+4. **Modo Config-Only** (usar cuando NO se quiere re-inyectar contenido):
     - Si solo se necesita cambiar la Homepage sin alterar los IDs actuales, usar `node scripts/maintenance_only.js`
     - Este modo aplica SOLO el paso de configuración de `page_on_front` y `flush_cache` sin tocar el contenido
     - **Cuándo usarlo**: Tras un crash de pipeline, para corregir la Homepage sin perder los IDs estables
 
-4. **Post-inyección**: 
+5. **Post-inyección**: 
     - Ejecuta `node scripts/fix_slugs.js` para normalizar URLs según el manifest
     - Verifica slugs con `read_url_content` sobre 2-3 páginas aleatorias
 

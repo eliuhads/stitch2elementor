@@ -4,6 +4,19 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [4.6.7] - 2026-04-26 - SECURITY & PIPELINE HARDENING
+
+### Agregado
+- Script `fix_buttons.js` para aplicar colores del BrandBook añadido a `package.json`
+- JSON Schema de validación en `schemas/elementor_data.schema.json`
+- `.gitignore` actualizado y `mcp_config.example.json` para protección de credenciales
+- `package.json` con scripts npm declarados
+- Guía técnica actualizada (unificación de versiones y typos)
+
+### Cambiado
+- Curl con `--fail --max-time 30` en pipeline para detección de errores HTTP
+- Validación pre-inyección estricta del JSON antes de inyectar en WordPress
+
 ## [4.6.6] - 2026-04-18 — AUDIT-DRIVEN HARDENING
 
 ### 🔧 Bug Fixes
