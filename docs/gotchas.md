@@ -231,3 +231,21 @@ Build a recursive DOM parser (Node.js `cheerio` / Python `BeautifulSoup`):
 3. Elementor Library sync via `Source_Local::get_data()` refresh
 
 **Rule:** This is NOT optional. Every run of `sync_and_inject.js` must call `flush_cache.php` as its final step.
+
+---
+
+## 19. Agent Assist Prompt Templates (!! files)
+
+**Problem:** Agent prompt templates with the `!!` suffix (`actual!!.md`, `clean!!.md`, etc.) are documented in `SKILL.md` but won't trigger if they don't physically exist in the repository root.
+
+**Best approach:** Ensure these `.md` files are present in the project root and tracked in version control (using `git add -f` if they match `.gitignore` rules) so the agent can read and execute them when the user triggers their command.
+
+---
+
+## 20. Submodule Push Operations
+
+**Problem:** Running `git commit` and `git push` from the root repository (`EVERGREEN_2.0`) does not automatically push commits made inside a git submodule (e.g., `.agent/skills/stitch2elementor`).
+
+**Best approach:**
+- Always `cd` into the specific submodule directory before running `git add`, `git commit`, and `git push` for skill-specific changes.
+- Afterwards, return to the root directory and commit the submodule pointer bump to keep the parent repository synchronized.
