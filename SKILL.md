@@ -331,6 +331,9 @@ RankMath espera que el meta `rank_math_schema` sea estrictamente un array anidad
 #### 8.26 Encoding UTF-8 en Meta Tags y Base de Datos
 Al inyectar meta tags SEO remotamente (Títulos, Descripciones), caracteres especiales del español (á, é, í, ó, ú) pueden corromperse en la DB de WordPress. **Prevención y Corrección:** Usa siempre `wp_slash()` al inyectar strings en `update_post_meta()` durante scripts remotos. Si ocurre corrupción, realiza un pass de limpieza directo con `str_replace()` en la DB (ej. reemplazando caracteres corruptos por sus versiones UTF-8 válidas).
 
+#### 8.27 Limpieza Asíncrona (Node.js vs FTP)
+Nunca uses `process.exit(1)` de manera síncrona en scripts de Node.js si hay operaciones de limpieza pendientes (como eliminar archivos temporales PHP vía FTP). `process.exit(1)` matará el proceso inmediatamente, dejando archivos basura en el servidor (riesgo de seguridad). **Solución:** Usa `throw new Error()` para propagar el fallo y asegúrate de que la limpieza ocurra en un bloque `finally { ... }` usando `Promise.allSettled()` para manejar la desconexión FTP sin fallar de nuevo.
+
 ## Outputs Esperados por Modo
 
 ### Modo `stitch2elementor go!` (Pipeline Completo)
