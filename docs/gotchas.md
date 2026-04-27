@@ -249,3 +249,23 @@ Build a recursive DOM parser (Node.js `cheerio` / Python `BeautifulSoup`):
 **Best approach:**
 - Always `cd` into the specific submodule directory before running `git add`, `git commit`, and `git push` for skill-specific changes.
 - Afterwards, return to the root directory and commit the submodule pointer bump to keep the parent repository synchronized.
+
+---
+
+## 21. FTP Async Cleanup and process.exit(1)
+
+**Problem:** Using `process.exit(1)` synchronously in Node.js scripts (like `sync_and_inject.js`) aborts execution immediately, leaving temporary PHP scripts or JSON payloads abandoned on the FTP server if an error occurs mid-pipeline.
+
+**Best approach:**
+- Never use `process.exit(1)` directly in the main logic if there are pending remote cleanup tasks.
+- Throw standard `Error` objects to bubble up to a global `catch` block.
+- Use a `finally` block containing `Promise.allSettled()` to forcefully delete temporary remote files regardless of the script's success or failure, ensuring security and hygiene on the remote host.
+
+---
+
+## 22. Elementor Flexbox and _element_width
+
+**Problem:** In Elementor V4+, nested widgets inside a Flexbox Container may collapse or ignore their configured widths if the parent container enforces strict flex rules and the widget lacks the explicit `_element_width` flag in its AST.
+
+**Best approach:**
+- Whenever a custom width (e.g., `%`, `px`, `vw`) is applied to a child widget or inner container inside a flex layout, you must explicitly inject `"_element_width": "custom"` into the widget's settings object in the compiled JSON. This forces Elementor to respect the assigned width and prevents layout collapse across different themes.

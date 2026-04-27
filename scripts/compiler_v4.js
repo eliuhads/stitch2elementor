@@ -1063,8 +1063,11 @@ function processElement($, el) {
     if (color) headingSettings.title_color = color;
     // CORRECT: headings use `align` not `text_align`
     if (containerSettings.text_align) headingSettings.align = containerSettings.text_align;
-    // CORRECT: widgets use `_margin` not `margin`
     if (containerSettings.margin) headingSettings._margin = containerSettings.margin;
+    if (containerSettings.width) {
+      headingSettings._element_width = 'custom';
+      headingSettings.width = containerSettings.width;
+    }
 
     return buildHeading(cleanText, tag, headingSettings);
   }
@@ -1097,8 +1100,11 @@ function processElement($, el) {
 
     const editorSettings = {};
     const cs = extractContainerSettings($, el);
-    // CORRECT: widgets use `_margin`
     if (cs.margin) editorSettings._margin = cs.margin;
+    if (cs.width) {
+      editorSettings._element_width = 'custom';
+      editorSettings.width = cs.width;
+    }
 
     return buildTextEditor(styledHtml, editorSettings);
   }
@@ -1244,11 +1250,14 @@ function processElement($, el) {
     for (const cls of classes) {
       const wMatch = cls.match(/^w-(\d+)$/);
       if (wMatch) {
+         imgSettings._element_width = 'custom';
          imgSettings.width = { unit: 'px', size: parseInt(wMatch[1]) * 4, sizes: [] };
       }
-      if (cls === 'w-full') imgSettings.width = { unit: '%', size: 100, sizes: [] };
-      if (cls === 'w-1/2') imgSettings.width = { unit: '%', size: 50, sizes: [] };
-      if (cls === 'max-w-xs') imgSettings.width = { unit: 'px', size: 320, sizes: [] };
+      if (cls === 'w-full') { imgSettings._element_width = 'custom'; imgSettings.width = { unit: '%', size: 100, sizes: [] }; }
+      if (cls === 'w-1/2') { imgSettings._element_width = 'custom'; imgSettings.width = { unit: '%', size: 50, sizes: [] }; }
+      if (cls === 'w-1/3') { imgSettings._element_width = 'custom'; imgSettings.width = { unit: '%', size: 33, sizes: [] }; }
+      if (cls === 'w-1/4') { imgSettings._element_width = 'custom'; imgSettings.width = { unit: '%', size: 25, sizes: [] }; }
+      if (cls === 'max-w-xs') { imgSettings._element_width = 'custom'; imgSettings.width = { unit: 'px', size: 320, sizes: [] }; }
     }
     
     return buildImage(src, alt, imgSettings);
@@ -1462,6 +1471,10 @@ function processElement($, el) {
       const editorSettings = {};
       const cs = extractContainerSettings($, el);
       if (cs.margin) editorSettings._margin = cs.margin;
+      if (cs.width) {
+        editorSettings._element_width = 'custom';
+        editorSettings.width = cs.width;
+      }
       
       return buildTextEditor(styledHtml, editorSettings);
     }

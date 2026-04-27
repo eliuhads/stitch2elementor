@@ -27,7 +27,7 @@ const WP_SCRIPT_TOKEN = process.env.WP_SCRIPT_TOKEN || '';
 const INJECT_SECRET = process.env.INJECT_SECRET || '';
 
 if (!WP_BASE_URL || !FTP_HOST || !FTP_USER || !FTP_PASS || !WP_SCRIPT_TOKEN) {
-    console.error('❌ Missing required env vars: WP_BASE_URL, FTP_HOST, FTP_USER, FTP_PASS, WP_SCRIPT_TOKEN');
+    console.error('❌ Faltan variables de entorno requeridas: WP_BASE_URL, FTP_HOST, FTP_USER, FTP_PASS, WP_SCRIPT_TOKEN');
     process.exit(1);
 }
 
@@ -54,12 +54,12 @@ async function main() {
     // Load manifest
     const manifestPath = path.join(__dirname, '..', 'page_manifest.json');
     if (!fs.existsSync(manifestPath)) {
-        console.error('❌ page_manifest.json not found at project root.');
+        console.error('❌ page_manifest.json no encontrado en la raíz del proyecto.');
         process.exit(1);
     }
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
     if (!manifest.pages || !Array.isArray(manifest.pages)) {
-        console.error('❌ page_manifest.json has no "pages" array.');
+        console.error('❌ page_manifest.json no tiene el array "pages".');
         process.exit(1);
     }
 
@@ -68,9 +68,10 @@ async function main() {
 
     const client = new ftp.Client();
     client.ftp.verbose = false;
+    let isConnected = false;
 
     try {
-        console.log(`\n📡 [FTP] Connecting to ${FTP_HOST}...`);
+        console.log(`\n📡 [FTP] Conectando a ${FTP_HOST}...`);
         await client.access({
             host: FTP_HOST,
             user: FTP_USER,
@@ -78,10 +79,11 @@ async function main() {
             secure: true, // TLS enforced
             secureOptions: { rejectUnauthorized: true }
         });
-        console.log('✅ FTP connection established.\n');
+        isConnected = true;
+        console.log('✅ Conexión FTP establecida.\n');
 
         // 1. Upload all JSON payloads from manifest
-        console.log(`📤 [FTP] Uploading JSON payloads to ${FTP_REMOTE}...`);
+        console.log(`📤 [FTP] Subiendo payloads JSON a ${FTP_REMOTE}...`);
         await client.ensureDir(FTP_REMOTE);
 
         // Always upload header.json and footer.json if they exist
@@ -105,7 +107,7 @@ async function main() {
                 console.log(`   ⚠️  Missing: ${page.json}`);
             }
         }
-        console.log(`\n📊 Uploaded ${uploadedCount}/${manifest.pages.length} page JSONs.\n`);
+        console.log(`\n📊 Subidos ${uploadedCount}/${manifest.pages.length} JSONs de páginas.\n`);
 
         // Upload page_manifest.json for the PHP injector
         await client.uploadFrom(manifestPath, `${FTP_REMOTE}page_manifest.json`);
@@ -120,43 +122,44 @@ async function main() {
 
         // 2. Upload PHP scripts
         await client.cd('/');
-        console.log('📤 [FTP] Uploading PHP injection scripts...');
+        console.log('📤 [FTP] Subiendo scripts PHP de inyección...');
         await client.uploadFrom(path.join(__dirname, '..', 'auth_helper.php'), '/auth_helper.php');
         await client.uploadFrom(path.join(__dirname, 'create_hf_native.php'), '/create_hf.php');
         await client.uploadFrom(path.join(__dirname, 'inject_all_pages.php'), '/inject_all_pages.php');
         await client.uploadFrom(path.join(__dirname, 'flush_cache.php'), '/flush_cache.php');
-        console.log('   ✅ All PHP scripts uploaded.\n');
+        console.log('   ✅ Todos los scripts PHP subidos.\n');
 
         // 3. Trigger Header/Footer injection
-        console.log('🚀 [HTTP] Triggering Header/Footer injection...');
+        console.log('🚀 [HTTP] Disparando inyección de Header/Footer...');
         const resultHF = await fetchUrl(`${WP_BASE_URL}/create_hf.php`, fetchOptions);
         try {
             const hfData = JSON.parse(resultHF);
             if (hfData.success) {
-                console.log('   ✅ Header/Footer injection successful.');
+                console.log('   ✅ Inyección de Header/Footer exitosa.');
                 for (const [name, info] of Object.entries(hfData.results || {})) {
-                    console.log(`   📄 ${name}: ${info.status || 'unknown'} (ID: ${info.id || 'N/A'})`);
-                    if (info.menu_injected) console.log(`      🔗 Menu injected: ${info.menu_injected}`);
+                    console.log(`   📄 ${name}: ${info.status || 'desconocido'} (ID: ${info.id || 'N/A'})`);
+                    if (info.menu_injected) console.log(`      🔗 Menú inyectado: ${info.menu_injected}`);
                     if (info.menu_warning) console.log(`      ⚠️  ${info.menu_warning}`);
                 }
             } else {
-                console.error('   ❌ Header/Footer injection FAILED:', hfData.error || 'unknown error');
-                process.exit(1);
+                throw new Error(`Inyección de Header/Footer FALLÓ: ${hfData.error || 'error desconocido'}`);
             }
         } catch (parseErr) {
-            console.log('   ⚠️  Non-JSON response (HF):');
+            console.log('   ⚠️  Respuesta no-JSON (HF):');
             console.log('   ' + stripHtml(resultHF).trim().replace(/\n/g, '\n   '));
+            if (!parseErr.message.includes('Inyección de')) throw new Error('Error al parsear respuesta HF');
+            throw parseErr;
         }
 
         // 4. Trigger page injection
-        console.log('\n🚀 [HTTP] Triggering batch page injection...');
+        console.log('\n🚀 [HTTP] Disparando inyección batch de páginas...');
         const resultPages = await fetchUrl(`${WP_BASE_URL}/inject_all_pages.php`, fetchOptions);
         let newHomeId = null;
         try {
             const pagesData = JSON.parse(resultPages);
             if (pagesData.success) {
                 const summary = pagesData.summary || {};
-                console.log(`   ✅ Page injection successful: ${summary.created || 0} created, ${summary.errors || 0} errors.`);
+                console.log(`   ✅ Inyección de páginas exitosa: ${summary.created || 0} creadas, ${summary.errors || 0} errores.`);
                 if (pagesData.error_details && pagesData.error_details.length > 0) {
                     for (const err of pagesData.error_details) {
                         console.log(`   ⚠️  ${err}`);
@@ -166,7 +169,7 @@ async function main() {
                 // Auto-update page_manifest.json with new IDs from id_map
                 const idMap = pagesData.id_map || {};
                 if (Object.keys(idMap).length > 0) {
-                    console.log('\n📝 [MANIFEST] Updating page_manifest.json with new WordPress IDs...');
+                    console.log('\n📝 [MANIFEST] Actualizando page_manifest.json con nuevos IDs de WordPress...');
                     for (const page of manifest.pages) {
                         if (idMap[page.slug] !== undefined) {
                             const oldId = page.wp_id;
@@ -193,64 +196,68 @@ async function main() {
                     manifest.migration_status = 'INJECTED';
                     // Write updated manifest
                     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
-                    console.log('   ✅ page_manifest.json updated with new IDs.\n');
+                    console.log('   ✅ page_manifest.json actualizado con nuevos IDs.\n');
 
                     // Re-upload updated manifest for flush_cache.php to use
                     await client.uploadFrom(manifestPath, `${FTP_REMOTE}page_manifest.json`);
-                    console.log('   ✅ Updated manifest re-uploaded to server.\n');
+                    console.log('   ✅ Manifest actualizado re-subido al servidor.\n');
                 }
             } else {
-                console.error('   ❌ Page injection FAILED:', pagesData.error || 'unknown error');
-                process.exit(1);
+                throw new Error(`Inyección de páginas FALLÓ: ${pagesData.error || 'error desconocido'}`);
             }
         } catch (parseErr) {
-            console.log('   ⚠️  Non-JSON response (Pages):');
+            console.log('   ⚠️  Respuesta no-JSON (Páginas):');
             console.log('   ' + stripHtml(resultPages).trim().replace(/\n/g, '\n   '));
+            if (!parseErr.message.includes('Inyección de')) throw new Error('Error al parsear respuesta Pages');
+            throw parseErr;
         }
 
         // 5. Trigger cache flush + homepage realignment
-        console.log('🚀 [HTTP] Triggering cache flush & homepage config...');
+        console.log('🚀 [HTTP] Disparando limpieza de caché y config de homepage...');
         const resultCache = await fetchUrl(`${WP_BASE_URL}/flush_cache.php`, fetchOptions);
         try {
             const cacheData = JSON.parse(resultCache);
             if (cacheData.success) {
                 const r = cacheData.results || {};
-                console.log('   ✅ Cache flush successful.');
-                if (r.page_on_front) console.log(`   🏠 Homepage set to ID: ${r.page_on_front} — "${r.page_on_front_title || 'unknown'}"`);
-                if (r.page_for_posts) console.log(`   📰 Blog set to ID: ${r.page_for_posts}`);
-                console.log(`   🔗 Permalinks flushed: ${r.permalinks_flushed ? 'OK' : 'FAIL'}`);
-                console.log(`   🧹 Elementor cache: ${r.elementor_cache_cleared ? 'OK' : 'FAIL'}`);
+                console.log('   ✅ Limpieza de caché exitosa.');
+                if (r.page_on_front) console.log(`   🏠 Homepage asignada al ID: ${r.page_on_front} — "${r.page_on_front_title || 'desconocido'}"`);
+                if (r.page_for_posts) console.log(`   📰 Blog asignado al ID: ${r.page_for_posts}`);
+                console.log(`   🔗 Permalinks limpiados: ${r.permalinks_flushed ? 'OK' : 'FALLA'}`);
+                console.log(`   🧹 Caché de Elementor: ${r.elementor_cache_cleared ? 'OK' : 'FALLA'}`);
                 if (r.elementor_warning) console.log(`   ⚠️  ${r.elementor_warning}`);
-                console.log(`   📚 Library synced: ${r.library_synced ? 'OK' : 'N/A'}`);
+                console.log(`   📚 Biblioteca sincronizada: ${r.library_synced ? 'OK' : 'N/A'}`);
             } else {
-                console.error('   ❌ Cache flush FAILED:', cacheData.error || 'unknown error');
+                console.error('   ❌ Limpieza de caché FALLÓ:', cacheData.error || 'error desconocido');
             }
         } catch (parseErr) {
-            console.log('   ⚠️  Non-JSON response (Cache):');
+            console.log('   ⚠️  Respuesta no-JSON (Caché):');
             console.log('   ' + stripHtml(resultCache).trim().replace(/\n/g, '\n   '));
         }
 
-        // 6. Cleanup — delete PHP scripts + secret from server
-        console.log('\n🧹 [FTP] Deleting temporary files for security...');
-        for (const tmpFile of ['/create_hf.php', '/inject_all_pages.php', '/flush_cache.php', '/auth_helper.php', `${FTP_REMOTE}.inject_secret`]) {
-            try { await client.remove(tmpFile); } catch (e) { /* already deleted or not found */ }
-        }
-        console.log('   ✅ Temporary files cleaned up.\n');
-
-        console.log('\n📊 [SUMMARY]');
+        console.log('\n📊 [RESUMEN]');
         if (newHomeId) {
-            console.log(`   🏠 New Homepage ID: ${newHomeId}`);
+            console.log(`   🏠 Nuevo ID de Inicio: ${newHomeId}`);
         }
         console.log(`   📄 Manifest: ${manifestPath}`);
-        console.log(`   ✅ Protocolo AHORA SÍ: COMPLETED\n`);
+        console.log(`   ✅ Protocolo AHORA SÍ: COMPLETADO\n`);
 
     } catch (e) {
         console.error('❌ ERROR:', e.message);
-        process.exit(1);
+        process.exitCode = 1;
     } finally {
-        client.close();
+        if (isConnected) {
+            console.log('\n🧹 [FTP] Eliminando archivos temporales por seguridad...');
+            const filesToDelete = ['/create_hf.php', '/inject_all_pages.php', '/flush_cache.php', '/auth_helper.php', `${FTP_REMOTE}.inject_secret`];
+            const deletePromises = filesToDelete.map(tmpFile => client.remove(tmpFile).catch(e => { /* ignorar */ }));
+            await Promise.allSettled(deletePromises);
+            console.log('   ✅ Archivos temporales eliminados.\n');
+            client.close();
+        }
     }
 }
 
-main();
+main().catch(err => {
+    console.error('❌ Fatal:', err);
+    process.exit(1);
+});
 
