@@ -39,6 +39,26 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ## PIPELINE COMPLETO (`go!`)
 
+## PRE-REQUISITO: Estructura de Carpetas del Proyecto
+
+Antes de ejecutar `go!`, el directorio de trabajo del usuario debe tener:
+
+```
+mi-proyecto/
+├── INFO_BrandBook/          ← Archivos de identidad de marca
+│   ├── colores.md           (HEX exactos de la paleta, NO usar colores Material)
+│   ├── tipografia.md        (Familias de fuentes, pesos, tamaños base)
+│   └── logo.svg / logo.png
+├── IMAGENES_FUENTES/        ← Imágenes reales del cliente (NO las de Stitch)
+│   ├── hero-home.webp
+│   └── ...
+└── [esta skill instalada]
+```
+
+Si alguna carpeta no existe, pídela al usuario ANTES de continuar.
+Si INFO_BrandBook/ no tiene colores HEX, no asumas los colores de Material
+Design que Stitch propone — son temporales y no corresponden a la marca.
+
 ### FASE 0: ESTRUCTURA DE DIRECTORIOS Y MANIFEST
 
 Antes de iniciar, el proyecto del usuario debe tener la siguiente estructura:
@@ -87,7 +107,7 @@ Antes de iniciar, el proyecto del usuario debe tener la siguiente estructura:
 
 1. **Compilar JSONs**: Ejecuta `node scripts/compiler_v4.js`. Genera los N JSONs de páginas + `header.json` + `footer.json` en `elementor_jsons/`.
 2. **Purgar Material Symbols**: Ejecuta `node scripts/fix_material_symbols.js` para eliminar residuos textuales de iconos.
-3. **Corregir Botones**: Ejecuta `node scripts/fix_buttons.js` para aplicar estilos globales a los botones renderizados en Elementor.
+2b. **Colores de Botones**: Ejecuta `node scripts/fix_buttons.js` para aplicar los colores HEX exactos del BrandBook a todos los botones. Esto previene que queden con los colores provisionales de Material Design de Stitch.
 3. **Verificar JSONs**: Abre 2-3 archivos JSON al azar y confirma:
    - Son arrays `[{...}]` (nunca wrapper objects)
    - Tienen `elType`, `id`, `isInner` en cada nodo
