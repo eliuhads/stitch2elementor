@@ -41,12 +41,21 @@ Aplica las equivalencias responsivas de Tailwind a Flexbox de Elementor según `
 - `space-y-4` → `flex_gap: { unit: "px", size: 16 }`, `flex_direction: "column"`
 - `w-1/2` → `width: { unit: "%", size: 50 }`, `width_mobile: { unit: "%", size: 100 }`
 
+3b. **Mapeo Responsivo Obligatorio**: Antes de compilar, invierte la lógica
+Mobile-First de Tailwind a Desktop-First de Elementor:
+- `flex-col sm:flex-row` → `flex_direction: "row"`, `flex_direction_mobile: "column"`
+- `flex-col lg:flex-row` → `flex_direction: "row"`, `flex_direction_tablet: "column"`, `flex_direction_mobile: "column"`  
+- `w-1/2` → `width: {unit:"%", size:50}`, `width_mobile: {unit:"%", size:100}`
+- `space-y-4` → `flex_gap: {unit:"px", size:16}`, `flex_direction: "column"`
+- Usa siempre: `flex_gap`, `flex_align_items`, `flex_justify_content`, `_margin`
+- NUNCA uses las propiedades legacy: `gap` o `margin` directos
+
 ### 4. EXPORTAR E INYECTAR
 - Cada JSON debe estar constituido como un **ARRAY de Elementor plano**. Ejemplo correcto: `[{ "elType": "container", "settings": {...} }]`. Prohibido crear objetos JSON anidados con keys de versión.
 - Propón inyectar la pieza extraída utilizando el MCP `.elementor-mcp`, ya sea sobre una página borrador de WordPress o adjuntando los JSON listos para que el usuario los suba.
 
 ### ¿QUÉ DEBES EVITAR?
-- Verificar únicamente que `elementor-mcp` esté activo antes de inyectar, sin más overhead. No intentes verificar otros entornos o skills masivos como en la fase `go!`.
+- No ejecutes el chequeo completo de entorno. Verifica únicamente que `elementor-mcp` esté activo (list_tools) antes de inyectar.
 - No generes las páginas `page_manifest.json` salvo que debas actualizar héroes integrados.
 - Trata el resultado como Componentes Reutilizables de Elementor, no como "páginas estáticas".
 
