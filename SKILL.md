@@ -1,7 +1,6 @@
 ---
-name: stitch2elementor
-version: 4.6.7
-description: Orchestrates automated migrations from Google Stitch HTML designs to native Elementor Pro JSON templates for WordPress. Activate with 'stitch2elementor go!', 'stitch2elementor segment!', or explicit migration requests.
+name: "stitch2elementor"
+description: "Orchestrates automated migrations from Google Stitch HTML designs to native Elementor Pro JSON templates for WordPress. Activate with 'stitch2elementor go!', 'stitch2elementor segment!', 'go!', 'segment!', 'migrar Stitch', 'compilar Elementor', or 'inyectar JSON'. The agent MUST trigger this skill even if the user only types 'go!' or 'segment!' without additional context."
 ---
 
 > **Language Policy**: All AI internal instructions are in **Spanish** (this skill). User-facing output, reports and commit messages are in **Spanish** unless the user requests otherwise. Code, JSON keys and script names remain in English always.
@@ -20,8 +19,8 @@ description: Orchestrates automated migrations from Google Stitch HTML designs t
 | Config-Only | `stitch2elementor maintenance!` | Solo Homepage/caché, sin re-inyectar |
 
 **Archivos de referencia obligatorios**:
-- `PROMPT_WEB_MAESTRO_v2.md` — instrucciones operativas detalladas
-- `Stitch_Elementor_Guide_GENERAL_V1.md` — mapeo técnico HTML→Elementor
+- `references/PROMPT_WEB_MAESTRO_v2.md` — instrucciones operativas detalladas
+- `references/Stitch_Elementor_Guide_GENERAL_V1.md` — mapeo técnico HTML→Elementor
 - `.env` — credenciales de entorno (nunca hardcodear en scripts)
 
 ## Constraints (Reglas No Negociables)
@@ -46,11 +45,11 @@ El usuario activará tu ejecución a través de uno de estos comandos (o intenci
 
 - **Modo Pipeline Completo (`stitch2elementor go!` o `s2e go!`)**: 
   - Propósito: Migración end-to-end de sitios multi-página.
-  - Acción inmediata: Lee y asimila estrictamente el archivo `PROMPT_WEB_MAESTRO_v2.md`. Sigue sus 5 fases secuencialmente sin saltar pasos.
+  - Acción inmediata: Lee y asimila estrictamente el archivo `references/PROMPT_WEB_MAESTRO_v2.md`. Sigue sus 5 fases secuencialmente sin saltar pasos.
   
 - **Modo Modular (`stitch2elementor segment!` o `s2e segment!`)**: 
   - Propósito: Aislamiento, conversión e inyección de un único componente o sección.
-  - Acción inmediata: Lee y asimila el archivo `PROMPT_WEB_MAESTRO_v2.md`, dirígete directo a la sección "MODO MODULAR".
+  - Acción inmediata: Lee y asimila el archivo `references/PROMPT_WEB_MAESTRO_v2.md`, dirígete directo a la sección "MODO MODULAR".
 
 - **Modo Config-Only (`stitch2elementor maintenance!`)**:
   - Propósito: Reconfigurar Homepage y limpiar caché SIN re-inyectar contenido.
@@ -83,11 +82,11 @@ Antes de iniciar CUALQUIER operación de conversión o inyección, ejecuta oblig
 | `Node.js` | Runtime | v18+ | Detener pipeline. Los scripts no ejecutarán. |
 | `scripts/compiler_v4.js` | Script local | — | Detener en FASE 3. Notificar script faltante. |
 | `scripts/sync_and_inject.js` | Script local | — | Detener en FASE 4. Notificar script faltante. |
-| `Stitch_Elementor_Guide_GENERAL_V1.md` | Docs | — | ⚠️ Warning. Continuar con cuidado ante errores de layout. |
+| `references/Stitch_Elementor_Guide_GENERAL_V1.md` | Docs | — | ⚠️ Warning. Continuar con cuidado ante errores de layout. |
 | `enhance-prompt` | Skill hermano | — | ⚠️ Warning. FASE 2 continúa sin optimización de prompts. |
 | `Agentic-SEO-Skill` | Skill hermano | — | ⚠️ Warning. FASE 5 SEO se omite. Notificar al usuario. |
 
-Si hay problemas de conexión/autenticación, informa al usuario para que edite manualmente `mcp_config.json` siguiendo `MCP_CONFIGURATION_GUIDE.txt`. NUNCA modifiques `mcp_config.json` a través de shell tools.
+Si hay problemas de conexión/autenticación, informa al usuario para que edite manualmente `mcp_config.json` siguiendo `references/MCP_CONFIGURATION_GUIDE.md`. NUNCA modifiques `mcp_config.json` a través de shell tools.
 
 ## 3. Arquitectura, Estructura y Reglas Inquebrantables
 
@@ -105,7 +104,7 @@ Todos los archivos generados, estáticos o de exportación deben guardarse en su
 > **Trigger canónico: `conti!!`**
 
 1.  **Cero Navegadores**: **PROHIBIDO** el uso de `browser_subagent`, Playwright o Chromium local. Alternativas permitidas obligatorias: `curl`, `Invoke-WebRequest`, `read_url_content` y REST API vía MCP.
-2.  **Lectura Referencial**: Tu única fuente de verdad técnica obligatoria es `Stitch_Elementor_Guide_GENERAL_V1.md`. **Consúltalo específicamente cuando enfrentes: layout roto, mapeo responsive fallido, errores de contenedor o rechazos HTTP por ModSecurity.**
+2.  **Lectura Referencial**: Tu única fuente de verdad técnica obligatoria es `references/Stitch_Elementor_Guide_GENERAL_V1.md`. **Consúltalo específicamente cuando enfrentes: layout roto, mapeo responsive fallido, errores de contenedor o rechazos HTTP por ModSecurity.**
 3.  **Sub-Delegación Inteligente**: En el transcurso de tu pipeline, delegarás sub-tareas asumiendo el alcance de las skills compañeras de tu repositorio. No intentes re-inventar sus funciones; aprovecha sus lógicas.
 4.  **INYECCIONES SECUENCIALES**: Nunca hagas peticiones concurrentes al WP REST API. Espera HTTP 200 de cada página antes de continuar con la siguiente.
 5.  **CALIDAD DEL MODELO STITCH Y RESPONSIVIDAD**: Al llamar a `generate_screen_from_text` o `edit_screens`, **SIEMPRE** debes pasar los argumentos `modelId: GEMINI_3_PRO` (o superior) y `deviceType: DESKTOP`. Queda terminantemente prohibido usar los modelos por defecto (Simple/Flash) o permitir que las pantallas se generen en dimensiones de celular (MOBILE) por defecto.

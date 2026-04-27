@@ -26,6 +26,7 @@ La lista de pasos para `pendientes[]` es:
 - "wp-inject-footer"
 - "post-fix-slugs"
 - "post-fix-symbols"
+- "post-fix-buttons"
 - "post-fix-images"
 - "post-fix-links"
 - "seo-delegate"
@@ -38,7 +39,35 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 ## PIPELINE COMPLETO (`go!`)
 
+### FASE 0: ESTRUCTURA DE DIRECTORIOS Y MANIFEST
+
+Antes de iniciar, el proyecto del usuario debe tener la siguiente estructura:
+- `INFO_BrandBook/`: Logos en SVG (`logo.svg`, `logo-blanco.svg`), tipografías y manual de marca.
+- `IMAGENES_FUENTES/`: (Opcional) Imágenes adicionales de referencia. Preferir siempre la CDN de Stitch.
+- `page_manifest.json`: Mapa del sitio.
+
+**Ejemplo de page_manifest.json:**
+```json
+{
+  "home_id": 100,
+  "blog_id": 101,
+  "pages": [
+    {
+      "name": "Inicio",
+      "slug": "inicio",
+      "htmlPath": "assets_originales/home.html",
+      "jsonPath": "elementor_jsons/home.json",
+      "heroImageId": 505
+    }
+  ]
+}
+```
+
+---
+
 ### FASE 1: PREPARACIÓN BRANDBOOK Y LOGOS
+
+> **Nota:** Si la skill `enhance-prompt` no está disponible en el entorno, debes continuar la migración utilizando directivas de prompt estándar sin detenerte.
 
 1. **Lee BrandBook**: Lee todos los archivos en `INFO_BrandBook/`. Extrae colores HEX exactos, tipografías y SOLO archivos de logo en formato SVG. NUNCA uses imágenes de referencia de carpetas locales (provocan deformación del layout). Genera `design-system/[Nombre]/MASTER.md`. Descarta colores "Material" temporales de Stitch.
 2. **Genera `design_system.json`**: Basándote en el BrandBook, crea o actualiza `design_system.json` en el root del skill con colores, fuentes, typoScale, logoUrl, etc. El compiler lo cargará automáticamente.
@@ -58,6 +87,7 @@ Al recibir `go!`, asume el rol de Web Maestro y ejecuta este pipeline de forma a
 
 1. **Compilar JSONs**: Ejecuta `node scripts/compiler_v4.js`. Genera los N JSONs de páginas + `header.json` + `footer.json` en `elementor_jsons/`.
 2. **Purgar Material Symbols**: Ejecuta `node scripts/fix_material_symbols.js` para eliminar residuos textuales de iconos.
+3. **Corregir Botones**: Ejecuta `node scripts/fix_buttons.js` para aplicar estilos globales a los botones renderizados en Elementor.
 3. **Verificar JSONs**: Abre 2-3 archivos JSON al azar y confirma:
    - Son arrays `[{...}]` (nunca wrapper objects)
    - Tienen `elType`, `id`, `isInner` en cada nodo

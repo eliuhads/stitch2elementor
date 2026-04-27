@@ -263,6 +263,43 @@ segment!  ← Single component injection
 
 ---
 
+## 📁 Estructura del Repositorio y Configuración del Proyecto
+
+### Directorios y Archivos Core
+| Carpeta / Archivo | Propósito |
+|---|---|
+| `scripts/` | Contiene los scripts Node.js y PHP del pipeline (compilador, inyector, optimizadores). |
+| `references/` | Prompts de IA, guías técnicas y configuraciones base (ej. `PROMPT_WEB_MAESTRO_v2.md`). |
+| `schemas/` | Validadores JSON Schema para asegurar la integridad de las plantillas generadas. |
+| `SKILL.md` | El punto de entrada principal para el agente de IA, contiene las directivas canónicas. |
+
+### Directorios del Proyecto del Usuario (Debes crearlos)
+Para cada nuevo proyecto web, debes asegurar la existencia de estas carpetas locales en la raíz:
+
+- `INFO_BrandBook/`: Archivos de identidad corporativa. **Obligatorio** colocar aquí logos en formato SVG (ej. `logo.svg`, `logo-blanco.svg`) y manuales de marca o fuentes tipográficas base.
+- `IMAGENES_FUENTES/`: Directorio opcional para imágenes adicionales de referencia que el cliente provea. (Nota: Para contenido final se prefiere la auto-descarga de la CDN de Stitch).
+
+### Ejemplo de `page_manifest.json`
+Este archivo mapea la arquitectura del sitio y es vital para la fase de inyección. Crea uno en la raíz de tu proyecto:
+
+```json
+{
+  "home_id": 100,
+  "blog_id": 101,
+  "pages": [
+    {
+      "name": "Inicio",
+      "slug": "inicio",
+      "htmlPath": "assets_originales/home.html",
+      "jsonPath": "elementor_jsons/home.json",
+      "heroImageId": 505
+    }
+  ]
+}
+```
+
+---
+
 ## 🧠 Transversal Skills
 
 This skill orchestrates other agent skills. Make sure these are available in your agent:
