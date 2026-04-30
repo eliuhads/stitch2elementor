@@ -28,8 +28,9 @@
   "dependencies": {
     "cheerio": "^1.0.0",
     "basic-ftp": "^5.0.3",
-    "dotenv": "^16.4.5",
-    "elementor-mcp": "latest",
-    "wp-elementor-mcp": "latest"
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.52.0"
   }
 }
