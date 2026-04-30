@@ -78,3 +78,50 @@ Para errores de mapeo responsivo, arquitecturas permitidas y debugging:
 | `fix_material_symbols.js` | Purga texto fantasma de iconos CSS |
 | `fix_buttons.js` | Aplica colores del BrandBook a botones |
 | `fix_internal_links.js` | Corrige enlaces internos post-inyección |
+| `sync_and_inject.js` | Orquestador FTP+HTTP: sube, inyecta, limpia |
+| `fix_all_solar_v2.mjs` | Corrección masiva de contenido vía FTP+PHP (reemplazos sobre JSON crudo) |
+| `verify_db_data.mjs` | Verificación directa en DB (aísla caché vs datos reales) |
+| `force_elementor_regenerate.mjs` | Reconstruye `post_content` desde `_elementor_data` + invalida caché |
+| `purge_wp_cache.mjs` | Purga completa: `_elementor_css`, transients, WP object cache, LiteSpeed |
+
+## Protección de Datos del Cliente
+
+**NUNCA** borrar, modificar ni alterar el contenido de la carpeta `client_data/` bajo ninguna circunstancia.
+
+## Reglas Aprendidas (Producción — 2026)
+
+> Estas reglas fueron descubiertas durante migraciones reales.
+> Son **OBLIGATORIAS** — no son sugerencias.
+
+### Caché de Doble Capa: `_elementor_data` vs `post_content`
+Elementor almacena datos del diseño en **dos capas**: `_elementor_data` (JSON en `postmeta`) y `post_content` (HTML en `wp_posts`). Actualizar solo `_elementor_data` **NO regenera** el `post_content`. **Solución**:
+```php
+update_post_meta($pid, '_elementor_data', wp_slash($new_json));
+wp_update_post(['ID' => $pid, 'post_content' => $rebuilt_html]);
+delete_post_meta($pid, '_elementor_css');
+delete_post_meta($pid, '_elementor_inline_svg');
+delete_post_meta($pid, '_elementor_page_assets');
+update_post_meta($pid, '_elementor_version', '0.0.0');
+clean_post_cache($pid);
+```
+
+### Verificación DB-Directa para Aislar Caché
+Si HTTP sigue reportando contenido viejo tras corrección, inyectar PHP que lea `get_post_meta($pid, '_elementor_data', true)` directamente. Si DB limpia pero HTTP no → caché de servidor. Ref: `verify_db_data.mjs`.
+
+### Base64 para Payloads Grandes en PHP Inyectado
+JSON de Elementor (20-50KB+) dentro de PHP generado desde Node.js causa errores de escaping. **Solución**: `Buffer.from(data).toString('base64')` → `base64_decode($b64)` en PHP. Ref: `fix_all_solar_v2.mjs`.
+
+### Caché LiteSpeed Persiste Más Allá de WordPress
+Hostings cPanel con LiteSpeed NO se purgan con `wp_cache_flush()`. **Soluciones**: 1. cPanel → LiteSpeed Web Cache Manager → "Flush All". 2. wp-admin → LiteSpeed Cache → "Purge All". 3. Esperar TTL (24-48h).
+
+### Corrección Masiva: Reemplazo sobre JSON Crudo
+Para búsqueda-y-reemplazo sobre contenido Elementor, operar sobre el **string JSON crudo** con `replaceAll()`, NO parsear→modificar→serializar. Reemplazos case-sensitive, de mayor a menor longitud. Ref: `fix_all_solar_v2.mjs`.
+
+### Patrón FTP+PHP Master
+Node.js genera PHP con `INJECT_SECRET` → `temp/` → FTP upload a `/` → `fetch(url + '?token=...')` → parsea JSON → `@unlink(__FILE__)` → `finally {}`. Variables `.env`: `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, `INJECT_SECRET`, `WP_URL`.
+
+### REST API no permite `_elementor_*` meta fields
+REST API retorna 403 para meta fields con prefijo `_`. Usar `update_post_meta()` vía PHP directo (patrón FTP+PHP).
+
+### Encoding UTF-8 en Meta Tags
+Usar siempre `wp_slash()` en `update_post_meta()` para prevenir corrupción de acentos (á, é, í, ó, ú).
