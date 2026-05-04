@@ -1,4 +1,4 @@
-/**
+wiorth/**
  * playwright_visual_test.mjs
  * Conecta al contenedor Proxmox con Playwright para verificación visual de páginas.
  * 
@@ -57,7 +57,7 @@ if (!existsSync(outputDir)) mkdirSync(outputDir, { recursive: true });
 
 async function run() {
   console.log(`🔗 Conectando a Playwright remoto: ${WS_ENDPOINT}`);
-  
+
   let browser;
   try {
     browser = await chromium.connect(WS_ENDPOINT, { timeout: 15000 });
@@ -91,36 +91,36 @@ async function run() {
     // Basic checks
     const checks = await page.evaluate(() => {
       const results = {};
-      
+
       // H1
       const h1 = document.querySelector('h1');
       results.h1 = h1 ? h1.textContent.trim() : 'NO H1 FOUND';
-      
+
       // Meta description
       const meta = document.querySelector('meta[name="description"]');
       results.metaDesc = meta ? meta.content.substring(0, 80) + '...' : 'NO META DESCRIPTION';
-      
+
       // Links count
       results.linksCount = document.querySelectorAll('a[href]').length;
-      
+
       // Images count
       results.imagesCount = document.querySelectorAll('img').length;
-      
+
       // Sections count
       results.sectionsCount = document.querySelectorAll('section').length;
-      
+
       // Schema JSON-LD
       const schema = document.querySelector('script[type="application/ld+json"]');
       results.hasSchema = !!schema;
-      
+
       // Check for solar references (should be 0)
       const bodyText = document.body.innerText.toLowerCase();
       results.solarRefs = (bodyText.match(/solar|fotovoltaic|panel solar/g) || []).length;
-      
+
       // Responsive meta
       const viewport = document.querySelector('meta[name="viewport"]');
       results.hasViewportMeta = !!viewport;
-      
+
       return results;
     });
 

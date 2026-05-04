@@ -207,3 +207,4 @@ El modo modular permite aislar, convertir e inyectar un **único componente o se
 6. **Siempre** verifica que `design_system.json` existe antes de compilar
 7. **ID-Shifting es inevitable**: Tras cualquier `sync_and_inject.js`, ejecuta siempre el Protocolo AHORA SI. Nunca asumas que los IDs anteriores son válidos.
 8. **Modo Config-Only para mantenimiento**: Si el sitio está estable y solo necesitas ajustar la Homepage, usa `maintenance_only.js` — nunca re-inyectes solo para eso.
+9. **Protección de `client_data`**: NUNCA borrar, editar ni modificar el contenido de la carpeta `client_data/` bajo ninguna circunstancia.

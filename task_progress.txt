@@ -1,0 +1,6 @@
+- [ ] Analizar los requisitos
+- [ ] Configurar los archivos necesarios
+- [ ] Implementar la funcionalidad principal
+- [ ] Manejar casos límite
+- [ ] Probar la implementación
+- [ ] Verificar los resultados

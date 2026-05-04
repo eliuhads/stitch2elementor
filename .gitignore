@@ -12,16 +12,18 @@ temp_vars.txt
 screen_map.json
 
 # â”€â”€ Datos privados del cliente (NUNCA commitear) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-client_data/INFO_BrandBook/
-client_data/INFO_BrandBook_*/
+client_data/
 v9_images_temp/
 assets_originales_backup/
 stitch_html/
 homepage_stitch.html
-client_data/INVENTARIO*/
-client_data/IMAGENES_FUENTES/
 assets/og-image-*.png
 *.webp
+*.mp4
+*.mov
+*.exe
+*.zip
+*.tar.gz
 
 # â”€â”€ Notas operacionales internas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 *!!.md

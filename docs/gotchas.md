@@ -268,4 +268,16 @@ Build a recursive DOM parser (Node.js `cheerio` / Python `BeautifulSoup`):
 **Problem:** In Elementor V4+, nested widgets inside a Flexbox Container may collapse or ignore their configured widths if the parent container enforces strict flex rules and the widget lacks the explicit `_element_width` flag in its AST.
 
 **Best approach:**
+**Best approach:**
 - Whenever a custom width (e.g., `%`, `px`, `vw`) is applied to a child widget or inner container inside a flex layout, you must explicitly inject `"_element_width": "custom"` into the widget's settings object in the compiled JSON. This forces Elementor to respect the assigned width and prevents layout collapse across different themes.
+
+---
+
+## 23. Antigravity/Cursor Desktop Shortcut and AutoAccept
+
+**Problem:** When launching the Antigravity (Cursor) IDE via a Linux desktop shortcut, the AutoAccept extension fails with the error: "AutoAccept needs Debug Mode (Port 9333). Please apply the fix or update your shortcut."
+
+**Best approach:**
+- Modify the `.desktop` file (e.g. `~/Escritorio/antigravity.desktop` or `~/.local/share/applications/antigravity.desktop`).
+- Find all `Exec=` lines.
+- Add `--remote-debugging-port=9333` to each `Exec` command, before `%F` or other parameters.
