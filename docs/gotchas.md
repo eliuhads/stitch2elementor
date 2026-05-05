@@ -281,3 +281,30 @@ Build a recursive DOM parser (Node.js `cheerio` / Python `BeautifulSoup`):
 - Modify the `.desktop` file (e.g. `~/Escritorio/antigravity.desktop` or `~/.local/share/applications/antigravity.desktop`).
 - Find all `Exec=` lines.
 - Add `--remote-debugging-port=9333` to each `Exec` command, before `%F` or other parameters.
+
+---
+
+## 24. GitHub Large File Prevention (GH001)
+
+**Problem:** GitHub has a hard limit of 100MB per file and a recommended limit of 50MB. If a commit contains a large file (e.g., PHOTO_BANK assets or installers like CursorUserSetup.exe), the entire git push will be rejected by the pre-receive hook (remote rejected main -> main).
+
+**Best approach:**
+- Use a strict .gitignore to exclude client_data/, *.exe, *.mp4, and temp/.
+- If a push is rejected, DO NOT just add to .gitignore. You must purge the history of the current branch.
+- **Fixing the state:** 
+  1. git reset --soft origin/main (Rewind commits but keep changes).
+  2. git rm -rf --cached . (Empty the index).
+  3. Update .gitignore.
+  4. git add . (Re-index obeying the new rules).
+  5. git commit -m "cleanup" and git push.
+
+---
+
+## 25. Submodule Cleanliness in IDE
+
+**Problem:** Local changes or untracked files inside submodule directories (like .agent/skills/*) appear in the Cursor/Antigravity "Changes" sidebar, creating visual noise even if the main repository is synchronized.
+
+**Best approach:**
+- To clear the sidebar without losing the main repo's configuration, you must clean the submodules individually.
+- **Command:** (cd path/to/submodule && git reset --hard && git clean -fd).
+- Repeat for all active skills or directories showing modified content in git status.
