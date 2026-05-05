@@ -308,3 +308,21 @@ Build a recursive DOM parser (Node.js `cheerio` / Python `BeautifulSoup`):
 - To clear the sidebar without losing the main repo's configuration, you must clean the submodules individually.
 - **Command:** (cd path/to/submodule && git reset --hard && git clean -fd).
 - Repeat for all active skills or directories showing modified content in git status.
+
+---
+
+## 26. AST Integrity: Purge Development Keys
+
+**Problem:** Stitch development keys like `__gridCols` and `__colSpan` inside widget settings can corrupt the AST and cause Elementor database schema issues or unnecessarily bloat payloads.
+
+**Best approach:**
+- Always recursively traverse the Elementor AST before JSON serialization and delete development keys (`delete node.settings.__gridCols`).
+
+---
+
+## 27. Async I/O in Batch Compilers
+
+**Problem:** Using synchronous `fs.readFileSync` or `fs.existsSync` inside an MCP tool script, especially when processing multiple files, blocks the Node.js Event Loop. This leads to timeouts in MCP integration.
+
+**Best approach:**
+- Use `fs.promises.readFile` and `fs.promises.access` inside an async `initConfig()` function. Promisify all file reads and use `await Promise.all()` for batch operations.

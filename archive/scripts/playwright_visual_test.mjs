@@ -1,4 +1,4 @@
-wiorth/**
+/**
  * playwright_visual_test.mjs
  * Conecta al contenedor Proxmox con Playwright para verificación visual de páginas.
  * 
@@ -35,9 +35,14 @@ const args = process.argv.slice(2);
 const url = args.find(a => !a.startsWith('--'));
 
 if (!url) {
-  console.error('❌ Uso: node playwright_visual_test.mjs <URL> [--screenshot nombre] [--full-page] [--viewport WxH]');
+  console.error('❌ Uso: node playwright_visual_test.mjs <URL> [--screenshot nombre] [--full-page] [--viewport WxH] [--auth ruta/auth.json]');
   process.exit(1);
 }
+
+const authPath = args.includes('--auth')
+  ? args[args.indexOf('--auth') + 1]
+  : null;
+
 
 const screenshotName = args.includes('--screenshot')
   ? args[args.indexOf('--screenshot') + 1] || 'screenshot'
@@ -69,11 +74,18 @@ async function run() {
     process.exit(1);
   }
 
-  const context = await browser.newContext({
+  const contextOptions = {
     viewport: { width: vpWidth, height: vpHeight },
     locale: 'es-VE',
     timezoneId: 'America/Caracas',
-  });
+  };
+
+  if (authPath && existsSync(resolve(authPath))) {
+    console.log(`🔑 Usando estado de sesión (auth): ${authPath}`);
+    contextOptions.storageState = resolve(authPath);
+  }
+
+  const context = await browser.newContext(contextOptions);
 
   const page = await context.newPage();
 

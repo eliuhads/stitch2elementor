@@ -104,7 +104,7 @@ async function main() {
                 console.log(`   ✅ ${page.json}`);
                 uploadedCount++;
             } else {
-                console.log(`   ⚠️  Missing: ${page.json}`);
+                console.log(`   ⚠️  Falta: ${page.json}`);
             }
         }
         console.log(`\n📊 Subidos ${uploadedCount}/${manifest.pages.length} JSONs de páginas.\n`);
@@ -257,7 +257,7 @@ async function main() {
 }
 
 main().catch(err => {
-    console.error('❌ Fatal:', err);
+    console.error('❌ Error Crítico:', err);
     process.exit(1);
 });
 

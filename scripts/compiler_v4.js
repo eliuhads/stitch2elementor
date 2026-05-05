@@ -86,25 +86,32 @@ const CONFIG = {
 };
 
 // Auto-load dynamic design system if exists
-if (fs.existsSync(CONFIG.designSystemPath)) {
+async function initConfig() {
   try {
-    const ds = JSON.parse(fs.readFileSync(CONFIG.designSystemPath, 'utf8'));
-    if (ds.colors) Object.assign(CONFIG.colors, ds.colors);
-    if (ds.fonts) Object.assign(CONFIG.fonts, ds.fonts);
-    if (ds.typoScale) Object.assign(CONFIG.typoScale, ds.typoScale);
-    if (ds.googleFontsLink) CONFIG.googleFontsLink = ds.googleFontsLink;
-    if (ds.logoUrl) CONFIG.logoUrl = ds.logoUrl;
-    if (ds.logoAlt) CONFIG.logoAlt = ds.logoAlt;
-    if (ds.logoText) CONFIG.logoText = ds.logoText;
-    if (ds.whatsappUrl) CONFIG.whatsappUrl = ds.whatsappUrl;
-    console.log('✅ Custom Design System Loaded');
-  } catch (e) {
-    console.error('⚠️ Could not parse design_system.json. Using defaults.');
+    try { await fs.promises.access(CONFIG.outputDir); } catch (e) {
+      await fs.promises.mkdir(CONFIG.outputDir, { recursive: true });
+    }
+    try {
+      await fs.promises.access(CONFIG.designSystemPath);
+      const dsText = await fs.promises.readFile(CONFIG.designSystemPath, 'utf8');
+      const ds = JSON.parse(dsText);
+      if (ds.colors) Object.assign(CONFIG.colors, ds.colors);
+      if (ds.fonts) Object.assign(CONFIG.fonts, ds.fonts);
+      if (ds.typoScale) Object.assign(CONFIG.typoScale, ds.typoScale);
+      if (ds.googleFontsLink) CONFIG.googleFontsLink = ds.googleFontsLink;
+      if (ds.logoUrl) CONFIG.logoUrl = ds.logoUrl;
+      if (ds.logoAlt) CONFIG.logoAlt = ds.logoAlt;
+      if (ds.logoText) CONFIG.logoText = ds.logoText;
+      if (ds.whatsappUrl) CONFIG.whatsappUrl = ds.whatsappUrl;
+      console.log('✅ Custom Design System Loaded');
+    } catch (e) {
+      if (e.code !== 'ENOENT') {
+        console.error('⚠️ Could not parse design_system.json. Using defaults.');
+      }
+    }
+  } catch (err) {
+    console.error('Error init config:', err);
   }
-}
-
-if (!fs.existsSync(CONFIG.outputDir)) {
-  fs.mkdirSync(CONFIG.outputDir, { recursive: true });
 }
 
 // ============================================================
@@ -2003,11 +2010,32 @@ function countNodes(arr) {
   return count;
 }
 
+/** Recursively remove development keys */
+function purgeDevKeys(node) {
+  if (!node) return;
+  if (node.settings) {
+    delete node.settings.__gridCols;
+    delete node.settings.__colSpan;
+  }
+  if (node.elements && Array.isArray(node.elements)) {
+    node.elements.forEach(purgeDevKeys);
+  }
+}
+
+/** Recursively remove development keys from an array of nodes */
+function cleanContent(contentArray) {
+  if (Array.isArray(contentArray)) {
+    contentArray.forEach(purgeDevKeys);
+  }
+}
+
 // ============================================================
 // BATCH CONVERTER
 // ============================================================
 
 async function batchConvert() {
+  await initConfig();
+
   console.log('╔══════════════════════════════════════════════════╗');
   console.log('║  COMPILER V4 — stitch2elementor                   ║');
   console.log(`║  Design: ${CONFIG.fonts.headline} + ${CONFIG.fonts.body}`.padEnd(51) + '║');
@@ -2046,6 +2074,7 @@ async function batchConvert() {
     console.log('📋 Processing Header template...');
     try {
       const headerContent = processNavAsHeader(headerHtml);
+      cleanContent(headerContent);
       const headerPath = path.join(CONFIG.outputDir, 'header.json');
       await fs.promises.writeFile(headerPath, JSON.stringify(headerContent), 'utf8');
       console.log(`  ✅ Header → ${path.basename(headerPath)} (${countNodes(headerContent)} nodes)`);
@@ -2058,6 +2087,7 @@ async function batchConvert() {
     console.log('📋 Processing Footer template...');
     try {
       const footerContent = processFooterTemplate(homepageHtml);
+      cleanContent(footerContent);
       const footerPath = path.join(CONFIG.outputDir, 'footer.json');
       await fs.promises.writeFile(footerPath, JSON.stringify(footerContent), 'utf8');
       console.log(`  ✅ Footer → ${path.basename(footerPath)} (${countNodes(footerContent)} nodes)`);
@@ -2069,10 +2099,16 @@ async function batchConvert() {
 
   // Process ALL pages from manifest
   console.log('\n📄 Processing ALL pages...\n');
-  const targetPages = pages.filter(p => {
+  const targetPages = [];
+  for (const p of pages) {
     const inputPath = path.join(CONFIG.inputDir, p.html);
-    return fs.existsSync(inputPath);
-  });
+    try {
+      await fs.promises.access(inputPath);
+      targetPages.push(p);
+    } catch (e) {
+      // no existe
+    }
+  }
   const results = await Promise.all(targetPages.map(async (page) => {
     const htmlFile = page.html;
     const jsonFile = page.json;
@@ -2101,6 +2137,7 @@ async function batchConvert() {
       }
       
       // Output content array (for _elementor_data)
+      cleanContent(content);
       await fs.promises.writeFile(outputPath, JSON.stringify(content), 'utf8');
       
       const nodeCount = countNodes(content);
