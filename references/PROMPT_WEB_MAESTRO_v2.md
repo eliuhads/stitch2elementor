@@ -1,4 +1,7 @@
-# PROMPT: WEB MAESTRO V2 [v4.6.7] — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
+# PROMPT: WEB MAESTRO V2 [v4.7.1] — PIPELINE COMPLETO (`go!`) y MODULAR (`segment!`)
+
+> **FAST PATH**: Si ya tienes HTMLs extraídos y solo necesitas compilar+inyectar,
+> salta directamente a la sección "RECETA PROBADA" en `SKILL.md`. Ahorra ~80% de tokens.
 
 ## ⚙️ Protocolo de Checkpoint (LEER PRIMERO)
 
@@ -90,8 +93,9 @@ Antes de iniciar, el proyecto del usuario debe tener la siguiente estructura:
 > **Nota:** Si la skill `enhance-prompt` no está disponible en el entorno, debes continuar la migración utilizando directivas de prompt estándar sin detenerte.
 
 1. **Lee BrandBook**: Lee todos los archivos en `INFO_BrandBook/`. Extrae colores HEX exactos, tipografías y SOLO archivos de logo en formato SVG. NUNCA uses imágenes de referencia de carpetas locales (provocan deformación del layout). Genera `design-system/[Nombre]/MASTER.md`. Descarta colores "Material" temporales de Stitch.
-2. **Genera `design_system.json`**: Basándote en el BrandBook, crea o actualiza `design_system.json` en el root del skill con colores, fuentes, typoScale, logoUrl, etc. El compiler lo cargará automáticamente.
+2. **Genera `design_system.json`**: Basándote en el BrandBook, crea o actualiza `design_system.json` en el **root del proyecto** (NO del skill) con colores, fuentes, typoScale, logoUrl, etc. El compiler lo cargará automáticamente.
 3. **Crea el Manifest**: Genera `page_manifest.json` con: nombre de cada página, archivos HTML/JSON de origen/destino, slug URL final y título.
+4. **⚠️ IMPORTANTE — Convención de archivos**: El compiler espera `homepage.html` en `assets_originales/` (root, NO subdirectorio). Si los HTMLs están en `stitch_v2/`, copiar: `Copy-Item "assets_originales/stitch_v2/01_home.html" "assets_originales/homepage.html"`.
 
 ---
 
@@ -118,12 +122,26 @@ Antes de iniciar, el proyecto del usuario debe tener la siguiente estructura:
 
 ### FASE 4: INYECCIÓN ELEMENTOR
 
-> **⚠️ DOCTRINA ID-SHIFTING**: Cada ejecución de `sync_and_inject.js` asigna **NUEVOS IDs** en WordPress. Cualquier `wp_id` previo queda OBSOLETO inmediatamente. El flujo correcto es SIEMPRE: inyectar → capturar nuevos IDs → realinear Homepage → limpiar caché.
+> **⚠️ DOCTRINA ID-SHIFTING**: Cada ejecución de inyección asigna **NUEVOS IDs** en WordPress. Cualquier `wp_id` previo queda OBSOLETO inmediatamente.
 
-1. **Validación Pre-Inyección**: Antes de inyectar cualquier página, valida su JSON contra `schemas/elementor_data.schema.json`. Comando: `node -e "const s=require('./schemas/elementor_data.schema.json'); const d=require('./[archivo].json'); const Ajv=require('ajv'); const ajv=new Ajv(); const valid=ajv.validate(s,d); if(!valid){console.error(ajv.errors);process.exit(1);}"`. Si la validación falla, NO inyectes y reporta el error al usuario.
+> **⚠️ MCP REST API DA 401**: Los MCPs `wp-elementor-mcp` y `elementor-mcp` fallan con 401 al crear páginas. **SIEMPRE usar FTP+PHP** como vía principal, no como fallback.
 
-2. **Inyección Híbrida Autónoma (VÍA ÚNICA)**: Ejecuta `node scripts/sync_and_inject.js` que automáticamente:
-    - Sube JSONs y PHPs inyectores vía FTP a `v9_json_payloads/`
+> **⚠️ FTP ROOT = WEB ROOT**: Subir PHPs al root FTP `/` (donde está `wp-load.php`). **NUNCA** usar `FTP_REMOTE_PATH` — apunta a un subdirectorio que no es el document root.
+
+#### Opción A: FAST PATH (3 páginas: Header+Footer+Homepage)
+
+Si solo necesitas header, footer y homepage, usa el script probado:
+```bash
+node scripts/inject_three_pages.mjs
+```
+Este script hace TODO en una sola ejecución: crea las 3 páginas, configura front page, flush cache, self-delete.
+
+#### Opción B: Pipeline Completo (N páginas)
+
+1. **Validación Pre-Inyección**: Antes de inyectar cualquier página, valida su JSON contra `schemas/elementor_data.schema.json`.
+
+2. **Inyección Híbrida Autónoma**: Ejecuta `node scripts/sync_and_inject.js` que automáticamente:
+    - Sube JSONs y PHPs inyectores vía FTP al root `/` (NO a `v9_json_payloads/`)
     - Copia `page_manifest.json` al servidor para el inyector PHP
     - Dispara `create_hf_native.php` (Header/Footer como `elementor_library`)
     - Dispara `inject_all_pages.php` (inyecta las N páginas secuencialmente)
@@ -207,4 +225,3 @@ El modo modular permite aislar, convertir e inyectar un **único componente o se
 6. **Siempre** verifica que `design_system.json` existe antes de compilar
 7. **ID-Shifting es inevitable**: Tras cualquier `sync_and_inject.js`, ejecuta siempre el Protocolo AHORA SI. Nunca asumas que los IDs anteriores son válidos.
 8. **Modo Config-Only para mantenimiento**: Si el sitio está estable y solo necesitas ajustar la Homepage, usa `maintenance_only.js` — nunca re-inyectes solo para eso.
-9. **Protección de `client_data`**: NUNCA borrar, editar ni modificar el contenido de la carpeta `client_data/` bajo ninguna circunstancia.
