@@ -40,8 +40,15 @@ async function main() {
 
   let browser;
   try {
-    browser = await chromium.connect(WS);
-    console.log('Connected to remote Playwright');
+    try {
+      console.log(`Connecting to remote Playwright at ${WS}...`);
+      browser = await chromium.connect(WS);
+      console.log('Connected to remote Playwright');
+    } catch (err) {
+      console.log(`Remote Playwright failed: ${err.message}. Launching local headless Chromium...`);
+      browser = await chromium.launch({ headless: true });
+      console.log('Local headless Chromium launched');
+    }
 
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
@@ -49,62 +56,80 @@ async function main() {
     await page.goto(`http://${localIP}:${PORT}`, { waitUntil: 'networkidle', timeout: 30000 });
     console.log('Page loaded');
 
-    // Screenshot 1: Hero (full viewport)
-    await page.waitForTimeout(2000);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '01_hero.png') });
-    console.log('✓ 01_hero.png');
+    // Slide 1: Overview & Ficha
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '01_overview.png') });
+    console.log('✓ 01_overview.png');
 
-    // Screenshot 2: Brand Strategy
-    await page.evaluate(() => document.getElementById('marca')?.scrollIntoView({ behavior: 'instant' }));
-    await page.waitForTimeout(800);
+    // Slide 2: Brand Strategy
+    await page.click('#slide-btn-02');
+    await page.waitForTimeout(600);
     await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '02_brand_strategy.png') });
     console.log('✓ 02_brand_strategy.png');
 
-    // Screenshot 3: Colors
-    await page.evaluate(() => document.getElementById('colores')?.scrollIntoView({ behavior: 'instant' }));
-    await page.waitForTimeout(800);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '03_colors.png') });
-    console.log('✓ 03_colors.png');
+    // Slide 3: Buyer Personas
+    await page.click('#slide-btn-03');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '03_buyer_personas.png') });
+    console.log('✓ 03_buyer_personas.png');
 
-    // Screenshot 4: Typography
-    await page.evaluate(() => document.getElementById('tipografia')?.scrollIntoView({ behavior: 'instant' }));
-    await page.waitForTimeout(800);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '04_typography.png') });
-    console.log('✓ 04_typography.png');
+    // Slide 4: Brand Voice
+    await page.click('#slide-btn-04');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '04_brand_voice.png') });
+    console.log('✓ 04_brand_voice.png');
 
-    // Screenshot 5: Components
-    await page.evaluate(() => document.getElementById('componentes')?.scrollIntoView({ behavior: 'instant' }));
-    await page.waitForTimeout(800);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '05_components.png') });
-    console.log('✓ 05_components.png');
+    // Slide 5: Brand Logo
+    await page.click('#slide-btn-05');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '05_brand_logo.png') });
+    console.log('✓ 05_brand_logo.png');
 
-    // Screenshot 6: Architecture
-    await page.evaluate(() => document.getElementById('arquitectura')?.scrollIntoView({ behavior: 'instant' }));
-    await page.waitForTimeout(800);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '06_architecture.png') });
-    console.log('✓ 06_architecture.png');
+    // Slide 6: Color Palette
+    await page.click('#slide-btn-06');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '06_color_palette.png') });
+    console.log('✓ 06_color_palette.png');
 
-    // Screenshot 7: Footer/Contact
-    await page.evaluate(() => document.getElementById('contacto')?.scrollIntoView({ behavior: 'instant' }));
-    await page.waitForTimeout(800);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '07_contact.png') });
-    console.log('✓ 07_contact.png');
+    // Slide 7: Typography
+    await page.click('#slide-btn-07');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '07_typography.png') });
+    console.log('✓ 07_typography.png');
 
-    // Screenshot 8: Full page
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(500);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '08_fullpage.png'), fullPage: true });
-    console.log('✓ 08_fullpage.png (full page)');
+    // Slide 8: Imagery & Icons
+    await page.click('#slide-btn-08');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '08_imagery_icons.png') });
+    console.log('✓ 08_imagery_icons.png');
 
-    // Mobile viewport
+    // Slide 9: B2B Channels
+    await page.click('#slide-btn-09');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '09_b2b_channels.png') });
+    console.log('✓ 09_b2b_channels.png');
+
+    // Slide 10: Sitemap & SEO
+    await page.click('#slide-btn-10');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '10_sitemap_seo.png') });
+    console.log('✓ 10_sitemap_seo.png');
+
+    // Slide 11: Governance
+    await page.click('#slide-btn-11');
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '11_governance.png') });
+    console.log('✓ 11_governance.png');
+
+    // Mobile Viewport (iPhone resolution)
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.click('#slide-btn-01');
     await page.waitForTimeout(1000);
-    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '09_mobile_hero.png') });
-    console.log('✓ 09_mobile_hero.png');
+    await page.screenshot({ path: path.join(SCREENSHOTS_DIR, '12_mobile_hero.png') });
+    console.log('✓ 12_mobile_hero.png');
 
     await context.close();
-    console.log('\n✅ All screenshots saved to brandbook_screenshots/');
+    console.log('\n✅ All 11 slides and mobile view screenshots saved to brandbook_screenshots/');
   } catch (err) {
     console.error('Error:', err.message);
   } finally {

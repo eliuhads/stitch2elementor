@@ -2,10 +2,17 @@
 /**
  * purge_wp_cache.mjs v2 — Simplified
  */
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import { Client } from 'basic-ftp';
 import { writeFileSync, unlinkSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, '..');
+
+dotenv.config({ path: join(ROOT, '..', '.env'), override: true });
+dotenv.config({ path: join(ROOT, '.env'), override: true });
 
 const WP_URL = process.env.WP_URL;
 const FTP_HOST = process.env.FTP_HOST;
