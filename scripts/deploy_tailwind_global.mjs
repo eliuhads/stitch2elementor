@@ -114,9 +114,9 @@ add_action('wp_head', function() {
         /* 1140px Unification and margin alignment overrides */
         .elementor-location-header .e-con-boxed,
         .elementor-location-footer .e-con-boxed,
-        body.elementor-page-160 .max-w-container-max,
-        body.elementor-page-160 .max-w-7xl,
-        body.elementor-page-160 .lg\\\\:max-w-7xl {
+        body.elementor-page .max-w-container-max,
+        body.elementor-page .max-w-7xl,
+        body.elementor-page .lg\\:max-w-7xl {
             max-width: 1140px !important;
             margin-left: auto !important;
             margin-right: auto !important;
@@ -124,7 +124,7 @@ add_action('wp_head', function() {
         }
         .elementor-location-header .e-con-boxed,
         .elementor-location-footer .e-con-boxed,
-        body.elementor-page-160 .max-w-container-max {
+        body.elementor-page .max-w-container-max {
             padding-left: 24px !important;
             padding-right: 24px !important;
         }
