@@ -372,31 +372,79 @@ Ambos MCPs (`wp-elementor-mcp` y `elementor-mcp`) fallan con 401 al crear págin
 cPanel mapea FTP `/` al document root. `FTP_REMOTE_PATH` apunta a subdirectorio no servido.
 **Siempre subir a FTP root** (path relativo, sin `/public_html/`).
 
-### ⭐ WordPress Sanitiza `<style>` en `post_content`
+### ⭐ Dual-Update: `_elementor_data` + `post_content` (Uso de API Nativa de Elementor)
 
-`wp_kses_post()` elimina `<style>` tags. **NUNCA inyectar CSS en `post_content`**.
-Usar `_elementor_page_settings.custom_css` o mu-plugin.
-
-### ⭐ Dual-Update: `_elementor_data` + `post_content`
-
-Actualizar solo `_elementor_data` NO regenera `post_content`. Los widgets no aparecen.
-**Siempre actualizar AMBOS** en la misma ejecución PHP:
+Actualizar solo `_elementor_data` NO regenera `post_content`. Los widgets no aparecen. 
+La forma **más recomendada, nativa y segura** de inyectar plantillas es utilizando la **API oficial de documentos de Elementor** en PHP en lugar de queries directas en base de datos. Esto permite que el motor de Elementor valide los widgets, genere el marcado HTML fallback y compile el CSS estático de forma automática y atómica:
 
 ```php
-// 1. JSON
-update_post_meta($pid, '_elementor_data', wp_slash($new_json));
-// 2. HTML (con $wpdb para evitar sanitización)
-global $wpdb;
-$wpdb->update($wpdb->posts, ['post_content' => $html], ['ID' => $pid], ['%s'], ['%d']);
-// 3. Cache flush
-delete_post_meta($pid, '_elementor_css');
-update_post_meta($pid, '_elementor_version', '0.0.0');
-clean_post_cache($pid);
+// 1. Force admin login context (required to bypass Elementor document saving capability checks)
+$admins = get_users(['role' => 'administrator']);
+if (!empty($admins)) {
+    wp_set_current_user($admins[0]->ID);
+}
+
+// 2. Instantiate and save the document natively
+$document = \Elementor\Plugin::instance()->documents->get($post_id);
+if ($document) {
+    // This updates both _elementor_data and post_content in a single execution
+    $document->save(['elements' => $elements]);
+}
+
+// 3. Clear post and css caches to force regenerations
+delete_post_meta($post_id, '_elementor_css');
+clean_post_cache($post_id);
+```
+
+### ⭐ Inyección de Layout Stitch Puro (Bypass de wrappers de Elementor)
+
+**Problema**: Elementor introduce múltiples contenedores anidados (`.e-con`, `.e-con-inner`, `.elementor-widget-container`) por cada columna/sección. Si traduces layouts responsivos complejos de Stitch (que dependen de grids de Tailwind, absolute alignments o overlays de degradados) a 80+ widgets de Elementor separados, los wraps de Elementor **romperán el DOM**, colapsando alturas a `0px` o desalineando cajas.
+
+**Solución**: En vez de mapear cada caja a un widget de Elementor, extrae el HTML limpio responsivo de Stitch (secciones del body localizadas con URLs de WebP internas) y colócalo en un **único widget HTML nativo de Elementor** en un contenedor de ancho completo. De esta forma, el navegador procesa el HTML plano original de Stitch y Tailwind CDN le da estilos perfectos sin interferencias de wraps.
+
+### ⭐ Puente Adaptador CSS Elementor-Tailwind
+
+Si usas el marcado original de Stitch con Tailwind en Elementor, debes encolar de forma global un bloque CSS adaptador que fuerce a los contenedores internos de Elementor a comportarse y dar espacio a las propiedades de Tailwind:
+
+```css
+/* Elementor-to-Tailwind layout bridge overrides */
+.elementor-location-header .e-con-boxed,
+.elementor-location-footer .e-con-boxed,
+body.elementor-page-160 .max-w-container-max {
+  max-width: 1140px !important; /* Unified Max Width */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  width: 100% !important;
+}
+
+body.elementor-page-160 .e-con-inner {
+  padding: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+body.elementor-page-160 .absolute {
+  position: absolute !important;
+}
+
+body.elementor-page-160 .inset-0 {
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+}
+
+body.elementor-page-160 .object-cover {
+  object-fit: cover !important;
+  width: 100% !important;
+  height: 100% !important;
+}
 ```
 
 ### ⭐ Elementor CSS Cache = Archivos Estáticos
 
-Elementor genera `post-XXXX.css` en `/wp-content/uploads/elementor/css/`.
+Elementor genera `post-*.css` en `/wp-content/uploads/elementor/css/`.
 Estos archivos incluyen el `custom_css` de `_elementor_page_settings`.
 Para forzar regeneración:
 1. Eliminar archivos via FTP (`purge_elementor_css.mjs`)
@@ -435,6 +483,12 @@ wp_enqueue_style('name', $url, [], '5.0.0'); // ← BUMP
 
 Gradientes en JSON (`background_background: 'gradient'`) no generan CSS automático.
 **Solución**: Parchear JSON nativo O usar CSS externo con selectores por `data-id`.
+
+### ⭐ Data-IDs de Elementor NO Son Estables
+
+Después de re-inyecciones los `data-id` cambian. Siempre re-descubrir IDs antes de CSS fixes.
+
+---ión**: Parchear JSON nativo O usar CSS externo con selectores por `data-id`.
 
 ### ⭐ Data-IDs de Elementor NO Son Estables
 
