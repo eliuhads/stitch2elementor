@@ -194,7 +194,8 @@ async function run() {
       host: FTP_HOST,
       user: FTP_USER,
       password: FTP_PASSWORD,
-      secure: false,
+      secure: true,
+      secureOptions: { rejectUnauthorized: false },
     });
     console.log('✅ FTP connected');
     

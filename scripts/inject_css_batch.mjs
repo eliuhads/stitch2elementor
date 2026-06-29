@@ -37,9 +37,9 @@ const globalCss = fs.readFileSync(path.join(ROOT, 'temp', 'evergreen-global.css'
 const cssRules = globalCss.split('\n').filter(l => !l.startsWith('@import')).join('\n').trim();
 const cssB64 = Buffer.from(cssRules).toString('base64');
 
-// Page IDs (all except homepage 1758)
+// Page IDs — ALL pages including homepage
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'page_manifest.json'), 'utf8'));
-const pageIds = manifest.pages.filter(p => p.wp_id !== 1758).map(p => p.wp_id);
+const pageIds = manifest.pages.filter(p => p.wp_id).map(p => p.wp_id);
 
 console.log('╔══════════════════════════════════════════════════╗');
 console.log('║  INJECT CSS BATCH — Evergreen LED               ║');
@@ -98,9 +98,13 @@ if (class_exists('LiteSpeed_Cache_API') && method_exists('LiteSpeed_Cache_API', 
     litespeed_purge_all();
     $results['litespeed'] = 'purged';
 } else {
-    global $wpdb;
-    $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '%litespeed%cache%'");
-    $results['litespeed'] = 'db_purged';
+    // Safe fallback — no raw SQL to avoid ModSecurity blocks
+    if (function_exists('litespeed_purge_all')) {
+        litespeed_purge_all();
+        $results['litespeed'] = 'purged_fn';
+    } else {
+        $results['litespeed'] = 'not_available';
+    }
 }
 
 $results['pages_updated'] = count($page_ids);
@@ -126,9 +130,10 @@ try {
     host: FTP_HOST,
     user: FTP_USER,
     password: FTP_PASSWORD,
-    secure: false,
+    secure: true,
+    secureOptions: { rejectUnauthorized: false },
   });
-  console.log('✅ FTP connected\n');
+  console.log('✅ FTP connected (TLS)\n');
 
   // Upload using relative path (same as inject_all_pages.mjs)
   console.log(`📤 Uploading ${uniqueName}...`);

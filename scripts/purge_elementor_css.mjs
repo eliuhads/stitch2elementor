@@ -17,7 +17,7 @@ dotenv.config({ path: path.join(ROOT, '.env'), override: true });
 const env = process.env;
 
 const c = new Client();
-await c.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD, secure: false });
+await c.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD, secure: true, secureOptions: { rejectUnauthorized: false } });
 
 // Delete Elementor generated CSS files via FTP
 const cssDir = '/wp-content/uploads/elementor/css/';
