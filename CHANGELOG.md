@@ -2,6 +2,18 @@
 
 All notable changes to the `stitch2elementor` skill are documented here.
 
+## [5.0.0] - 2026-06-30 - PURE HTML LAYOUT INJECTION, SERVER-LEVEL CACHE & DATABASE CACHE PURGING
+
+### Agregado
+- **Inyección de Layout Stitch Puro sitio completo**: Integración a escala para todas las 15 páginas. Extrae el HTML limpio de Stitch (`body > section`) y lo inyecta en un único widget HTML nativo de Elementor, evitando la sobrecarga de divs anidados de Elementor y garantizando paridad visual al 100%.
+- **Desactivación de Proxy Nginx de Bluehost**: Integración automática mediante `$epc->toggle_nginx(0)` que modifica la configuración de cPanel de la cuenta y fuerza la recarga de Nginx, evitando que sirva versiones en caché obsoletas con cabeceras `date` antiguas.
+- **Purga de Caché de Elementor en Base de Datos**: Script para limpiar las claves `_elementor_css` y `_elementor_element_cache` de la tabla `wp_postmeta` de WordPress, forzando la recompilación limpia de estilos desde el JSON.
+- **Validación de Sintaxis de Tailwind**: Regla estricta para evitar llaves y propiedades duplicadas en el objeto `borderRadius` de la configuración de Tailwind que invaliden el script en el navegador.
+
+### Cambiado
+- Eliminados los plugins MU obsoletos (`evergreen-custom-styles.php` y `evergreen-theme-override.php`) para evitar colisiones.
+- Sincronizados todos los archivos a la versión `5.0.0`.
+
 ---
 
 ## [4.6.7] - 2026-04-26 - SECURITY & PIPELINE HARDENING

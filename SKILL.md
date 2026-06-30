@@ -446,19 +446,19 @@ body.elementor-page-160 .object-cover {
 
 Elementor genera `post-*.css` en `/wp-content/uploads/elementor/css/`.
 Estos archivos incluyen el `custom_css` de `_elementor_page_settings`.
-Para forzar regeneración:
-1. Eliminar archivos via FTP (`purge_elementor_css.mjs`)
-2. O: `delete_post_meta($pid, '_elementor_css')` + `delete_option('_elementor_global_css')`
-3. Elementor regenera on-demand en la siguiente visita
+Para forzar la regeneración:
+1. Eliminar los archivos físicos via FTP (`purge_elementor_css.mjs`).
+2. O ejecutar `delete_post_meta($pid, '_elementor_css')` + `delete_option('_elementor_global_css')`.
+3. Elementor regenerará los archivos estáticos de forma automática en la siguiente visita.
 
 ### ⭐ Base64 para Payloads Grandes
 
-JSON de Elementor (20-50KB+) causa errores de escaping en PHP generado.
-**Solución**: `Buffer.from(data).toString('base64')` → `base64_decode()` en PHP.
+El JSON de Elementor (20-50KB+) causa errores de escape de caracteres en el código PHP autogenerado.
+**Solución**: Utiliza siempre `Buffer.from(data).toString('base64')` en Node y decodifícalo con `base64_decode()` en PHP.
 
 ### ⭐ `_elementor_data` Puede Estar Double-Encoded
 
-Después de múltiples inyecciones, intentar `stripslashes()` antes de fallar:
+Después de múltiples inyecciones consecutivas, el campo en la base de datos puede tener escapes de comillas duplicados. Utiliza `stripslashes()` antes de intentar parsearlo:
 ```php
 $data = json_decode($json_raw, true);
 if ($data === null) {
@@ -468,31 +468,96 @@ if ($data === null) {
 
 ### ⭐ CSS Version Bumping Obligatorio
 
-LiteSpeed + browser cache sirven CSS stale. Al desplegar CSS, SIEMPRE bump versión:
+Los proxies y navegadores almacenan en caché los archivos CSS de forma agresiva. Al desplegar cambios de estilos en un plugin o tema, incrementa siempre el parámetro de versión:
 ```php
-wp_enqueue_style('name', $url, [], '5.0.0'); // ← BUMP
+wp_enqueue_style('evergreen-homepage', $url, [], '5.1.0'); // ← Incrementar siempre
 ```
 
 ### ⭐ PowerShell ≠ Bash
 
-- PowerShell aliasa `curl` a `Invoke-WebRequest`
-- Inline `node -e "..."` falla con `$`, regex, comillas anidadas
-- **Solución**: Escribir scripts a archivo `.mjs` y ejecutar con `node script.mjs`
+- En Windows/PowerShell, `curl` es un alias de `Invoke-WebRequest`.
+- Las ejecuciones de código inline como `node -e "..."` suelen fallar debido al escape de comillas, variables de entorno y expresiones regulares.
+- **Solución**: Escribe siempre tus scripts en archivos `.mjs` y ejecútalos normalmente (`node script.mjs`).
 
 ### ⭐ Elementor NO Genera CSS para Gradientes Inyectados via PHP
 
-Gradientes en JSON (`background_background: 'gradient'`) no generan CSS automático.
-**Solución**: Parchear JSON nativo O usar CSS externo con selectores por `data-id`.
+Si inyectas un gradiente en el JSON de configuración (`background_background: 'gradient'`), el generador de CSS de Elementor no compilará la regla de forma automática.
+**Solución**: Escribe la regla del gradiente directamente en el bloque de CSS externo del adaptador utilizando selectores específicos de clase o ID.
 
 ### ⭐ Data-IDs de Elementor NO Son Estables
 
-Después de re-inyecciones los `data-id` cambian. Siempre re-descubrir IDs antes de CSS fixes.
+Después de realizar múltiples reinyecciones de páginas, los IDs de los contenedores (`data-id`) cambian de forma dinámica. Evita acoplar tus selectores CSS a IDs dinámicos de Elementor; utiliza en su lugar clases genéricas como `.elementor-widget-container` o clases de Tailwind añadidas al HTML.
 
----ión**: Parchear JSON nativo O usar CSS externo con selectores por `data-id`.
+### ⭐ Caché de Proxy Nginx en Bluehost — Desactivación por Servidor
 
-### ⭐ Data-IDs de Elementor NO Son Estables
+**Problema**: En hostings como Bluehost que utilizan Nginx como proxy inverso por encima de Apache, la página HTML de salida queda cacheada de forma extremadamente agresiva. Las peticiones HTTP con el método `PURGE` locales (que realiza el plugin `Endurance_Page_Cache` por defecto hacia `127.0.0.1:8080`) fallan silenciosamente devolviendo `400 Bad Request` porque Nginx no las admite. Como resultado, el servidor sigue entregando páginas obsoletas con cabeceras `date` antiguas aunque se limpie el caché de WordPress.
 
-Después de re-inyecciones los `data-id` cambian. Siempre re-descubrir IDs antes de CSS fixes.
+**Solución definitiva**: Desactivar el almacenamiento en caché del proxy Nginx a nivel de servidor escribiendo la directiva directamente en la configuración de cPanel de la cuenta y forzando la recarga:
+```php
+// 1. Desactivar el nivel de caché en la base de datos
+update_option('endurance_cache_level', 0);
+
+// 2. Modificar el archivo de configuración del proxy de cPanel y notificar al sistema
+if (class_exists('Endurance_Page_Cache')) {
+    $epc = Endurance_Page_Cache::get_instance();
+    if ($epc) {
+        $epc->toggle_nginx(0); // Escribe cache_level=0 y toca /etc/proxy_notify/$user
+    }
+}
+```
+Esto fuerza a Nginx a actuar únicamente como proxy pass directo hacia Apache, sirviendo siempre el contenido en tiempo real durante el desarrollo.
+
+### ⭐ Limpieza de Caché de Elementor en la Base de Datos
+
+**Problema**: Aunque elimines los archivos CSS físicos en `/wp-content/uploads/elementor/css/`, Elementor mantiene copias de respaldo de los estilos y estructuras en la tabla `wp_postmeta` bajo las claves `_elementor_css` y `_elementor_element_cache`. Si estas copias guardan errores de sintaxis antiguos, se seguirán inyectando en las páginas.
+
+**Solución**: Ejecutar un borrado de estas claves en la base de datos y limpiar el gestor de CSS nativo de Elementor para forzar una recompilación totalmente limpia desde el JSON:
+```php
+global $wpdb;
+$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_css'");
+$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_element_cache'");
+delete_option('_elementor_global_css');
+
+if (did_action('elementor/loaded')) {
+    \Elementor\Plugin::$instance->posts_css_manager->clear_cache();
+}
+```
+
+### ⭐ Validación de Sintaxis en Configuración de Tailwind
+
+**Problema**: Al inyectar la configuración de Tailwind en el navegador mediante el bloque `<script> tailwind.config = { ... } </script>`, cualquier error de sintaxis (como llaves duplicadas, comas faltantes o propiedades duplicadas sin coma en `borderRadius` o `spacing`) invalidará por completo todo el bloque de script. El navegador abortará la ejecución de la configuración y todas las clases personalizadas de Tailwind dejarán de funcionar.
+
+**Solución**: Valida estrictamente el objeto de configuración antes de inyectarlo. Cada clave debe ser única y estar correctamente formateada con comas separadoras:
+```json
+"borderRadius": {
+    "DEFAULT": "0.25rem", // Una sola declaración con coma
+    "lg": "0.5rem",
+    "xl": "0.75rem",
+    "full": "9999px"
+}
+```
+
+### ⭐ Unificación de Ancho de Página a 1140px
+
+Para garantizar una alineación perfecta entre la Cabecera, el Cuerpo y el Pie de página (evitando desbordamientos horizontales o saltos visuales), se deben inyectar reglas globales en el bloque de estilos del plugin que anulen los anchos máximos por defecto de los contenedores encajonados de Elementor y los unifiquen a 1140px con paddings responsivos en móvil:
+```css
+.elementor-location-header .e-con-boxed,
+.elementor-location-footer .e-con-boxed,
+body.elementor-page .max-w-container-max,
+body.elementor-page .max-w-7xl,
+body.elementor-page .lg\:max-w-7xl {
+    max-width: 1140px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+}
+.elementor-location-header .e-con-boxed,
+.elementor-location-footer .e-con-boxed,
+body.elementor-page .max-w-container-max {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+}
+```
 
 ---
 
