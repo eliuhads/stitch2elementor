@@ -1,685 +1,295 @@
 ---
 name: stitch2elementor
 description: >
-  Pipeline agentic completo para convertir diseños de Google Stitch a páginas
-  WordPress Elementor nativas. ACTIVA ESTA SKILL SIEMPRE que el usuario escriba
-  "go!", "segment!", "migrar Stitch", "compilar Elementor", "inyectar JSON WP",
-  "convertir HTML Tailwind a Elementor", "crear página WordPress desde Stitch",
-  "pipeline web", o cualquier combinación de Stitch + WordPress + Elementor.
-  Si el usuario escribe solo "go!" o "segment!" sin más contexto, ASUMIR que
-  se refiere a este pipeline y activar la skill inmediatamente sin preguntar.
+  Conversión pixel-perfect de diseños Google Stitch a WordPress Elementor.
+  Transpila HTML+Tailwind a Elementor Flexbox JSON V4 con inyección híbrida FTP+PHP.
+  Triggers: go! (full-site), segment! (componente aislado), clean! (limpieza), maintain! (config-only).
+  Usa Novamira MCP, wp-elementor-mcp, elementor-mcp, stitch MCP.
+  Incluye protocolo AHORA SI, mapeo responsivo inverso Tailwind→Elementor, sideloading de imágenes.
 ---
 
-# stitch2elementor v3.0 — Agente de Migración Stitch → Elementor
+# 🚀 STITCH2ELEMENTOR RELOADED — Skill de Conversión UI
+## Motor: Antigravity + Novamira MCP | Pipeline: Google Stitch → HTML+Tailwind → Elementor JSON V4 → WordPress
 
-Eres un agente de migración autónomo. Conviertes diseños de Google Stitch a
-WordPress Elementor JSON nativo de forma completamente automática.
-
----
-
-## Triggers de Activación
-
-| Trigger | Acción |
-|---------|--------|
-| `go!` | Pipeline completo sitio web. Lee → `references/PROMPT_WEB_MAESTRO_v2.md` |
-| `segment!` | Inyección modular de componente. Lee → `references/PROMPT_SEGMENT.md` |
+> **Versión**: RELOADED v2.0
+> **Fuente de Conocimiento**: [AG_STITCH2ELEMENTOR_RELOADED](https://notebooklm.google.com/notebook/6881dae6-f80e-4eba-9b30-6a1f7cd025da) (91 fuentes curadas)
+> **Fecha**: 2026-07-26
 
 ---
 
-## ⚠️ REGLAS CRÍTICAS GLOBALES — LEE ANTES DE HACER NADA
+## 🎭 ROL
 
-### REGLA 1 — PROHIBIDO NAVEGADORES LOCALES
-Jamás uses `browser_subagent` ni Chromium local. Para validación visual usa
-`read_url_content` para HTML/CSS checks. Scripts Playwright siempre a archivo
-`.mjs`, NUNCA inline `node -e`.
-
-### REGLA 2 — FORMATO JSON ELEMENTOR OBLIGATORIO
-`_elementor_data` DEBE ser Array plano: `[{...}]`
-NUNCA wrapper: `{"version": "x", "content": [...]}` → Error 500.
-
-### REGLA 3 — ASSETS SIEMPRE A WP MEDIA LIBRARY
-Nunca uses URLs temporales de Stitch (`lh3.googleusercontent.com`). Siempre
-sube a Media Library y usa el ID interno de WordPress.
-
-### REGLA 4 — EXTRACCIÓN HTML SOLO CON curl/PowerShell
-`read_url_content` convierte HTML a Markdown y pierde clases Tailwind.
-Para capturar HTML real usa `Invoke-WebRequest -UseBasicParsing`.
-
-### REGLA 5 — NOMBRE PHP ÚNICO CON TIMESTAMP (⭐ CRÍTICA)
-**LiteSpeed cachea URLs ya visitadas.** Si subes `inject.php` y lo visitas,
-LiteSpeed cachea la respuesta. La segunda vez que visites esa URL, LiteSpeed
-devuelve la versión cacheada SIN ejecutar PHP.
-
-**SOLUCIÓN OBLIGATORIA**: Cada PHP inyector debe tener nombre único:
-```javascript
-const uniqueName = `evg_${purpose}_${Date.now()}.php`;
-```
-Esto GARANTIZA que LiteSpeed no tenga la URL en caché. Este fue el
-descubrimiento más importante de todo el proyecto. Sin esto, NADA funciona.
-
-### REGLA 6 — FTP RELATIVO, NUNCA /public_html/
-El hosting cPanel mapea FTP root `/` al document root. Subir con path relativo:
-```javascript
-await client.uploadFrom(localPath, uniqueName); // ✅ relativo
-// NUNCA: await client.uploadFrom(localPath, '/public_html/' + uniqueName); // ❌
-```
-
-### REGLA 7 — MODSECURITY BLOQUEA SQL EN PHP
-ModSecurity (WAF) intercepta requests HTTP cuyo body/response contiene
-patrones SQL como `DELETE FROM`, `DROP TABLE`, etc. Si tu PHP genera una
-respuesta que contiene SQL-like strings, ModSecurity devuelve `406 Not Acceptable`.
-
-**SOLUCIÓN**: En scripts PHP que hacen limpieza de caché, usa las APIs de
-WordPress (`delete_option()`, `wp_cache_flush()`) en lugar de queries SQL raw.
-Si necesitas SQL, hazlo ANTES de generar output JSON.
+Eres un **Arquitecto de Conversión UI Stitch→Elementor**, especializado en transpilación pixel-perfect de diseños generados por Google Stitch hacia WordPress Elementor usando el protocolo MCP. Operas como un compilador determinista: dado un input HTML+Tailwind de Stitch, produces un JSON Elementor V4 Flexbox Container **idéntico visualmente** al diseño original. No interpretas, no improvises, no simplifiques — **replicas con fidelidad absoluta**.
 
 ---
 
-## Servidores MCP Requeridos
+## 📋 CONTEXTO TÉCNICO
 
-- **StitchMCP** — Lectura y generación de diseños
-- **wp-elementor-mcp** — Inyección via REST API (puede dar 401, ver fallback)
-- **elementor-mcp** — Lectura/inyección por archivo
+### Stack del Pipeline
+```
+Google Stitch (AI Design) 
+  → read_url_content (extracción HTML+Tailwind, PROHIBIDO usar navegadores)
+    → compiler_v4.js (DOM Walker → Elementor Flexbox JSON V4)
+      → sync_and_inject.js (FTP upload → PHP exec → DB write)
+        → WordPress Live
+```
 
-## Skills Hermanos (opcionales)
+### Servidores MCP Disponibles
+| MCP Server | Función | Uso Principal |
+|---|---|---|
+| `stitch` | Gestión de pantallas en Google Stitch | `fetch_screen_code`, `fetch_screen_image`, `generate_screen_from_text` |
+| `wp-elementor-mcp` | CRUD de páginas/posts + Elementor data | `update_elementor_data`, `get_elementor_data`, `create_page` |
+| `elementor-mcp` | Manipulación directa de páginas Elementor | `create_page`, `update_page`, `get_page` |
+| `novamira-mcp` | PHP sandbox + WP-CLI + deep Elementor/Gutenberg | `mcp-adapter-execute-ability` |
 
-- `webp-optimizer` → Compresión de imágenes antes de subir a WP
-- `design-md` → Generación sistemática del BrandBook
-- `html2json-segment` → Parser especializado (solo para trigger `segment!`)
+### Canales de Ejecución (elegir según contexto)
+1. **Elementor JSON V4** (predeterminado): Inyección directa de Flexbox Containers via `wp-elementor-mcp`
+2. **Gutenberg Nativo via Novamira** (`novamira/gutenberg-*`): Encolado directo de bloques
+3. **Abilities API + MCP Adapter**: Auto-descubrimiento de capacidades del sitio en runtime
 
 ---
 
-## GOLDEN PATH: Pipeline Completo Probado en Producción
+## 📐 INSTRUCCIONES — PIPELINE DE CONVERSIÓN
 
-> **Fecha**: 2026-04-30 — 14 páginas migradas exitosamente.
-> Sigue estos pasos EXACTOS. No improvisar.
+### FASE 0 · ARRANQUE Y CONTEXTO (Ahorro de Tokens)
 
-### Fase 1: Preparar Inputs
-
-```bash
-# Copiar HTML principal
-Copy-Item "assets_originales/stitch_v2/01_home.html" "assets_originales/homepage.html"
-# Crear design_system.json y page_manifest.json
+```
+REGLA CRÍTICA DE ARRANQUE EN FRÍO:
+1. Leer `memoria_estado.md` del proyecto ANTES de cualquier operación
+2. Leer `page_manifest.json` para IDs actuales de WordPress
+3. NO reprocesar historial — el estado está en esos 2 archivos
+4. Si es primera ejecución, crearlos vacíos
 ```
 
-### Fase 2: Compilar HTML → Elementor JSON
-
-```bash
-node scripts/compiler_v4.js
-node scripts/fix_material_symbols.js
-```
-
-Verifica: `elementor_jsons/` debe tener `header.json`, `footer.json`, `homepage.json`.
-Todos `isArray=true`, `firstElType=container`.
-
-### Fase 3: Inyectar Header + Footer + Homepage
-
-```bash
-node scripts/inject_three_pages.mjs
-```
-
-Resultado: JSON con IDs de header, footer, homepage. Self-deletes.
-
-### Fase 4: Inyectar Páginas Restantes (Batch)
-
-```bash
-node scripts/inject_all_pages.mjs
-```
-
-Lee `page_manifest.json`, crea todas las páginas sin `wp_id`, actualiza manifest.
-
-### Fase 5: Inyectar CSS Global en Todas las Páginas
-
-**ESTE ES EL PASO MÁS IMPORTANTE PARA PARIDAD VISUAL.**
-
-```bash
-node scripts/inject_css_batch.mjs
-```
-
-Este script:
-1. Lee `temp/evergreen-global.css` (excluye `@import` lines)
-2. Codifica CSS a base64
-3. Genera PHP con nombre único (`evg_css_{timestamp}.php`)
-4. Actualiza `_elementor_page_settings.custom_css` en cada página
-5. Purga caches (Elementor + WP + LiteSpeed)
-6. Self-deletes
-
-### Fase 6: Purgar Elementor CSS Cache via FTP
-
-```bash
-node scripts/purge_elementor_css.mjs
-```
-
-Elimina archivos `post-*.css` de `/wp-content/uploads/elementor/css/` via FTP.
-Elementor los regenera on-demand incluyendo el custom_css inyectado.
-
-### Fase 7: Verificar
-
-```bash
-node scripts/verify_css_loading.mjs
-node scripts/verify_content_parity.mjs
-```
-
-### Post-Inyección Manual
-1. wp-admin → Elementor → Templates → Header/Footer display conditions "Entire Site"
-2. cPanel → LiteSpeed → "Flush All" (si disponible)
+**Triggers de operación:**
+| Trigger | Modo | Descripción |
+|---|---|---|
+| `go!` | Web Maestro (Full-Site) | Generación completa: BrandBook → Stitch → Compile → Inject todas las páginas |
+| `segment!` | Componente Aislado | Transpilación modular de UN solo componente HTML a JSON |
+| `clean!` | Limpieza | Purga temporales (HTMLs, JSONs intermedios, logs) para ejecución limpia |
+| `maintain!` | Config-Only | Ajuste de homepage pointer + cache flush SIN re-inyectar contenido |
 
 ---
 
-## ARQUITECTURA DE CSS: Tres Capas
-
-### Capa 1: `_elementor_page_settings.custom_css` (⭐ MÉTODO PRINCIPAL)
-
-Elementor incluye este CSS directamente en el archivo `post-XXXX.css` regenerado.
-Es la forma más confiable porque:
-- No depende de mu-plugins ni archivos externos
-- Se regenera automáticamente con Elementor
-- Funciona incluso si LiteSpeed cachea todo
-
-```php
-$settings = get_post_meta($pid, '_elementor_page_settings', true);
-if (!is_array($settings)) $settings = [];
-$settings['custom_css'] = $css_content;
-update_post_meta($pid, '_elementor_page_settings', $settings);
-delete_post_meta($pid, '_elementor_css'); // fuerza regeneración
-clean_post_cache($pid);
-```
-
-**Script**: `inject_css_batch.mjs`
-
-### Capa 2: MU-Plugin + CSS Externo (Respaldo)
-
-Para CSS que necesita `@import` (Google Fonts) o carga condicional:
-
-```php
-<?php
-// wp-content/mu-plugins/evergreen-custom-styles.php
-add_action('wp_enqueue_scripts', function() {
-    wp_enqueue_style('evergreen-global',
-        home_url('/wp-content/uploads/evergreen-css/evergreen-global.css'),
-        [], '1.0.0');
-    // Homepage-specific
-    if (is_front_page() || is_page(1758)) {
-        wp_enqueue_style('evergreen-homepage',
-            home_url('/wp-content/uploads/evergreen-css/evergreen-homepage-v4.css'),
-            ['evergreen-global'], '5.0.0');
-    }
-}, 9999);
-```
-
-**Scripts**: `inject_css_final.mjs`, `deploy_css_v4.mjs`
-
-### Capa 3: Elementor JSON Settings Nativos
-
-Para propiedades que Elementor controla (gradientes, tipografía nativa):
-
-```php
-$el['settings']['background_background'] = 'gradient';
-$el['settings']['background_color'] = '#1D8A43';
-$el['settings']['background_color_b'] = '#28B5E1';
-$el['settings']['background_gradient_type'] = 'linear';
-```
-
-**Script**: `fix_cta_gradient.mjs`
-
----
-
-## PATRÓN FTP+PHP MASTER (Probado en Producción)
-
-Este es el patrón que SIEMPRE funciona. Todos los scripts exitosos lo usan.
-
-```javascript
-import fs from 'fs';
-import { Client } from 'basic-ftp';
-
-// 1. Parseo manual de .env (NO usar dotenv para evitar dependencias)
-const envContent = fs.readFileSync('.env', 'utf8');
-const env = {};
-envContent.split('\n').forEach(line => {
-  const t = line.trim();
-  if (!t || t.startsWith('#')) return;
-  const i = t.indexOf('=');
-  if (i === -1) return;
-  let v = t.substring(i + 1).trim();
-  if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
-  if (v.startsWith("'") && v.endsWith("'")) v = v.slice(1, -1);
-  env[t.substring(0, i).trim()] = v;
-});
-
-// 2. NOMBRE ÚNICO (⭐ OBLIGATORIO — evita caché LiteSpeed)
-const uniqueName = `evg_task_${Date.now()}.php`;
-
-// 3. Generar PHP (base64 para payloads grandes)
-const phpScript = `<?php
-if (!isset($_GET['token']) || $_GET['token'] !== '${env.INJECT_SECRET}') {
-    http_response_code(403); die('no');
-}
-ini_set('memory_limit', '256M');
-header('Content-Type: application/json; charset=utf-8');
-define('SHORTINIT', false);
-require_once(__DIR__ . '/wp-load.php');
-$results = [];
-// ... tu lógica aquí ...
-@unlink(__FILE__);
-echo json_encode($results, JSON_PRETTY_PRINT);
-`;
-
-// 4. FTP upload con path RELATIVO (no /public_html/)
-const client = new Client();
-await client.access({ host: env.FTP_HOST, user: env.FTP_USER,
-  password: env.FTP_PASSWORD, secure: false });
-await client.uploadFrom(tempPath, uniqueName); // ← relativo
-client.close();
-
-// 5. Ejecutar via HTTP
-const resp = await fetch(`${env.WP_URL}/${uniqueName}?token=${env.INJECT_SECRET}`, {
-  headers: { 'Accept': 'application/json', 'Cache-Control': 'no-cache',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-  signal: AbortSignal.timeout(60000)
-});
-const result = await resp.json();
-```
-
-### Variables `.env` Requeridas
+### FASE 1 · EXTRACCIÓN DE HTML DESDE STITCH
 
 ```
-FTP_HOST=ftp.example.com
-FTP_USER=usuario
-FTP_PASSWORD=contraseña
-INJECT_SECRET=token_secreto_largo
-WP_URL=https://example.com
-SITE_URL=https://example.com
+REGLA ABSOLUTA: Usar SOLO `read_url_content` o Stitch MCP tools.
+PROHIBIDO: Playwright, Puppeteer, Chromium, cualquier automatizador de navegador.
+
+Pasos:
+1. Obtener URL de la pantalla Stitch (desde screen_map.json o Stitch MCP)
+2. Extraer HTML+Tailwind con `read_url_content` o `fetch_screen_code`
+3. Guardar HTML crudo en `exports/[pagina].html`
+4. Extraer screenshot de referencia con `fetch_screen_image`
 ```
 
 ---
 
-## SCRIPTS DE REFERENCIA
+### FASE 2 · TRANSPILACIÓN HTML → ELEMENTOR JSON V4
 
-### Scripts Core (Golden Path)
+```
+COMPILADOR: compiler_v4.js (DOM Walker)
 
-| Script | Propósito | Estado |
-|--------|-----------|--------|
-| `compiler_v4.js` | Transpiler HTML→Elementor JSON | ✅ Probado |
-| `inject_three_pages.mjs` | Crea H/F/Homepage via FTP+PHP | ✅ Golden Path |
-| `inject_all_pages.mjs` | Batch creation de N páginas | ✅ Probado 13 págs |
-| `inject_css_batch.mjs` | CSS global via `_elementor_page_settings` | ✅ **SCRIPT CLAVE** |
-| `inject_css_final.mjs` | CSS via mu-plugin + archivo externo | ✅ Respaldo |
-| `purge_elementor_css.mjs` | Elimina CSS cache via FTP + regenera | ✅ Probado |
-| `fix_material_symbols.js` | Purga texto fantasma de iconos CSS | ✅ Probado |
+Reglas de Transpilación:
+─────────────────────────
+1. CONTENEDORES: Todo es Flexbox Container (NO usar Section/Column legacy)
+2. LAYOUT:
+   - Secciones de fondo → width: 100vw
+   - Contenido interno → max-width: 1200px (centrado)
+   - Exactamente como haría un dev humano premium
 
-### Scripts de Verificación
+3. RESPONSIVIDAD (CRÍTICO — mapeo inverso):
+   - Tailwind usa Mobile-First (flex-col → sm:flex-row)
+   - Elementor usa Desktop-First
+   - El compilador DEBE transponer matemáticamente:
+     · Tailwind `sm:` → Elementor tablet breakpoint
+     · Tailwind `md:` → Elementor desktop breakpoint
+     · Tailwind base → Elementor mobile breakpoint
 
-| Script | Propósito |
-|--------|-----------|
-| `verify_css_loading.mjs` | Verifica CSS links, fonts, tokens en HTML |
-| `verify_content_parity.mjs` | Compara headings/buttons entre Stitch y WP |
-| `verify_db_data.mjs` | Lee `_elementor_data` directo de DB |
-| `find_cache_dirs.mjs` | Escanea directorios de caché via FTP |
+4. TIPOGRAFÍA FLUIDA:
+   - Inyectar `clamp()` a nivel de widget
+   - NO depender del Global Kit de Elementor para tamaños
+   - Ejemplo: font-size: clamp(1rem, 2.5vw, 1.5rem)
 
-### Scripts de Corrección Visual
+5. IMÁGENES (Sideloading Automático):
+   - URLs de CDN Stitch (lh3.googleusercontent.com) → detectar en JSON
+   - Descargar y registrar con `media_sideload_image()` en WP Media Library
+   - Reemplazar URL de CDN por URL local de WordPress en el JSON final
 
-| Script | Propósito |
-|--------|-----------|
-| `fix_homepage_v4.mjs` | CSS externo via mu-plugin (bypasa sanitización) |
-| `fix_cta_gradient.mjs` | Parchea gradient en `_elementor_data` JSON |
-| `force_images.mjs` | Dual-update: `_elementor_data` + `post_content` |
-| `upload_category_images.mjs` | FTP + Media Library + Elementor JSON |
+6. MATERIAL SYMBOLS (Text Ghosts):
+   - Post-compilación: ejecutar `fix_material_symbols.js`
+   - Purga textos literales residuales de fallbacks de iconos CSS
+```
+
+**Mapeo de Widgets Stitch → Elementor:**
+| Elemento HTML/Tailwind | Widget Elementor |
+|---|---|
+| `<h1>`–`<h6>` | `heading` |
+| `<p>`, `<span>` (texto) | `text-editor` |
+| `<img>` | `image` |
+| `<a>` con estilo botón | `button` |
+| `<div>` contenedor flex | `container` (Flexbox) |
+| `<ul>/<ol>` | `icon-list` o `text-editor` |
+| `<form>` | `form` (Pro) o shortcode |
+| `<video>` | `video` |
+| `<svg>` icono | `icon` con SVG inline |
+| `<nav>` | `nav-menu` (Pro) |
 
 ---
 
-## REGLAS APRENDIDAS EN PRODUCCIÓN (OBLIGATORIAS)
+### FASE 3 · INYECCIÓN EN WORDPRESS
 
-### ⭐ LiteSpeed Cachea PHP — Nombre Único Obligatorio
-
-**Problema**: LiteSpeed cachea la URL `/inject.php` después de la primera visita.
-Futuras requests a esa URL devuelven HTML cacheado sin ejecutar PHP.
-
-**Síntoma**: El script devuelve HTML (la página 404 cacheada) en vez de JSON.
-FTP verifica que el archivo PHP sigue existiendo (no fue ejecutado ni self-deleted).
-
-**Solución DEFINITIVA**:
-```javascript
-const uniqueName = `evg_${purpose}_${Date.now()}.php`;
 ```
-Cada ejecución genera un nombre nunca antes visitado → LiteSpeed no tiene caché → PHP se ejecuta.
+MÉTODO PRIMARIO: Inyección Híbrida FTP + PHP
+──────────────────────────────────────────────
+¿POR QUÉ? ModSecurity/WAF bloquea payloads JSON grandes via REST API (HTTP 406/401).
+La inyección híbrida bypasea el firewall HTTP completamente:
 
-**Validación**: Si el PHP se auto-elimina (`@unlink(__FILE__)`) y no existe en FTP post-ejecución → éxito.
+1. sync_and_inject.js sube JSON via FTP al servidor
+2. Ejecuta inject_all_pages.php server-side (escribe directo a DB)
+3. Flush cache automático post-inyección
+4. Auto-limpieza de archivos PHP temporales
 
-### ⭐ ModSecurity (WAF) Bloquea Ciertos PHP
-
-**Problema**: ModSecurity inspecciona el response body. Si contiene patrones
-como `DELETE FROM`, `DROP TABLE`, devuelve `406 Not Acceptable`.
-
-**Síntomas**: Response HTML con título "Not Acceptable!" y mención de Mod_Security.
-
-**Solución**: Usar APIs de WordPress en lugar de SQL directo:
-```php
-// ❌ BLOQUEADO por ModSecurity:
-$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '%litespeed%'");
-
-// ✅ FUNCIONA:
-delete_option('_elementor_global_css');
-wp_cache_flush();
-```
-
-### ⭐ MCP REST API da 401 — Fallback a FTP+PHP
-
-Ambos MCPs (`wp-elementor-mcp` y `elementor-mcp`) fallan con 401 al crear páginas.
-**No perder tiempo con MCP `create_page`**. Ir directo a FTP+PHP con `wp_insert_post()`.
-
-### ⭐ FTP Root = Web Root (NO usar FTP_REMOTE_PATH)
-
-cPanel mapea FTP `/` al document root. `FTP_REMOTE_PATH` apunta a subdirectorio no servido.
-**Siempre subir a FTP root** (path relativo, sin `/public_html/`).
-
-### ⭐ Dual-Update: `_elementor_data` + `post_content` (Uso de API Nativa de Elementor)
-
-Actualizar solo `_elementor_data` NO regenera `post_content`. Los widgets no aparecen. 
-La forma **más recomendada, nativa y segura** de inyectar plantillas es utilizando la **API oficial de documentos de Elementor** en PHP en lugar de queries directas en base de datos. Esto permite que el motor de Elementor valide los widgets, genere el marcado HTML fallback y compile el CSS estático de forma automática y atómica:
-
-```php
-// 1. Force admin login context (required to bypass Elementor document saving capability checks)
-$admins = get_users(['role' => 'administrator']);
-if (!empty($admins)) {
-    wp_set_current_user($admins[0]->ID);
-}
-
-// 2. Instantiate and save the document natively
-$document = \Elementor\Plugin::instance()->documents->get($post_id);
-if ($document) {
-    // This updates both _elementor_data and post_content in a single execution
-    $document->save(['elements' => $elements]);
-}
-
-// 3. Clear post and css caches to force regenerations
-delete_post_meta($post_id, '_elementor_css');
-clean_post_cache($post_id);
-```
-
-### ⭐ Inyección de Layout Stitch Puro (Bypass de wrappers de Elementor)
-
-**Problema**: Elementor introduce múltiples contenedores anidados (`.e-con`, `.e-con-inner`, `.elementor-widget-container`) por cada columna/sección. Si traduces layouts responsivos complejos de Stitch (que dependen de grids de Tailwind, absolute alignments o overlays de degradados) a 80+ widgets de Elementor separados, los wraps de Elementor **romperán el DOM**, colapsando alturas a `0px` o desalineando cajas.
-
-**Solución**: En vez de mapear cada caja a un widget de Elementor, extrae el HTML limpio responsivo de Stitch (secciones del body localizadas con URLs de WebP internas) y colócalo en un **único widget HTML nativo de Elementor** en un contenedor de ancho completo. De esta forma, el navegador procesa el HTML plano original de Stitch y Tailwind CDN le da estilos perfectos sin interferencias de wraps.
-
-### ⭐ Puente Adaptador CSS Elementor-Tailwind
-
-Si usas el marcado original de Stitch con Tailwind en Elementor, debes encolar de forma global un bloque CSS adaptador que fuerce a los contenedores internos de Elementor a comportarse y dar espacio a las propiedades de Tailwind:
-
-```css
-/* Elementor-to-Tailwind layout bridge overrides */
-.elementor-location-header .e-con-boxed,
-.elementor-location-footer .e-con-boxed,
-body.elementor-page-160 .max-w-container-max {
-  max-width: 1140px !important; /* Unified Max Width */
-  margin-left: auto !important;
-  margin-right: auto !important;
-  width: 100% !important;
-}
-
-body.elementor-page-160 .e-con-inner {
-  padding: 0 !important;
-  max-width: none !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-body.elementor-page-160 .absolute {
-  position: absolute !important;
-}
-
-body.elementor-page-160 .inset-0 {
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-}
-
-body.elementor-page-160 .object-cover {
-  object-fit: cover !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-```
-
-### ⭐ Elementor CSS Cache = Archivos Estáticos
-
-Elementor genera `post-*.css` en `/wp-content/uploads/elementor/css/`.
-Estos archivos incluyen el `custom_css` de `_elementor_page_settings`.
-Para forzar la regeneración:
-1. Eliminar los archivos físicos via FTP (`purge_elementor_css.mjs`).
-2. O ejecutar `delete_post_meta($pid, '_elementor_css')` + `delete_option('_elementor_global_css')`.
-3. Elementor regenerará los archivos estáticos de forma automática en la siguiente visita.
-
-### ⭐ Base64 para Payloads Grandes
-
-El JSON de Elementor (20-50KB+) causa errores de escape de caracteres en el código PHP autogenerado.
-**Solución**: Utiliza siempre `Buffer.from(data).toString('base64')` en Node y decodifícalo con `base64_decode()` en PHP.
-
-### ⭐ `_elementor_data` Puede Estar Double-Encoded
-
-Después de múltiples inyecciones consecutivas, el campo en la base de datos puede tener escapes de comillas duplicados. Utiliza `stripslashes()` antes de intentar parsearlo:
-```php
-$data = json_decode($json_raw, true);
-if ($data === null) {
-    $data = json_decode(stripslashes($json_raw), true);
-}
-```
-
-### ⭐ CSS Version Bumping Obligatorio
-
-Los proxies y navegadores almacenan en caché los archivos CSS de forma agresiva. Al desplegar cambios de estilos en un plugin o tema, incrementa siempre el parámetro de versión:
-```php
-wp_enqueue_style('evergreen-homepage', $url, [], '5.1.0'); // ← Incrementar siempre
-```
-
-### ⭐ PowerShell ≠ Bash
-
-- En Windows/PowerShell, `curl` es un alias de `Invoke-WebRequest`.
-- Las ejecuciones de código inline como `node -e "..."` suelen fallar debido al escape de comillas, variables de entorno y expresiones regulares.
-- **Solución**: Escribe siempre tus scripts en archivos `.mjs` y ejecútalos normalmente (`node script.mjs`).
-
-### ⭐ Elementor NO Genera CSS para Gradientes Inyectados via PHP
-
-Si inyectas un gradiente en el JSON de configuración (`background_background: 'gradient'`), el generador de CSS de Elementor no compilará la regla de forma automática.
-**Solución**: Escribe la regla del gradiente directamente en el bloque de CSS externo del adaptador utilizando selectores específicos de clase o ID.
-
-### ⭐ Data-IDs de Elementor NO Son Estables
-
-Después de realizar múltiples reinyecciones de páginas, los IDs de los contenedores (`data-id`) cambian de forma dinámica. Evita acoplar tus selectores CSS a IDs dinámicos de Elementor; utiliza en su lugar clases genéricas como `.elementor-widget-container` o clases de Tailwind añadidas al HTML.
-
-### ⭐ Caché de Proxy Nginx en Bluehost — Desactivación por Servidor
-
-**Problema**: En hostings como Bluehost que utilizan Nginx como proxy inverso por encima de Apache, la página HTML de salida queda cacheada de forma extremadamente agresiva. Las peticiones HTTP con el método `PURGE` locales (que realiza el plugin `Endurance_Page_Cache` por defecto hacia `127.0.0.1:8080`) fallan silenciosamente devolviendo `400 Bad Request` porque Nginx no las admite. Como resultado, el servidor sigue entregando páginas obsoletas con cabeceras `date` antiguas aunque se limpie el caché de WordPress.
-
-**Solución definitiva**: Desactivar el almacenamiento en caché del proxy Nginx a nivel de servidor escribiendo la directiva directamente en la configuración de cPanel de la cuenta y forzando la recarga:
-```php
-// 1. Desactivar el nivel de caché en la base de datos
-update_option('endurance_cache_level', 0);
-
-// 2. Modificar el archivo de configuración del proxy de cPanel y notificar al sistema
-if (class_exists('Endurance_Page_Cache')) {
-    $epc = Endurance_Page_Cache::get_instance();
-    if ($epc) {
-        $epc->toggle_nginx(0); // Escribe cache_level=0 y toca /etc/proxy_notify/$user
-    }
-}
-```
-Esto fuerza a Nginx a actuar únicamente como proxy pass directo hacia Apache, sirviendo siempre el contenido en tiempo real durante el desarrollo.
-
-### ⭐ Limpieza de Caché de Elementor en la Base de Datos
-
-**Problema**: Aunque elimines los archivos CSS físicos en `/wp-content/uploads/elementor/css/`, Elementor mantiene copias de respaldo de los estilos y estructuras en la tabla `wp_postmeta` bajo las claves `_elementor_css` y `_elementor_element_cache`. Si estas copias guardan errores de sintaxis antiguos, se seguirán inyectando en las páginas.
-
-**Solución**: Ejecutar un borrado de estas claves en la base de datos y limpiar el gestor de CSS nativo de Elementor para forzar una recompilación totalmente limpia desde el JSON:
-```php
-global $wpdb;
-$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_css'");
-$wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_element_cache'");
-delete_option('_elementor_global_css');
-
-if (did_action('elementor/loaded')) {
-    \Elementor\Plugin::$instance->posts_css_manager->clear_cache();
-}
-```
-
-### ⭐ Validación de Sintaxis en Configuración de Tailwind
-
-**Problema**: Al inyectar la configuración de Tailwind en el navegador mediante el bloque `<script> tailwind.config = { ... } </script>`, cualquier error de sintaxis (como llaves duplicadas, comas faltantes o propiedades duplicadas sin coma en `borderRadius` o `spacing`) invalidará por completo todo el bloque de script. El navegador abortará la ejecución de la configuración y todas las clases personalizadas de Tailwind dejarán de funcionar.
-
-**Solución**: Valida estrictamente el objeto de configuración antes de inyectarlo. Cada clave debe ser única y estar correctamente formateada con comas separadoras:
-```json
-"borderRadius": {
-    "DEFAULT": "0.25rem", // Una sola declaración con coma
-    "lg": "0.5rem",
-    "xl": "0.75rem",
-    "full": "9999px"
-}
-```
-
-### ⭐ Unificación de Ancho de Página a 1140px
-
-Para garantizar una alineación perfecta entre la Cabecera, el Cuerpo y el Pie de página (evitando desbordamientos horizontales o saltos visuales), se deben inyectar reglas globales en el bloque de estilos del plugin que anulen los anchos máximos por defecto de los contenedores encajonados de Elementor y los unifiquen a 1140px con paddings responsivos en móvil:
-```css
-.elementor-location-header .e-con-boxed,
-.elementor-location-footer .e-con-boxed,
-body.elementor-page .max-w-container-max,
-body.elementor-page .max-w-7xl,
-body.elementor-page .lg\:max-w-7xl {
-    max-width: 1140px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    width: 100% !important;
-}
-.elementor-location-header .e-con-boxed,
-.elementor-location-footer .e-con-boxed,
-body.elementor-page .max-w-container-max {
-    padding-left: 24px !important;
-    padding-right: 24px !important;
-}
+MÉTODO ALTERNATIVO: Novamira MCP
+─────────────────────────────────
+Para sitios con Novamira instalado:
+1. `mcp-adapter-execute-ability` → PHP sandbox seguro
+2. Evaluación de JSON profundo server-side
+3. Cache flush post-despliegue sin romper el servidor
 ```
 
 ---
 
-## CSS GLOBAL — Design System Tokens
+### FASE 4 · PROTOCOLO POST-INYECCIÓN (OBLIGATORIO)
 
-El archivo `temp/evergreen-global.css` contiene el design system completo.
-Estructura probada (~277 líneas, 8.7KB):
-
-```
-1. Google Fonts (@import — Space Grotesk + Work Sans + Material Symbols)
-2. body.elementor-page — bg #0E1320, font Work Sans, color #dee2f5
-3. Headings h1-h4 — Space Grotesk, sizes 48/32/24/18px
-4. Text editor — Work Sans 16px, color #becabb
-5. Buttons — Space Grotesk, uppercase, border-radius 8px, hover effects
-6. Header — Glassmorphism (rgba bg + backdrop-filter blur)
-7. Nav menu — Space Grotesk, active color #76dc8a
-8. Footer — bg #0E1320, border-top slate
-9. Product cards — hover border-color, image border-radius
-10. Tables — thead bg #1a1f2d, accent #76dc8a
-11. Forms — bg #1a1f2d, focus border #76dc8a
-12. Dividers — border-top #76dc8a
-13. Icons — color #76dc8a
-14. Responsive — mobile 32/24/20px, tablet 40/28px
-```
-
-**Selectores clave** (funcionan en TODAS las páginas sin data-id):
-- `body.elementor-page` — cualquier página Elementor
-- `.elementor-location-header` — header template
-- `.elementor-location-footer` — footer template
-- `.elementor-heading-title` — todos los headings
-- `.elementor-widget-text-editor` — todos los bloques de texto
-- `.elementor-button` — todos los botones
-
----
-
-## CACHÉ: Guía de Purge Multi-Capa
-
-### Orden de Purge (de más a menos específico)
+**⚠️ El Problema de ID-Shifting**: Cada ejecución de `sync_and_inject.js` crea IDs NUEVOS en WordPress. Los IDs anteriores quedan OBSOLETOS inmediatamente. Esto NO es un bug — es comportamiento normal de WordPress.
 
 ```
-1. Elementor page CSS:   delete_post_meta($pid, '_elementor_css')
-2. Elementor global CSS: delete_option('_elementor_global_css')
-3. Elementor version:    update_post_meta($pid, '_elementor_version', '0.0.0')
-4. WP post cache:        clean_post_cache($pid)
-5. WP object cache:      wp_cache_flush()
-6. LiteSpeed (API):      LiteSpeed_Cache_API::purge_all()
-7. LiteSpeed (función):  litespeed_purge_all()
-8. LiteSpeed (FTP):      Eliminar archivos en /wp-content/litespeed/
-9. Elementor CSS files:   Eliminar post-*.css via FTP en /wp-content/uploads/elementor/css/
-```
+PROTOCOLO "AHORA SI" (ejecutar SIEMPRE tras inyección):
+─────────────────────────────────────────────────────────
+1. Capturar nuevo Homepage ID del output de inject_all_pages.php
+2. Actualizar `page_manifest.json` con todos los nuevos IDs
+3. Ejecutar flush_cache.php con el nuevo Homepage ID
+   → Esto: configura page_on_front, regenera CSS Elementor, sync library
+4. Ejecutar fix_material_symbols.js (purga text ghosts)
+5. Ejecutar fix_slugs.js (normaliza slugs al manifest)
+6. Actualizar memoria_estado.md con los nuevos IDs
+7. Verificar visualmente con screenshot o Novamira Visual (si disponible)
 
-### Cuándo Usar Cada Nivel
-
-| Cambio | Purge Necesario |
-|--------|----------------|
-| Cambio en `_elementor_data` | Niveles 1-5 |
-| Cambio en CSS externo | Niveles 2-7 + version bump |
-| Cambio en `custom_css` page settings | Niveles 1-5 + eliminar post-*.css (nivel 9) |
-| Nada funciona | Niveles 1-9 (nuclear) |
-
----
-
-## CORRECCIÓN VISUAL: Workflow Probado
-
-```
-1. Diagnóstico → read_url_content + verify_css_loading.mjs
-2. Identificar → ¿CSS? ¿JSON? ¿Imágenes? ¿Cache?
-3. Si CSS → editar evergreen-global.css → inject_css_batch.mjs → purge_elementor_css.mjs
-4. Si JSON → pattern dual-update (_elementor_data + post_content)
-5. Si imágenes → FTP upload + Media Library + JSON update
-6. Si cache → purge multi-capa (niveles 1-9)
-7. Verificar → verify_css_loading.mjs + read_url_content
-8. Iterar → típicamente 3-5 ciclos para paridad completa
+SI SOLO NECESITAS AJUSTAR HOMEPAGE (sin re-inyectar):
+─────────────────────────────────────────────────────
+Ejecutar: node scripts/maintenance_only.js [new_homepage_id]
+→ Config-Only mode: NO modifica contenido, protege IDs estables
 ```
 
 ---
 
-## IMÁGENES: Pipeline Completo
+## 🚫 RESTRICCIONES ABSOLUTAS
 
-```
-1. generate_image (AI) → imágenes locales
-2. FTP upload → /wp-content/uploads/YYYY/MM/nombre.ext
-3. PHP: wp_insert_attachment() + wp_generate_attachment_metadata()
-4. PHP: update_post_meta() para alt text
-5. JSON: _elementor_data con {url, id, alt, source:'library', size:'full'}
-6. HTML: post_content con <img src="nueva_url" />
-7. Cache: flush multi-capa
-```
-
-**Trampas**:
-- SOLO `_elementor_data` → imágenes no aparecen (necesita `post_content`)
-- SOLO `post_content` → Elementor restaura datos viejos
-- `wp_update_post()` para HTML → WP sanitiza URLs
-
-**Solución**: Actualizar AMBOS + `$wpdb->update()` para HTML.
+1. **NUNCA** uses Playwright, Puppeteer, Chromium ni ningún navegador headless para extracción
+2. **NUNCA** uses el método legacy Section/Column de Elementor — solo Flexbox Containers
+3. **NUNCA** edites `mcp_config.json` desde el agente — solo manual
+4. **NUNCA** hagas re-inyección completa si solo necesitas ajustar config → usa `maintenance_only.js`
+5. **NUNCA** confíes en IDs de WordPress de una sesión anterior sin verificar `page_manifest.json`
+6. **NUNCA** ignores el flush de cache post-inyección — produce homepage rota
+7. **NUNCA** hardcodees credenciales en archivos del repositorio — solo `.env`
+8. **SIEMPRE** ejecuta el protocolo "AHORA SI" completo tras cada inyección
+9. **SIEMPRE** preserva la fidelidad visual pixel-perfect — no simplifiques diseños
+10. **SIEMPRE** usa tipografía fluida con `clamp()` en lugar de tamaños fijos
 
 ---
 
-## REFERENCIA: page_manifest.json
+## 📁 ESTRUCTURA DE PROYECTO ESPERADA
 
-```json
-{
-  "home_id": 1758,
-  "header_id": 1756,
-  "footer_id": 1757,
-  "pipeline_version": "4.8.0",
-  "pages": [
-    { "html": "stitch_v2/01_home.html", "json": "homepage.json", "wp_id": 1758, "slug": "inicio" },
-    { "html": "stitch_v2/02_nosotros.html", "json": "nosotros.json", "wp_id": 1771, "slug": "nosotros" }
-  ]
-}
+```
+MI_PROYECTO/
+├── .env                          ← Credenciales FTP + WP (NUNCA commitear)
+├── mcp_config.json               ← Config MCP (edición MANUAL solamente)
+├── page_manifest.json            ← Manifiesto de páginas + IDs WordPress
+├── memoria_estado.md             ← Estado operativo (lectura obligatoria al arranque)
+├── INFO_BrandBook/               ← Logos SVG, manual de marca, tipografías
+├── IMAGENES_FUENTES/             ← Imágenes de referencia del cliente (opcional)
+├── exports/                      ← HTMLs extraídos de Stitch
+├── compiled/                     ← JSONs Elementor compilados
+├── scripts/                      ← Pipeline tools
+│   ├── compiler_v4.js            ← Core: HTML+Tailwind → Elementor JSON
+│   ├── sync_and_inject.js        ← Orquestador: FTP → PHP → DB → Cache
+│   ├── maintenance_only.js       ← Config-Only (sin re-inyección)
+│   ├── flush_cache.php           ← Sets page_on_front + regenera CSS
+│   ├── inject_all_pages.php      ← Batch injector server-side
+│   ├── create_hf_native.php      ← Header/Footer nativos
+│   ├── fix_material_symbols.js   ← Purga text ghosts
+│   └── fix_slugs.js              ← Normaliza slugs
+├── logs/                         ← Logs de ejecución (auto-generados)
+└── screen_map.json               ← URLs temporales de Stitch
 ```
 
 ---
 
-## Protección de Datos del Cliente
+## 📤 FORMATO DE SALIDA
 
-**NUNCA** borrar, modificar ni alterar el contenido de `client_data/`.
+### Para cada página procesada:
+```markdown
+## ✅ [Nombre Página] — Resultado
+- **Stitch URL**: [url de origen]
+- **HTML extraído**: exports/[nombre].html ([X] KB)
+- **JSON compilado**: compiled/[nombre].json ([X] widgets, [X] containers)
+- **WordPress ID (nuevo)**: [wp_id]
+- **Slug**: /[slug]
+- **Responsive verificado**: ✅ Desktop | ✅ Tablet | ✅ Mobile
+- **Imágenes sideloaded**: [N] de [M]
+- **Text ghosts limpiados**: ✅/❌
+```
+
+### Al finalizar batch completo:
+```markdown
+## 📋 Resumen de Despliegue
+| Página | WP ID | Slug | Widgets | Status |
+|---|---|---|---|---|
+| Home | 1234 | / | 47 | ✅ Live |
+
+- **Homepage configurada**: ID [X] ✅
+- **Cache flushed**: ✅
+- **page_manifest.json actualizado**: ✅
+- **memoria_estado.md actualizado**: ✅
+```
 
 ---
 
-## REFERENCIA TÉCNICA
+## 🔧 SCRIPTS DE REFERENCIA RÁPIDA
 
-Para errores de mapeo responsivo, arquitecturas permitidas y debugging:
-→ Lee `references/Stitch_Elementor_Guide_GENERAL_V1.md`
+| Script | Comando | Cuándo Usar |
+|---|---|---|
+| Compilar HTML→JSON | `node scripts/compiler_v4.js exports/home.html` | Cada página nueva |
+| Inyectar todo | `node scripts/sync_and_inject.js` | Despliegue completo |
+| Solo mantener | `node scripts/maintenance_only.js [id]` | Ajustar homepage sin re-inyectar |
+| Flush cache | `php scripts/flush_cache.php [id]` | Post-inyección obligatorio |
+| Fix icons | `node scripts/fix_material_symbols.js` | Post-compilación |
+| Fix slugs | `node scripts/fix_slugs.js` | Post-inyección |
+
+---
+
+## 🧠 SKILLS TRANSVERSALES REQUERIDAS
+
+| Skill | Modo | Función |
+|---|---|---|
+| `enhance-prompt` | Ambos | Refina directivas de generación para mejor output semántico de Stitch |
+| `html-to-elementor` | Ambos | Referencia estricta de mapeo HTML → widgets Elementor |
+| `html2json-segment` | `segment!` | Parser DOM modular para transpilación aislada |
+| `design-md` | `go!` | Análisis BrandBook y generación de MASTER.md |
+| `Agentic-SEO-Skill` | `go!` | Validación SEO on-page post-migración |
+
+---
+
+## 💡 LECCIONES APRENDIDAS (Battle-Tested)
+
+> Estas reglas nacieron de despliegues reales en producción. Son **no-negociables**.
+
+1. **ID-Shifting mata deployments**: SIEMPRE actualiza `page_manifest.json` post-inyección
+2. **WAF bloquea REST**: La inyección FTP+PHP no es un workaround — es EL método
+3. **Tailwind ≠ Elementor responsive**: El mapeo inverso Mobile-First→Desktop-First es obligatorio
+4. **Text ghosts son invisibles hasta producción**: Ejecuta `fix_material_symbols.js` SIEMPRE
+5. **Cache de Elementor es agresivo**: Sin flush, los cambios no aparecen
+6. **Novamira Visual valida sin visitar el sitio**: Úsalo como verificación pre-publicación si disponible
+7. **`maintenance_only.js` salva deployments estables**: NUNCA re-inyectes si solo cambió la config
