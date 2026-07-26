@@ -77,7 +77,7 @@ async function main() {
             user: FTP_USER,
             password: FTP_PASS,
             secure: true, // TLS enforced
-            secureOptions: { rejectUnauthorized: false }
+            secureOptions: { rejectUnauthorized: true }
         });
         isConnected = true;
         console.log('✅ Conexión FTP establecida.\n');

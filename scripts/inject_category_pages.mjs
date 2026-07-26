@@ -219,7 +219,7 @@ try {
     host: env.FTP_HOST,
     user: env.FTP_USER,
     password: env.FTP_PASSWORD || env.FTP_PASS,
-    secure: false,
+    secure: true,
   });
   await client.uploadFrom(tempPath, uniqueName);
   console.log(`  Uploaded: ${uniqueName}`);

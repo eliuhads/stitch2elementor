@@ -19,17 +19,17 @@ envContent.split('\n').forEach(line => {
 
 const imageMap = {
   '02453e5a': {
-    url: 'https://evergreenvzla.com/wp-content/uploads/2026/04/led-panel-evergreen.png',
+    url: process.env.WP_BASE_URL || 'https://example.com/wp-content/uploads/2026/04/led-panel-evergreen.png',
     id: 1767,
     alt: 'Panel LED cuadrado de techo, luz blanca neutra, montaje empotrado'
   },
   '3ca2b9d3': {
-    url: 'https://evergreenvzla.com/wp-content/uploads/2026/04/led-strips-evergreen.png',
+    url: process.env.WP_BASE_URL || 'https://example.com/wp-content/uploads/2026/04/led-strips-evergreen.png',
     id: 1768,
     alt: 'Tiras LED flexibles con brillo cyan y verde en estante industrial'
   },
   'd5c192f5': {
-    url: 'https://evergreenvzla.com/wp-content/uploads/2026/04/led-tubes-evergreen.png',
+    url: process.env.WP_BASE_URL || 'https://example.com/wp-content/uploads/2026/04/led-tubes-evergreen.png',
     id: 1769,
     alt: 'Tubos LED profesionales en techo de almacén comercial'
   }
@@ -117,9 +117,9 @@ $old_urls = [
     'https://lh3.googleusercontent.com/aida-public/AB6AXuAJa2g9onvARgdoxZYfPnMkcdwOf1HXdFPBbivdReVBLs-zX6kTz4Zn1YeJy-w5WyT46BE6FH1fkvedemliONeOAAlkf-wA2j-u02lHpBib6QUlPiuZe-yJF8tCSRzMK8IORGxpYBwxvAZFIvSerWsjZNkIYG-uYDqhtm3J5N4zte_5L2TLZRnhFGK-cGqhYo5GJ9nKC1pL2-kZihQ0DAg7fBJKZvjjBj4cbgg6xbjafIX-yceD9XDxhx8StK02MpV5IBsfngR5g9M'
 ];
 $new_urls = [
-    'https://evergreenvzla.com/wp-content/uploads/2026/04/led-panel-evergreen.png',
-    'https://evergreenvzla.com/wp-content/uploads/2026/04/led-strips-evergreen.png',
-    'https://evergreenvzla.com/wp-content/uploads/2026/04/led-tubes-evergreen.png'
+    process.env.WP_BASE_URL || 'https://example.com/wp-content/uploads/2026/04/led-panel-evergreen.png',
+    process.env.WP_BASE_URL || 'https://example.com/wp-content/uploads/2026/04/led-strips-evergreen.png',
+    process.env.WP_BASE_URL || 'https://example.com/wp-content/uploads/2026/04/led-tubes-evergreen.png'
 ];
 
 $replacements = 0;
@@ -167,7 +167,7 @@ writeFileSync('temp/force_images.php', phpScript);
 console.log('✅ PHP generated');
 
 const client = new Client();
-await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: false });
+await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: true });
 await client.uploadFrom('temp/force_images.php', '/force_images.php');
 console.log('✅ Uploaded');
 client.close();

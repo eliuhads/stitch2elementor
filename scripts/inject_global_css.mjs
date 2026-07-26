@@ -119,7 +119,7 @@ try {
     host: FTP_HOST,
     user: FTP_USER,
     password: FTP_PASS,
-    secure: false
+    secure: true
   });
   console.log('✅ FTP connected\n');
 

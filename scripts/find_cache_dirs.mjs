@@ -22,7 +22,7 @@ envContent.split('\n').forEach(line => {
 });
 
 const c = new Client();
-await c.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD, secure: false });
+await c.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD, secure: true });
 
 console.log('=== WP-CONTENT directories ===');
 const wpContent = await c.list('/public_html/wp-content/');

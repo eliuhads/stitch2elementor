@@ -7,11 +7,11 @@ import { chromium } from 'playwright';
 
 try {
   console.log('🔗 Connecting to Playwright...');
-  const browser = await chromium.connect('ws://192.168.1.252:3000/playwright');
+  const browser = await chromium.connect(process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://localhost:3000/playwright');
   const page = await browser.newPage();
   
   console.log('🚀 Loading homepage...');
-  await page.goto('https://evergreenvzla.com/?nocache=1', { waitUntil: 'networkidle' });
+  await page.goto(process.env.WP_BASE_URL || 'https://example.com/?nocache=1', { waitUntil: 'networkidle' });
   await page.waitForTimeout(3000);
   
   console.log('🔍 Auditing DOM elements of the dark intermediate section:');

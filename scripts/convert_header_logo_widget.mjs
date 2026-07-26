@@ -27,14 +27,14 @@ function convertLogoWidget(elements) {
         isInner: false,
         settings: {
           image: {
-            url: 'https://evergreenvzla.com/wp-content/uploads/2026/05/Logo_evergreen_rectang_no_text_svg.svg',
+            url: process.env.WP_BASE_URL || 'https://example.com/wp-content/uploads/2026/05/Logo_evergreen_rectang_no_text_svg.svg',
             id: 15
           },
           image_size: 'full',
           align: 'left',
           link_to: 'custom',
           link: {
-            url: 'https://evergreenvzla.com/',
+            url: process.env.WP_BASE_URL || 'https://example.com/',
             is_external: '',
             nofollow: '',
             custom_attributes: ''

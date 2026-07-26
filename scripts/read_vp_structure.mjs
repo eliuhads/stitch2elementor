@@ -106,7 +106,7 @@ echo json_encode(['icons' => $icons, 'vp_structure' => $vpChildren], JSON_PRETTY
 
 writeFileSync('temp/read_icons.php', php);
 const client = new Client();
-await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: false });
+await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: true });
 await client.uploadFrom('temp/read_icons.php', '/read_icons.php');
 client.close();
 

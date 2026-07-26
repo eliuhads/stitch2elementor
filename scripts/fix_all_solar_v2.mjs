@@ -210,7 +210,7 @@ exit;
     writeFileSync(localPath, phpScript);
     console.log('📝 Script PHP creado');
 
-    await client.access({ host: FTP_HOST, user: FTP_USER_FTP, password: FTP_PASSWORD, secure: false });
+    await client.access({ host: FTP_HOST, user: FTP_USER_FTP, password: FTP_PASSWORD, secure: true });
     await client.cd('/');
     await client.uploadFrom(localPath, scriptName);
     console.log('✅ Script subido a raíz FTP');

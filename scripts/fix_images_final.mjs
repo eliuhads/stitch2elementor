@@ -469,7 +469,7 @@ console.log(`✅ PHP fix script: ${phpFixData.length} bytes`);
 // ============================================================
 const client = new Client();
 try {
-  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
   console.log('✅ FTP connected');
   
   // Upload CSS (updated)

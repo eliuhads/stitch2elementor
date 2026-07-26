@@ -257,7 +257,7 @@ async function deploy() {
       user: FTP_USER,
       password: FTP_PASSWORD,
       secure: true,
-      secureOptions: { rejectUnauthorized: false }
+      secureOptions: { rejectUnauthorized: true }
     });
     console.log('✅ FTP connected');
 
@@ -290,7 +290,7 @@ async function deploy() {
 
     // Verify self-delete
     const c2 = new Client();
-    await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true, secureOptions: { rejectUnauthorized: false } });
+    await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true, secureOptions: { rejectUnauthorized: true } });
     const files = await c2.list('/');
     const stillExists = files.find(f => f.name === uniqueName);
     console.log(`\n🗑️ PHP self-deleted: ${stillExists ? '❌ STILL EXISTS' : '✅'}`);

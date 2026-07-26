@@ -12,7 +12,7 @@ The main "Web Maestro" transpilation engine.
 ### 2. `sync_and_inject.js`
 The primary deployment orchestrator.
 - **Purpose**: Uploads compiled Elementor JSON files and injector scripts to the remote WordPress server via FTP, executes the remote scripts, and performs automatic clean-up.
-- **Key Features**: Requires strictly validated environment variables (`WP_BASE_URL`, `FTP_HOST`, `WP_SCRIPT_TOKEN`, etc.), uses `auth_helper.php` for `Bearer` token authentication, and utilizes `rejectUnauthorized: false` optionally for staging environments.
+- **Key Features**: Requires strictly validated environment variables (`WP_BASE_URL`, `FTP_HOST`, `WP_SCRIPT_TOKEN`, etc.), uses `auth_helper.php` for `Bearer` token authentication, and utilizes `rejectUnauthorized: true` optionally for staging environments.
 
 ### 3. `upload_and_fix.js`
 The specialized utility deployment orchestrator.

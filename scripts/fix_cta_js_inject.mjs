@@ -68,7 +68,7 @@ add_action('wp_footer', function() {
 writeFileSync('temp/evergreen-homepage-css.php', muPlugin);
 
 const client = new Client();
-await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: false });
+await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: true });
 await client.uploadFrom('temp/evergreen-homepage-css.php', '/wp-content/mu-plugins/evergreen-homepage-css.php');
 client.close();
 
@@ -91,7 +91,7 @@ do_action('litespeed_purge_all');
 echo json_encode(['status' => 'flushed']);`;
   writeFileSync('temp/flush_cache.php', flushPhp);
   const c2 = new Client();
-  await c2.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: false });
+  await c2.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: true });
   await c2.uploadFrom('temp/flush_cache.php', '/flush_cache.php');
   c2.close();
   const r2 = await fetch(`${env.WP_URL || env.SITE_URL}/flush_cache.php?token=${env.INJECT_SECRET}`);

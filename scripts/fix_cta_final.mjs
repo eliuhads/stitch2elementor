@@ -68,7 +68,7 @@ console.log('✅ MU-Plugin v3 written');
 
 // Upload via FTP
 const client = new Client();
-await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
 await client.uploadFrom('temp/evergreen-homepage-css.php', '/wp-content/mu-plugins/evergreen-homepage-css.php');
 console.log('✅ MU-Plugin uploaded');
 

@@ -92,7 +92,7 @@ import { writeFileSync } from 'fs';
 writeFileSync('temp/fix_cta_gradient.php', phpScript);
 
 const client = new Client();
-await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
 await client.uploadFrom('temp/fix_cta_gradient.php', '/fix_cta_gradient.php');
 client.close();
 console.log('✅ PHP uploaded');

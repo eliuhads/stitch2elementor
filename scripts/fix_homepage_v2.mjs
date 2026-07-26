@@ -339,7 +339,7 @@ console.log(`✅ PHP generated: ${phpScript.length} bytes`);
 // FTP upload and execute
 const client = new Client();
 try {
-  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
   console.log('✅ FTP connected');
   await client.uploadFrom('temp/fix_homepage_v2.php', '/fix_homepage_v2.php');
   console.log('✅ PHP uploaded');

@@ -1,8 +1,8 @@
 import { chromium } from 'playwright';
 
-const b = await chromium.connect('ws://192.168.1.252:3000/playwright');
+const b = await chromium.connect(process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://localhost:3000/playwright');
 const p = await b.newPage();
-await p.goto('https://evergreenvzla.com', { waitUntil: 'networkidle', timeout: 30000 });
+await p.goto(process.env.WP_BASE_URL || 'https://example.com', { waitUntil: 'networkidle', timeout: 30000 });
 await p.waitForTimeout(2000);
 
 // Check if CTA element exists and its computed background

@@ -61,7 +61,7 @@ try {
     user: env.FTP_USER,
     password: env.FTP_PASSWORD || env.FTP_PASS,
     secure: true,
-    secureOptions: { rejectUnauthorized: false },
+    secureOptions: { rejectUnauthorized: true },
   });
   console.log('✅ FTP connected');
 

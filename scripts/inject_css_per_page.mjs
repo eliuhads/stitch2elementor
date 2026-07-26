@@ -99,7 +99,7 @@ console.log(`📝 PHP: ${(phpContent.length / 1024).toFixed(1)}KB\n`);
 // Upload
 const client = new ftp.Client();
 try {
-  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
   await client.uploadFrom(phpPath, '/public_html/_inject_css_pages.php');
   console.log('✅ Uploaded\n');
 } finally {
@@ -133,7 +133,7 @@ try {
       console.log('   PHP may not have executed. Verifying via FTP...');
       
       const c2 = new ftp.Client();
-      await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+      await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
       const list = await c2.list('/public_html/');
       const exists = list.find(f => f.name === '_inject_css_pages.php');
       if (exists) {
@@ -143,7 +143,7 @@ try {
         
         // Try alternative path: wp-admin
         console.log('\n   🔄 Trying alternative path: /wp-admin/...');
-        await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+        await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
         // Move to wp-includes (less likely to be cached)
         await c2.rename('/public_html/_inject_css_pages.php', '/public_html/wp-includes/_inject_css_pages.php');
         console.log('   Moved to wp-includes/');

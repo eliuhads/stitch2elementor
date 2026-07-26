@@ -173,7 +173,7 @@ writeFileSync('temp/rebuild_content.php', phpScript);
 console.log('✅ PHP script generated');
 
 const client = new Client();
-await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
 await client.uploadFrom('temp/rebuild_content.php', '/rebuild_content.php');
 console.log('✅ Uploaded to FTP');
 client.close();

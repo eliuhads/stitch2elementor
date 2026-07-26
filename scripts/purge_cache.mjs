@@ -38,7 +38,7 @@ console.log('📝 PHP written:', tmpPath);
 // FTP upload
 const client = new ftp.Client();
 try {
-  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
   await client.uploadFrom(tmpPath, '/public_html/_purge.php');
   console.log('✅ Uploaded _purge.php');
 } finally {

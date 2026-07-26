@@ -3,14 +3,14 @@
  */
 import { chromium } from 'playwright';
 
-const PLAYWRIGHT_WS = 'ws://192.168.1.252:3000/playwright';
+const PLAYWRIGHT_WS = process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://localhost:3000/playwright';
 
 const browser = await chromium.connect(PLAYWRIGHT_WS);
 const page = await browser.newPage();
 await page.setViewportSize({ width: 1920, height: 1080 });
 
 console.log('⏳ Loading homepage...');
-await page.goto('https://evergreenvzla.com', { waitUntil: 'networkidle', timeout: 30000 });
+await page.goto(process.env.WP_BASE_URL || 'https://example.com', { waitUntil: 'networkidle', timeout: 30000 });
 await page.waitForTimeout(4000);
 
 // 1. Full page screenshot

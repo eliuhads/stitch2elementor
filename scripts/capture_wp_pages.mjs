@@ -14,7 +14,7 @@ const OUT_DIR = path.join(ROOT, 'temp', 'screenshots');
 if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'page_manifest.json'), 'utf8'));
-const WP_URL = 'https://evergreenvzla.com';
+const WP_URL = process.env.WP_BASE_URL || 'https://example.com';
 
 // Select key pages for visual verification
 const keyPages = [
@@ -28,7 +28,7 @@ const keyPages = [
 
 console.log('📸 Capturing key pages...\n');
 
-const browser = await chromium.connect('ws://192.168.1.252:3000/playwright');
+const browser = await chromium.connect(process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://localhost:3000/playwright');
 
 for (const p of keyPages) {
   const page = await browser.newPage();

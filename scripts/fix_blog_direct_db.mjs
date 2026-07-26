@@ -54,7 +54,7 @@ async function main() {
     writeFileSync(localPath, PHP_SCRIPT);
     console.log('📝 PHP script creado');
 
-    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: false });
+    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true });
     
     // Upload to FTP ROOT (/) where wp-load.php lives
     await client.cd('/');

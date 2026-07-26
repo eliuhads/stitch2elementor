@@ -67,7 +67,7 @@ async function main() {
 
   try {
     writeFileSync(localPath, PHP_SCRIPT);
-    await client.access({ host: FTP_HOST, user: FTP_USER_FTP, password: FTP_PASSWORD, secure: false });
+    await client.access({ host: FTP_HOST, user: FTP_USER_FTP, password: FTP_PASSWORD, secure: true });
     await client.cd('/');
     await client.uploadFrom(localPath, scriptName);
 

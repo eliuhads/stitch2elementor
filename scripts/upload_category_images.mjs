@@ -51,7 +51,7 @@ const images = [
 
 // Step 1: Upload images via FTP
 const client = new Client();
-await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
 console.log('✅ FTP connected');
 
 // Ensure upload directory exists

@@ -50,7 +50,7 @@ async function main() {
 
     // 2. Upload via FTP
     console.log(`📤 Conectando a FTP ${FTP_HOST}...`);
-    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: false });
+    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true });
     
     // Ensure mu-plugins dir exists
     try { await client.ensureDir(muPluginPath); } catch(e) { /* exists */ }

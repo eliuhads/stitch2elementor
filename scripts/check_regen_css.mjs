@@ -9,7 +9,7 @@ const ROOT = path.join(__dirname, '..');
 dotenv.config({ path: path.join(ROOT, '.env') });
 
 const c = new Client();
-await c.access({ host: process.env.FTP_HOST, user: process.env.FTP_USER, password: process.env.FTP_PASS || process.env.FTP_PASSWORD, secure: false });
+await c.access({ host: process.env.FTP_HOST, user: process.env.FTP_USER, password: process.env.FTP_PASS || process.env.FTP_PASSWORD, secure: true });
 
 const tmpPath = path.join(ROOT, 'temp', 'post-1771-regen.css');
 await c.downloadTo(tmpPath, '/public_html/wp-content/uploads/elementor/css/post-1771.css');

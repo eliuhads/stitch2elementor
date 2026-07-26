@@ -56,7 +56,7 @@ writeFileSync('temp/inspect_meta.php', phpScript);
 async function run() {
   const client = new Client();
   try {
-    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
     await client.uploadFrom('temp/inspect_meta.php', '/inspect_meta.php');
     client.close();
     

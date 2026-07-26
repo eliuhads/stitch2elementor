@@ -28,10 +28,10 @@ console.log('║  VERIFY PARITY — Stitch vs WordPress             ║');
 console.log('╚══════════════════════════════════════════════════╝\n');
 console.log(`📋 ${pages.length} pages to verify\n`);
 
-const WP_URL = 'https://evergreenvzla.com';
+const WP_URL = process.env.WP_BASE_URL || 'https://example.com';
 const VIEWPORT = { width: 1280, height: 900 };
 
-const browser = await chromium.connect('ws://192.168.1.252:3000/playwright');
+const browser = await chromium.connect(process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://localhost:3000/playwright');
 
 const results = [];
 

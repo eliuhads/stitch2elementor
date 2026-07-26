@@ -19,7 +19,7 @@ envContent.split('\n').forEach(l => {
 
 (async () => {
   const c = new Client();
-  await c.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD, secure: false });
+  await c.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD, secure: true });
 
   console.log('=== ROOT ===');
   const rootList = await c.list('/');

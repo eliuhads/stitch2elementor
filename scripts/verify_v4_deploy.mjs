@@ -3,11 +3,11 @@
  */
 import { chromium } from 'playwright';
 
-const browser = await chromium.connect('ws://192.168.1.252:3000/playwright');
+const browser = await chromium.connect(process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://localhost:3000/playwright');
 const page = await browser.newPage();
 await page.setViewportSize({ width: 1920, height: 1080 });
 
-await page.goto('https://evergreenvzla.com/?nocache=1', { waitUntil: 'networkidle', timeout: 30000 });
+await page.goto(process.env.WP_BASE_URL || 'https://example.com/?nocache=1', { waitUntil: 'networkidle', timeout: 30000 });
 await page.waitForTimeout(5000);
 
 // 1. CSS version check

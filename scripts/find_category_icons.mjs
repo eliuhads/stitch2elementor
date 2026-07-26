@@ -82,7 +82,7 @@ echo json_encode(['structure' => $lines], JSON_PRETTY_PRINT);
 
 writeFileSync('temp/find_cat_icons.php', php);
 const client = new Client();
-await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: false });
+await client.access({ host: env.FTP_HOST, user: env.FTP_USER, password: env.FTP_PASSWORD || env.FTP_PASS, secure: true });
 await client.uploadFrom('temp/find_cat_icons.php', '/find_cat_icons.php');
 client.close();
 

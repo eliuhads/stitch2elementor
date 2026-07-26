@@ -174,7 +174,7 @@ console.log('✅ MU-Plugin generated');
 // === 3. Upload both files via FTP ===
 const client = new Client();
 try {
-  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
   console.log('✅ FTP connected');
   
   // Upload CSS to wp-content/uploads/
@@ -214,7 +214,7 @@ echo json_encode(['status' => 'cache_purged']);
   
   writeFileSync('temp/purge_cache.php', purgePhp);
   const client2 = new Client();
-  await client2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
+  await client2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
   await client2.uploadFrom('temp/purge_cache.php', '/purge_cache.php');
   client2.close();
   
