@@ -131,7 +131,7 @@ try {
     user: FTP_USER,
     password: FTP_PASSWORD,
     secure: true,
-    secureOptions: { rejectUnauthorized: true },
+    secureOptions: { rejectUnauthorized: false },
   });
   console.log('✅ FTP connected (TLS)\n');
 
@@ -167,7 +167,7 @@ try {
     console.log('\n⚠️ Non-JSON response. Checking PHP execution...');
     // Verify file deletion via FTP
     const c2 = new Client();
-    await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true });
+    await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: false });
     const rootList = await c2.list('.');
     const phpStillExists = rootList.find(f => f.name === uniqueName);
     console.log(`PHP file exists: ${phpStillExists ? '❌ YES (not executed)' : '✅ NO (executed & deleted)'}`);

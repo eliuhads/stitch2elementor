@@ -87,7 +87,7 @@ async function run() {
       host: FTP_HOST,
       user: FTP_USER,
       password: FTP_PASSWORD,
-      secure: true,
+      secure: false,
     });
     console.log('✅ FTP connected');
     

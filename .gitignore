@@ -84,7 +84,3 @@ mcp_config.json
 .env.local
 *.env
 npm-debug.log*
-archive/
-__pycache__/
-*.pyc
-*.pyo

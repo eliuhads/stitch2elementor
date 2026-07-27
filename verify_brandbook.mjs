@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
-const WS = process.env.PLAYWRIGHT_WS_ENDPOINT || process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://localhost:3000/playwright';
+const WS = process.env.PLAYWRIGHT_WS_ENDPOINT || 'ws://192.168.1.252:3000/playwright';
 const HTML_FILE = path.join(process.cwd(), 'evergreen_brandbook.html');
 const SCREENSHOTS_DIR = path.join(process.cwd(), 'brandbook_screenshots');
 

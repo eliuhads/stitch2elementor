@@ -92,7 +92,7 @@ async function registerMissingImage(originalUrl) {
       user: FTP_USER,
       password: FTP_PASSWORD,
       secure: true,
-      secureOptions: { rejectUnauthorized: true }
+      secureOptions: { rejectUnauthorized: false }
     });
 
     const remotePath = `/wp-content/uploads/stitch/${filename}`;
@@ -150,7 +150,7 @@ async function registerMissingImage(originalUrl) {
 
     // Upload script
     const client2 = new Client();
-    await client2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true, secureOptions: { rejectUnauthorized: true } });
+    await client2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true, secureOptions: { rejectUnauthorized: false } });
     await client2.uploadFrom(regLocalPath, uniqueRegPHP);
     client2.close();
 
@@ -356,7 +356,7 @@ async function processPage(page) {
       user: FTP_USER,
       password: FTP_PASSWORD,
       secure: true,
-      secureOptions: { rejectUnauthorized: true }
+      secureOptions: { rejectUnauthorized: false }
     });
 
     await client.uploadFrom(phpPath, uniqueName);

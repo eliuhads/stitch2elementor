@@ -1,0 +1,46 @@
+# Evergreen Venezuela — Soluciones Energéticas Integrales
+
+> Este archivo proporciona un resumen estructurado del sitio web evergreenvzla.com para crawlers de modelos de lenguaje (LLMs).
+
+## Acerca de la Empresa
+
+Evergreen Venezuela es un proveedor líder de soluciones energéticas integrales en Venezuela. Ofrecemos productos y servicios en energía solar, respaldo energético, iluminación LED y energía portátil para hogares, empresas e industrias.
+
+## Productos y Servicios Principales
+
+### Energía Solar
+- **Paneles Solares Fotovoltaicos**: Paneles monocristalinos y policristalinos de alta eficiencia para instalaciones residenciales y comerciales.
+- **Baterías de Energía Solar**: Baterías de litio y AGM para almacenamiento de energía solar con alta durabilidad.
+
+### Respaldo Energético
+- **Respaldo Residencial**: Sistemas de respaldo con baterías de litio e inversores para hogares, protección contra apagones.
+- **Respaldo Comercial e Industrial**: Plantas eléctricas e inversores de alta capacidad para empresas y fábricas.
+
+### Iluminación
+- **Iluminación LED Solar**: Luminarias alimentadas por energía solar para exteriores, calles, jardines y áreas industriales.
+- **Iluminación LED Convencional**: Luminarias de bajo consumo para interiores y exteriores con alta eficiencia lumínica.
+
+### Energía Portátil
+- **Estaciones de Energía Portátiles**: Estaciones recargables con paneles solares para camping, emergencias y uso profesional.
+- **Jump Starters / Arrancadores**: Arrancadores portátiles de baterías para vehículos con carga USB y linterna LED.
+
+## Herramientas
+- **Calculadora de Consumo Energético**: Herramienta interactiva para estimar el consumo eléctrico y dimensionar soluciones solares.
+
+## Recursos
+- **Blog**: Artículos y noticias sobre energía renovable, eficiencia energética y tendencias del sector en Venezuela.
+- **Catálogos y Recursos**: Fichas técnicas, manuales y catálogos descargables de todos los productos.
+- **Financiamiento**: Opciones de financiamiento y planes de pago para adquirir soluciones energéticas.
+
+## Soporte
+- **Soporte y Garantía**: Servicio técnico especializado y programas de garantía para todos los productos.
+- **Contacto**: Formulario de contacto directo con el equipo de ventas y soporte técnico.
+
+## Información Legal
+- Política de Privacidad: https://evergreenvzla.com/politica-de-privacidad/
+- Política de Cookies: https://evergreenvzla.com/politica-de-cookies/
+
+## Ubicación
+- País: Venezuela
+- Ciudad: Caracas
+- Sitio Web: https://evergreenvzla.com

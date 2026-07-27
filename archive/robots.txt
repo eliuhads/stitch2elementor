@@ -1,0 +1,32 @@
+# Robots.txt — Evergreen Venezuela
+# https://evergreenvzla.com
+
+User-agent: *
+Allow: /
+
+# Block WordPress admin and internal areas
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/plugins/
+Disallow: /wp-content/cache/
+Disallow: /wp-json/
+Disallow: /xmlrpc.php
+Disallow: /?s=
+Disallow: /search/
+Disallow: /cgi-bin/
+Disallow: /trackback/
+Disallow: /feed/
+Disallow: /comments/feed/
+Disallow: /wp-login.php
+Disallow: /wp-register.php
+
+# Allow CSS and JS for rendering
+Allow: /wp-content/uploads/
+Allow: /wp-content/themes/
+Allow: /wp-includes/js/
+
+# Sitemap
+Sitemap: https://evergreenvzla.com/sitemap_index.xml
+
+# LLM Crawlers context file
+# See: https://evergreenvzla.com/llms.txt

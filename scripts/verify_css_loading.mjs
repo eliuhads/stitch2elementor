@@ -12,7 +12,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 dotenv.config({ path: path.join(ROOT, '.env') });
 
-const SITE = process.env.SITE_URL || process.env.WP_URL || process.env.WP_BASE_URL || 'https://example.com';
+const SITE = process.env.SITE_URL || process.env.WP_URL || 'https://evergreenvzla.com';
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'page_manifest.json'), 'utf8'));
 
 console.log('╔══════════════════════════════════════════════════╗');

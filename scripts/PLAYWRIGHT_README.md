@@ -3,7 +3,7 @@
 ## Arquitectura
 
 ```
-Tu PC (Windows)  ──→  ws://localhost:3000/playwright  ──→  Contenedor Proxmox
+Tu PC (Windows)  ──→  ws://192.168.1.252:3000/playwright  ──→  Contenedor Proxmox
    scripts/              WebSocket                            Chromium headless
 ```
 
@@ -21,7 +21,7 @@ npm install playwright-core dotenv
 
 En `.env` del proyecto:
 ```
-PLAYWRIGHT_WS_ENDPOINT=ws://localhost:3000/playwright
+PLAYWRIGHT_WS_ENDPOINT=ws://192.168.1.252:3000/playwright
 ```
 
 ## Scripts Disponibles
@@ -88,7 +88,7 @@ run_command("node scripts/playwright_visual_test.mjs https://evergreenvzla.com -
 | Error | Solución |
 |-------|----------|
 | `PLAYWRIGHT_WS_ENDPOINT no definido` | Verificar que `.env` tiene la variable |
-| `No se pudo conectar` | Verificar que el contenedor Proxmox está corriendo en localhost:3000 |
+| `No se pudo conectar` | Verificar que el contenedor Proxmox está corriendo en 192.168.1.252:3000 |
 | `Timeout` en goto | La URL no es accesible desde el contenedor Proxmox |
 | Archivos `file:///` no cargan | Los archivos locales de Windows no son accesibles desde Proxmox. Servir con `npx serve` |
 

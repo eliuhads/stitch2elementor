@@ -75,7 +75,7 @@ writeFileSync('temp/flush_cache_v4.php', flushPHP);
 async function deploy() {
   const client = new Client();
   try {
-    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
+    await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
     console.log('✅ FTP connected');
 
     await client.uploadFrom('temp/evergreen-homepage-custom-v4.css', '/wp-content/uploads/evergreen-homepage-custom.css');

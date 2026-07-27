@@ -95,7 +95,7 @@ console.log('📝 PHP:', (phpContent.length / 1024).toFixed(1) + 'KB');
 // Upload
 const client = new ftp.Client();
 try {
-  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
+  await client.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
   
   // Clean old PHP files first
   const rootFiles = await client.list('/');
@@ -132,7 +132,7 @@ try {
       console.log('⚠️ Got HTML response (LiteSpeed cache). Checking if PHP executed...');
       // Verify via FTP if the file was consumed (self-delete)
       const c2 = new ftp.Client();
-      await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: true });
+      await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASS, secure: false });
       const list = await c2.list('/');
       const exists = list.find(f => f.name === '_css_inject.php');
       console.log('PHP file still exists:', exists ? 'YES (not executed)' : 'NO (executed & self-deleted)');

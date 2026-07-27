@@ -8,7 +8,7 @@ const ftp = require('basic-ftp');
       host: process.env.FTP_HOST,
       user: process.env.FTP_USER,
       password: process.env.FTP_PASSWORD,
-      secure: true,
+      secure: false,
     });
     console.log('✅ FTP connection successful');
   } catch (err) {

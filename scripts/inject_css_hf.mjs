@@ -149,7 +149,7 @@ try {
     user: FTP_USER,
     password: FTP_PASSWORD,
     secure: true,
-    secureOptions: { rejectUnauthorized: true },
+    secureOptions: { rejectUnauthorized: false },
   });
   console.log('✅ FTP connected (TLS)');
 
@@ -184,7 +184,7 @@ try {
 
   // Verify PHP was self-deleted
   const c2 = new Client();
-  await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true, secureOptions: { rejectUnauthorized: true } });
+  await c2.access({ host: FTP_HOST, user: FTP_USER, password: FTP_PASSWORD, secure: true, secureOptions: { rejectUnauthorized: false } });
   const rootList = await c2.list('/');
   const phpStillExists = rootList.find(f => f.name === uniqueName);
   console.log(`🗑️ PHP self-deleted: ${phpStillExists ? '❌ STILL EXISTS' : '✅ Confirmed'}`);
