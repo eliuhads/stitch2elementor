@@ -84,3 +84,10 @@ mcp_config.json
 .env.local
 *.env
 npm-debug.log*
+
+# Security — never commit
+__pycache__/
+*.pem
+*.key
+*credentials*.json
+!mcp_config.example.json

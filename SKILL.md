@@ -108,9 +108,45 @@ Al activar la skill o recibir solicitudes de conversión, el agente desplegará 
 
 ---
 
+## 🏗️ Header/Footer Native Template Handling (v5.0.0+)
+
+### Logo Preservation
+- El compiler usa el widget `image` de Elementor con la URL del logo desde `design_system.json` (`logoUrl`).
+- Si no hay URL configurada, se genera un heading con `logoText` como fallback.
+- Tamaños responsivos: `160px` desktop → `140px` tablet → `120px` mobile con `object-fit: contain`.
+
+### Header Template
+- Fuente primaria: `header-global.html` en `assets_originales/`. Fallback: `homepage.html`.
+- Colores dinámicos del `design_system.json` (no hardcoded).
+- Output: `header.json` listo para inyección como `elementor_library` type `header`.
+
+### Footer Template
+- Fuente primaria: `footer-global.html` en `assets_originales/`. Fallback: `homepage.html`.
+- Output: `footer.json` listo para inyección como `elementor_library` type `footer`.
+
+### Inyección como Theme Builder Templates
+- Vía Novamira MCP: `elementor/create-template` con sub-type `"header"` / `"footer"`.
+- Asignar display conditions con `elementor/update-theme-builder-conditions` para "Entire Site".
+- Post-inyección: ejecutar `elementor/clear-cache` para regenerar CSS.
+- **Obligatorio**: inicializar `_elementor_version` meta en todas las creaciones programáticas.
+
+### Meta Structure Requerida
+```
+post_type: elementor_library
+_elementor_edit_mode: builder
+_elementor_template_type: header | footer
+_elementor_data: [JSON payload]
+_elementor_version: (current Elementor version)
+```
+
+---
+
 ## 🛠️ Scripts Principales del Repositorio (`scripts/`)
 
-- `compiler_v4.js`: Transpilador HTML + Tailwind → Elementor Flexbox JSON.
+- `compiler_v4.js`: Transpilador HTML + Tailwind → Elementor Flexbox JSON. Incluye logo preservation, responsive breakpoints, y header/footer separation.
 - `sync_and_inject.js`: Orquestador FTP+HTTP para inyección segura bypassing WAF.
-- `replace_stitch_images.js`: Mapeo de URLs Stitch a IDs de la Media Library de WordPress.
+- `create_hf_native.php`: Crea Header/Footer como `elementor_library` CPT con condiciones globales.
+- `fix_material_symbols.js`: Purga texto fantasma de Material Symbols CSS fallbacks.
+- `fix_slugs.js`: Normaliza slugs de páginas post-inyección según `page_manifest.json`.
 - `purge_wp_cache.mjs`: Limpieza completa de caché `_elementor_css`, transients y LiteSpeed.
+

@@ -1817,7 +1817,27 @@ function processNavAsHeader(htmlStr) {
 
   const navElements = [];
 
-  // ─── 1. Logo: use native Site Logo widget ───
+  // ─── 1. Logo: use image widget with design_system.json URL ───
+  // Fix: Previously used theme-site-logo which is generic and doesn't
+  // preserve the actual company logo. Now uses the image widget with
+  // the logo URL from design_system.json, ensuring the logo is always visible.
+  const logoWidget = CONFIG.logoUrl
+    ? buildImage(CONFIG.logoUrl, CONFIG.logoAlt || 'Logo', {
+        image_size: 'full',
+        width: { unit: 'px', size: 160, sizes: [] },
+        width_tablet: { unit: 'px', size: 140, sizes: [] },
+        width_mobile: { unit: 'px', size: 120, sizes: [] },
+        object_fit: 'contain',
+        link_to: 'custom',
+        link: { url: '/', is_external: '', nofollow: '', custom_attributes: '' },
+      })
+    : buildHeading(CONFIG.logoText || 'BRAND', 'h3', {
+        title_color: CONFIG.colors.primary,
+        typography_font_family: CONFIG.fonts.headline,
+        typography_font_weight: '800',
+        link: { url: '/', is_external: '', nofollow: '', custom_attributes: '' },
+      });
+
   navElements.push({
     id: genId(),
     elType: 'container',
@@ -1826,17 +1846,12 @@ function processNavAsHeader(htmlStr) {
       content_width: 'full',
       _element_width: 'custom',
       width: { unit: 'px', size: 220, sizes: [] },
+      width_tablet: { unit: 'px', size: 180, sizes: [] },
+      width_mobile: { unit: 'px', size: 140, sizes: [] },
       flex_direction: 'row',
       flex_align_items: 'center',
     },
-    elements: [{
-      id: genId(),
-      elType: 'widget',
-      widgetType: 'theme-site-logo',
-      isInner: false,
-      settings: {},
-      elements: []
-    }]
+    elements: [logoWidget].filter(Boolean)
   });
 
   // ─── 2. Nav-Menu (Ppal Desktop) ───
@@ -1920,13 +1935,15 @@ function processNavAsHeader(htmlStr) {
     navElements, true
   );
 
+  // Use design system colors instead of hardcoded values
+  const headerBgColor = CONFIG.colors.surfaceContainerLow || CONFIG.colors.background || '#171b27';
   return [buildContainer(
     {
       content_width: 'full',
       _element_width: 'custom',
       width: { unit: '%', size: 100, sizes: [] },
       background_background: 'classic',
-      background_color: '#171b27',
+      background_color: headerBgColor,
       padding: buildDimension(12, 0, 12, 0),
       margin: buildDimension(0, 0, 0, 0),
     },
@@ -2083,10 +2100,18 @@ async function batchConvert() {
       errorCount++;
     }
 
-    // Process Footer
+    // Process Footer — prefer footer-global.html, fallback to homepage.html
     console.log('📋 Processing Footer template...');
     try {
-      const footerContent = processFooterTemplate(homepageHtml);
+      let footerSourceHtml = homepageHtml;
+      const footerGlobalPath = path.join(CONFIG.inputDir, 'footer-global.html');
+      try {
+        footerSourceHtml = await fs.promises.readFile(footerGlobalPath, 'utf8');
+        console.log('  📋 Using footer-global.html as footer source...');
+      } catch (e) {
+        console.log('  📋 Using homepage.html as footer source (no footer-global.html)...');
+      }
+      const footerContent = processFooterTemplate(footerSourceHtml);
       cleanContent(footerContent);
       const footerPath = path.join(CONFIG.outputDir, 'footer.json');
       await fs.promises.writeFile(footerPath, JSON.stringify(footerContent), 'utf8');
