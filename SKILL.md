@@ -7,7 +7,7 @@ description: >
   y declaración formal de dependencias.
 ---
 
-# Skill: stitch2elementor (v5.0.0 — Pipeline Técnico Stitch ↔ HTML ↔ Elementor Canvas)
+# Skill: stitch2elementor (v18.0.0 — Pipeline Técnico Stitch ↔ HTML ↔ Elementor Canvas)
 
 Esta habilidad se enfoca **exclusivamente en la conversión y extracción técnica** entre **Google Stitch**, **HTML + Tailwind CSS** y **WordPress Elementor Canvas** manteniendo 100% de fidelidad estética y responsiva mediante inyección directa (Novamira MCP / FTP+PHP).
 
@@ -149,4 +149,82 @@ _elementor_version: (current Elementor version)
 - `fix_material_symbols.js`: Purga texto fantasma de Material Symbols CSS fallbacks.
 - `fix_slugs.js`: Normaliza slugs de páginas post-inyección según `page_manifest.json`.
 - `purge_wp_cache.mjs`: Limpieza completa de caché `_elementor_css`, transients y LiteSpeed.
+
+---
+
+## 🧱 Reglas Anti-Error v18.0.0 (Aprendidas en producción — 2026-08-11)
+
+> Cada regla previene un fallo real medido en producción. **No omitir ninguna.**
+
+### R1. FTP Bluehost — PROBE antes de subir
+- El cwd `/` de la sesión FTPS **ya es el docroot público** en la mayoría de cuentas Bluehost.
+- Subir a rutas absolutas estilo `/home2/{user}/public_html/{subcarpeta}/` puede terminar en 404 aunque `LIST` muestre los archivos, porque el vhost de Apache no apunta ahí.
+- **Protocolo obligatorio**:
+  1. Subir `probe.html` trivial a la raíz del FTP.
+  2. `curl -s -o /dev/null -w "%{http_code}" https://{dominio}/probe.html` debe ser `200`.
+  3. Sólo entonces subir el contenido real a `/{subcarpeta}/` **relativo a la raíz del FTP**.
+  4. Borrar el probe al terminar.
+- Si el dominio está detrás de proxy (Cloudflare), usar el hostname directo del servidor para FTP y considerar el caché del proxy en las pruebas.
+
+### R2. Separar fuentes del output generado
+- Estructura obligatoria del proyecto:
+  ```
+  PROYECTO/
+  ├── src/    ← tokens.css, build.*, pages.*, assets/ (FUENTES — nunca borrar)
+  ├── site/   ← SOLO artefactos generados (seguro de borrar/regenerar)
+  └── deploy.*
+  ```
+- **Nunca** guardar en `site/` (o carpeta de output) nada que no se regenere con un solo comando. Un `rm -rf` del output no puede destruir fuentes.
+
+### R3. Editar fuentes, nunca artefactos
+- Los HTML/CSS generados son **regenerables**. Cualquier corrección va a la fuente.
+- Editar un artefacto generado = corrupción garantizada en la siguiente build.
+
+### R4. Dimensiones visuales INMUTABLES (anti-sobredimensionamiento)
+| Elemento | Regla |
+|---|---|
+| Logo en header | `height: 40px` (aceptable 36–45px; **>52px = defecto visual**) |
+| Íconos sociales | caja 28px / SVG interno 15px; cada red con **su** color de marca |
+| Botón WhatsApp flotante/CTA | círculo 38–44px, SOLO ícono SVG (18–22px), **sin texto** |
+
+- **Validación automática post-deploy** (Playwright):
+```js
+const h = await page.evalOnSelector('.logo-img', el => el.getBoundingClientRect().height);
+if (h > 45) throw new Error(`Logo sobredimensionado: ${h}px`);
+```
+
+### R5. SEO Pack obligatorio POR PÁGINA en el primer build
+Cada página generada incluye, sin excepción:
+- `<title>` ≤ 60 caracteres.
+- `<meta name="description">` de 150–160 caracteres.
+- `<meta name="keywords">` alineadas a la keyword primaria/secundarias del copy fuente.
+- `<link rel="canonical">` absoluto.
+- `<script type="application/ld+json">` (Organization / FAQPage / Service según el tipo de página).
+- **Coherencia**: la keyword primaria del meta debe aparecer en el H1 de la página.
+
+### R6. Diseño a partir del Brandbook del cliente, no por defecto
+- Contenedor `1240px` centrado (salvo que el brandbook diga otro valor).
+- Hero 2 columnas side-by-side en desktop (aprox. 54% texto / 42% media), apilado en mobile.
+- Fondos claros ≥ 85% del viewport salvo especificación contraria; oscuro reservado a hero/footer.
+- **Tipografía**: usar las familias del brandbook del cliente. No sustituir por fuentes genéricas sin justificación documentada.
+- CTAs duales cuando el brief lo exija (p.ej. canal B2B + canal B2C).
+
+### R7. Lotes atómicos, cero iteraciones sueltas
+Pipeline indivisible por cambio:
+```
+editar src → regenerar site/ → validar local (parse+links) → deploy →
+curl HTTP 200 en todas las URLs → capturas dual-viewport → revisión ocular
+```
+- Si algo falla: corregir en `src/` y repetir el pipeline **completo**.
+- Los parches uno-a-uno sobre artefactos vivos están prohibidos.
+
+## ✅ Checklist de Aceptación (obligatorio antes de dar por terminado)
+- [ ] Probe FTP respondió 200 antes del primer upload real.
+- [ ] Todas las páginas devuelven HTTP 200 tras el deploy.
+- [ ] El sitio raíz/original del cliente responde 200 e intacto (si aplica).
+- [ ] Logo ≤ 45px de alto medido en DOM; íconos sociales 28px; WhatsApp ícono-solo.
+- [ ] SEO pack presente en cada página y coherente con su H1.
+- [ ] Cero credenciales/secretos en archivos versionados o subidos (usar variables de entorno).
+- [ ] Capturas desktop (1440px) y mobile (375px) revisadas visualmente.
+- [ ] `lessons-learned` del workspace actualizado con cualquier error nuevo descubierto.
 
