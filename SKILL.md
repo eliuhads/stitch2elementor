@@ -1,230 +1,270 @@
 ---
 name: stitch2elementor
 description: >
-  Pipeline técnico de conversión y extracción (Stitch ↔ HTML ↔ Elementor Canvas) powered by Novamira MCP.
-  Incluye menú interactivo dinámico de 8 opciones, encadenamiento cruzado con skills de diseño visual
-  (design-taste-frontend, gpt-taste, high-end-visual-design, brandkit, minimalist-ui), consulta obligatoria a NotebookLM MCP
-  y declaración formal de dependencias.
+  Pipeline de doble modo (Elementor Canvas / Static HTML) para extracción, diseño y despliegue desde Google Stitch
+  hacia WordPress Elementor Canvas (Novamira MCP) o sitios estáticos multi-página autocontenidos (build Python + FTPS).
+  Incluye anti-errores R1-R7, checklist de aceptación, protocolo FTP probe, separación src/site,
+  SEO pack automático por página, y reglas inmutables de dimensiones visuales.
 ---
 
-# Skill: stitch2elementor (v18.0.0 — Pipeline Técnico Stitch ↔ HTML ↔ Elementor Canvas)
+# Skill: stitch2elementor (v19.0.0 — Dual-Mode Pipeline)
 
-Esta habilidad se enfoca **exclusivamente en la conversión y extracción técnica** entre **Google Stitch**, **HTML + Tailwind CSS** y **WordPress Elementor Canvas** manteniendo 100% de fidelidad estética y responsiva mediante inyección directa (Novamira MCP / FTP+PHP).
+Pipeline de doble modo para convertir interfaces Stitch en sitios web listos para producción:
+- **Modo Elementor**: injección programática en WordPress Elementor Canvas (Novamira MCP / FTPS + PHP)
+- **Modo Static**: build Python estático multi-página (src/ → site/ → FTPS directo, sin CMS)
 
----
-
-## 📋 Declaración Formal de Dependencias (Skills & MCPs)
-
-### MCPs Requeridos y Recomendados
-- **`#wp-elementor-mcp` / `novamira-mcp`** *(Requerido)*: Inyección directa REST API / PHP execution de estructuras Elementor JSON.
-- **`stitch`** *(Requerido)*: Extracción de pantallas, generación de componentes y consulta de proyectos en Google Stitch.
-- **`notebooklm-mcp`** *(Requerido)*: Consulta previa a cuadernos de conocimiento sobre WordPress, Elementor, CSS y optimizaciones.
-- **`obsidian-mcp`** *(Recomendado)*: Registro de decisiones de maquetación y lectura de guías en el Memory Bank.
-
-### Skills Complementarios Requeridos y Recomendados
-- **`google-labs-code/stitch-skills`** (`generate-design`, `upload-to-stitch`, `extract-static-html`) *(Requeridos)*.
-- **`design-taste-frontend`** *(Requerido)*: Aplicación de principios anti-slop y jerarquía estética antes de maquetar.
-- **`gpt-taste`** / **`high-end-visual-design`** *(Recomendados)*: Motion avanzado GSAP, tipografía editorial y layouts asimétricos.
-- **`brandkit`** / **`minimalist-ui`** *(Recomendados)*: Paletas de colores curadas, sistemas tipográficos y micro-interacciones.
+Cada modo tiene sus reglas de dimensiones, SEO, verificación y checklist de aceptación. Este documento es la fuente única de verdad para ambos.
 
 ---
 
-## ⚡ Reglas de Oro Inmutables & Integración Cruzada
+## 📋 Dependencias (MCPs & Skills)
 
-1. **Regla de Integración Cruzada de Skills Visuales**:
-   - Antes de maquetar o modificar cualquier componente, el agente **DEBE activar y consultar** los skills de diseño visual (`design-taste-frontend`, `gpt-taste`, `high-end-visual-design`, `brandkit`, `minimalist-ui`).
-   - Queda estrictamente prohibido generar interfaces con estética genérica o "plana".
-
-2. **Regla de Consulta Obligatoria a NotebookLM MCP**:
-   - El agente **DEBE realizar una consulta previa** a **NotebookLM MCP** (`notebook_query`, `notebook_list`, `source_get_content`) sobre WordPress, Elementor Canvas, CSS y mejores prácticas antes de inventar estructuras HTML o JSON de Elementor.
-
-3. **Manejo Anti-Fallos de Google Stitch MCP**:
-   - **Refresco de Token ADC**: Si ocurren disconexiones o timeouts, ejecutar `gcloud auth application-default print-access-token`.
-   - **No duplicar Tokens en Prompts**: Delegar la paleta de colores y fuentes al `designTheme` del proyecto en Stitch. No repetir tokens en prompts individuales para evitar errores `Invalid Argument`.
-   - **Payload Extenso Base64**: Para fragmentos HTML o `DESIGN.md` grandes, usar fragmentación o scripts de soporte (`upload-to-stitch`).
-
-4. **Inyección en Elementor Canvas Puro**:
-   - Configuración meta obligatoria:
-     - `_wp_page_template = 'elementor_canvas'`
-     - `_elementor_edit_mode = 'builder'`
-     - `_elementor_template_type = 'wp-page'`
-     - `_elementor_data = wp_slash($json_payload)` (Array plano `[{...}]`, nunca wrapper objeto).
-
-5. **Proporciones Estándar de Interfaz**:
-   - **Navbar Fijo**: Altura exacta de `64px` (`h-16`), fondo `#0D0D1A`/95 con `backdrop-blur-xl`.
-   - **Logo Corporativo**: Altura responsiva sutil de `28px` a `32px` (`h-7 md:h-8 w-auto object-contain`).
-   - **Padding de `<main>`**: `pt-16` para evitar solapamientos.
+| Recurso | Tipo | Modo |
+|---|---|---|
+| `stitch` | MCP | Ambos |
+| `notebooklm-mcp` | MCP | Ambos (consulta previa obligatoria) |
+| `novamira-mcp` / `#wp-elementor-mcp` | MCP | Elementor |
+| `obsidian-mcp` | MCP | Ambos |
+| `playwright` (remoto, 192.168.1.x:3000) | MCP | Ambos (verificación visual) |
+| `design-taste-frontend` | Skill | Ambos (anti-slop) |
+| `floydia_web_brand` | Skill | Ambos (brandbook insumo) |
 
 ---
 
-## 🎛️ Menú Interactivo Dinámico (8 Opciones)
-
-Al activar la skill o recibir solicitudes de conversión, el agente desplegará el siguiente menú interactivo para guiar al usuario:
+## ⚡ Menú Interactivo v19 (10 Opciones + Selección de Modo)
 
 ```
-========================================================================
-           ⚡ STITCH2ELEMENTOR v5.0 — MENÚ INTERACTIVO DE OPENCANVAS ⚡
-========================================================================
-[1] 📥 Ingresar data (Carpeta Brandbook creada por floydia_web_brand)
-[2] 🔍 Análisis de data proporcionada (Auditoría de insumos y sugerencias)
-[3] 📄 Convertir UNA página Stitch → Elementor Canvas
-[4] 🌐 Convertir TODAS las páginas Stitch → Elementor Canvas
-[5] 🎨 Crear web en Stitch (Modo 1 a 1 con confirmación o Lote completo)
-[6] 📦 Extraer Stitch a carpeta en HTML (Modo 1 a 1 o Lote completo)
-[7] ✏️ Modificar pantalla existente en Stitch
-[8] ⚙️ Personalizado / Opción libre del usuario
-========================================================================
+=====================================================================
+      ⚡ STITCH2ELEMENTOR v19.0 — DUAL MODE PIPELINE ⚡
+=====================================================================
+Elige MODO:  [E] Elementor Canvas (WP)  |  [S] Static HTML (Python)
+=====================================================================
+ [1] Ingresar brandbook + copys + assets (floydia_web_brand output)
+ [2] Auditoría de insumos y gaps (logo, colores, copys, imágenes)
+ [3] Generar en Stitch (pantallas desktop, design system)
+ [4] Extraer HTMLs de Stitch a carpeta local
+ ─────────────────────────────────────────────────────────────────
+ Si MODO=E (Elementor):
+ [5E] Compilar HTMLs → JSONs Elementor (compiler_v4.js)
+ [6E] Desplegar en WordPress vía Novamira MCP / FTP+PHP
+ ─────────────────────────────────────────────────────────────────
+ Si MODO=S (Static HTML):
+ [5S] Build sitio estático (src/ → site/ → Python pages.py)
+ [6S] Desplegar sitio vía FTPS a /subcarpeta en el dominio
+ ─────────────────────────────────────────────────────────────────
+ [7] Post-deploy verification (HTTP 200, Playwright dual-viewport)
+ [8] Solo SEO (generar/actualizar meta tags JSON-LD en build)
+ [9] Solo componentes (header/footer/botón WA/íconos sociales)
+ [10] Personalizado / Libre
+=====================================================================
 ```
 
 ---
 
-## 🚀 Detalle de Flujos del Menú
+## 🏗️ Estructura de carpeta del proyecto (ambos modos)
 
-### Opción [1] — Ingresar Data Brandbook
-- Lee los insumos creados previamente por el skill `floydia_web_brand` (`brandbook_v2.md`, `sitemap_seo.md`, `copys_por_pagina.md`).
-- Valida la disponibilidad de tokens visuales y arquitectura requerida.
-
-### Opción [2] — Análisis de Data & Auditoría
-- Evalúa la completitud de los datos (imágenes WebP, paleta HSL, tipografías Google Fonts, estructura de URLs).
-- Genera un informe de brechas antes de iniciar la conversión.
-
-### Opción [3] & [4] — Conversión a Elementor Canvas (Individual / Masiva)
-- Extrae el HTML + Tailwind de la pantalla en Stitch (`fetch_screen_code`).
-- Realiza el parseo y empaquetado a JSON de Elementor (`compiler_v4.js`).
-- Inyecta vía Novamira MCP / FTP+PHP con doble capa de invalidación de caché (`_elementor_data` + `post_content`).
-
-### Opción [5] — Crear Web en Stitch (1 a 1 o Lote)
-- Permite seleccionar generación paso a paso con vista previa y confirmación previa del usuario, o generación en lote.
-- Aplica el `designTheme` configurado.
-
-### Opción [6] — Extraer Stitch a HTML Local
-- Exporta pantallas de Stitch a archivos HTML planos en el workspace local (`extract-static-html`).
-
-### Opción [7] — Modificar Pantalla Existente en Stitch
-- Envía prompts de refinamiento a pantallas existentes en Stitch utilizando `generate-design` o `edit_screens`.
-
-### Opción [8] — Libre / Personalizado
-- Permite cualquier combinación de comandos, scripts o consultas a medida del usuario.
-
----
-
-## 🏗️ Header/Footer Native Template Handling (v5.0.0+)
-
-### Logo Preservation
-- El compiler usa el widget `image` de Elementor con la URL del logo desde `design_system.json` (`logoUrl`).
-- Si no hay URL configurada, se genera un heading con `logoText` como fallback.
-- Tamaños responsivos: `160px` desktop → `140px` tablet → `120px` mobile con `object-fit: contain`.
-
-### Header Template
-- Fuente primaria: `header-global.html` en `assets_originales/`. Fallback: `homepage.html`.
-- Colores dinámicos del `design_system.json` (no hardcoded).
-- Output: `header.json` listo para inyección como `elementor_library` type `header`.
-
-### Footer Template
-- Fuente primaria: `footer-global.html` en `assets_originales/`. Fallback: `homepage.html`.
-- Output: `footer.json` listo para inyección como `elementor_library` type `footer`.
-
-### Inyección como Theme Builder Templates
-- Vía Novamira MCP: `elementor/create-template` con sub-type `"header"` / `"footer"`.
-- Asignar display conditions con `elementor/update-theme-builder-conditions` para "Entire Site".
-- Post-inyección: ejecutar `elementor/clear-cache` para regenerar CSS.
-- **Obligatorio**: inicializar `_elementor_version` meta en todas las creaciones programáticas.
-
-### Meta Structure Requerida
 ```
-post_type: elementor_library
-_elementor_edit_mode: builder
-_elementor_template_type: header | footer
-_elementor_data: [JSON payload]
-_elementor_version: (current Elementor version)
+PROYECTO/
+├── BRANDBOOK.md              ← Brandbook v2 del cliente
+├── src/                      ← FUENTES: tokens.css, build.py, pages.py, assets/
+├── site/                     ← OUTPUT generado (seguro de borrar/regenerar)
+├── deploy.py                 ← Subida FTPS (usa .env para credenciales)
+├── seo_pack.py               ← Genera meta tags + JSON-LD por página
+├── probe_docroot.py          ← Verifica docroot FTP antes de subir
+└── post_deploy_verify.py     ← Checklist de aceptación automatizado
 ```
 
----
-
-## 🛠️ Scripts Principales del Repositorio (`scripts/`)
-
-- `compiler_v4.js`: Transpilador HTML + Tailwind → Elementor Flexbox JSON. Incluye logo preservation, responsive breakpoints, y header/footer separation.
-- `sync_and_inject.js`: Orquestador FTP+HTTP para inyección segura bypassing WAF.
-- `create_hf_native.php`: Crea Header/Footer como `elementor_library` CPT con condiciones globales.
-- `fix_material_symbols.js`: Purga texto fantasma de Material Symbols CSS fallbacks.
-- `fix_slugs.js`: Normaliza slugs de páginas post-inyección según `page_manifest.json`.
-- `purge_wp_cache.mjs`: Limpieza completa de caché `_elementor_css`, transients y LiteSpeed.
+**REGLA**: `site/` jamás contiene fuentes. Un `rm -rf site/` no puede destruir nada que no se regenere con un comando.
 
 ---
 
-## 🧱 Reglas Anti-Error v18.0.0 (Aprendidas en producción — 2026-08-11)
+## 🧱 Reglas Anti-Error R0–R8 (ambos modos)
 
-> Cada regla previene un fallo real medido en producción. **No omitir ninguna.**
+> Cada regla previene un fallo real de producción. No omitir ninguna.
 
-### R1. FTP Bluehost — PROBE antes de subir
-- El cwd `/` de la sesión FTPS **ya es el docroot público** en la mayoría de cuentas Bluehost.
-- Subir a rutas absolutas estilo `/home2/{user}/public_html/{subcarpeta}/` puede terminar en 404 aunque `LIST` muestre los archivos, porque el vhost de Apache no apunta ahí.
-- **Protocolo obligatorio**:
-  1. Subir `probe.html` trivial a la raíz del FTP.
-  2. `curl -s -o /dev/null -w "%{http_code}" https://{dominio}/probe.html` debe ser `200`.
-  3. Sólo entonces subir el contenido real a `/{subcarpeta}/` **relativo a la raíz del FTP**.
-  4. Borrar el probe al terminar.
-- Si el dominio está detrás de proxy (Cloudflare), usar el hostname directo del servidor para FTP y considerar el caché del proxy en las pruebas.
+### R0. Modo de operación — elegir ANTES de diseñar
+- Si el cliente tiene WordPress activo → Modo E (Elementor). Las páginas son `elementor_library` CPT.
+- Si el cliente NO quiere tocar WP o la web es un experimento → Modo S (Static). El sitio vive en `/subcarpeta/` del dominio, Apache sirve archivos reales antes que WP rewrite.
+- **NUNCA combinar modos** en el mismo deploy sin reset completo.
 
-### R2. Separar fuentes del output generado
-- Estructura obligatoria del proyecto:
-  ```
-  PROYECTO/
-  ├── src/    ← tokens.css, build.*, pages.*, assets/ (FUENTES — nunca borrar)
-  ├── site/   ← SOLO artefactos generados (seguro de borrar/regenerar)
-  └── deploy.*
-  ```
-- **Nunca** guardar en `site/` (o carpeta de output) nada que no se regenere con un solo comando. Un `rm -rf` del output no puede destruir fuentes.
+### R1. FTP — PROBE OBLIGATORIO antes de subir
+- El cwd `/` de la sesión FTPS **suele ser el docroot público** (Bluehost, cPanel).
+- Subir a `/home2/{user}/public_html/{sub}/` puede devolver 404 aunque `LIST` muestre los archivos.
+- **Protocolo**: ① subir `probe.html` a la raíz FTP → ② `curl` a `https://dominio/probe.html` debe ser `200` → ③ ahora sí, subir contenido a `/{subcarpeta}/` relativo a raíz FTP → ④ borrar probe.
 
-### R3. Editar fuentes, nunca artefactos
-- Los HTML/CSS generados son **regenerables**. Cualquier corrección va a la fuente.
-- Editar un artefacto generado = corrupción garantizada en la siguiente build.
+### R2. Separación src/site — nunca borrar fuentes
+- `src/` es la verdad; `site/` es efímero.
+- `.gitignore` protege `site/` del versionado.
 
-### R4. Dimensiones visuales INMUTABLES (anti-sobredimensionamiento)
-| Elemento | Regla |
-|---|---|
-| Logo en header | `height: 40px` (aceptable 36–45px; **>52px = defecto visual**) |
-| Íconos sociales | caja 28px / SVG interno 15px; cada red con **su** color de marca |
-| Botón WhatsApp flotante/CTA | círculo 38–44px, SOLO ícono SVG (18–22px), **sin texto** |
+### R3. Editar fuentes, nunca artefactos generados
+- Si un HTML/CSS generado está mal, se corrige en `src/pages.py` o `src/tokens.css` y se regenera.
+- Editar un archivo en `site/` = corrupción en la próxima build.
 
-- **Validación automática post-deploy** (Playwright):
+### R4. Dimensiones visuales inmutables
+| Elemento | Modo E | Modo S |
+|---|---|---|
+| Logo en header | `48px` Elementor image widget | `48px` (`<img height="48">` en `src/`) |
+| Íconos sociales | SVG inline 28px caja × 15px SVG | Idem |
+| Botón WA flotante | 56px círculo fixed bottom-right | 56px círculo fixed bottom-right |
+| Botón WA inline (hero/CTA) | 40px círculo SOLO ícono, sin texto | 40px círculo SOLO ícono, sin texto |
+
+**Validación post-deploy (Playwright)**:
 ```js
-const h = await page.evalOnSelector('.logo-img', el => el.getBoundingClientRect().height);
-if (h > 45) throw new Error(`Logo sobredimensionado: ${h}px`);
+const h = await page.locator('.logo-img').evaluate(el => el.getBoundingClientRect().height);
+if (h < 36 || h > 56) throw new Error(`Logo fuera de rango: ${h}px (esperado 48±8px)`);
 ```
 
-### R5. SEO Pack obligatorio POR PÁGINA en el primer build
+### R5. SEO Pack desde el PRIMER build (no como parche)
 Cada página generada incluye, sin excepción:
-- `<title>` ≤ 60 caracteres.
-- `<meta name="description">` de 150–160 caracteres.
-- `<meta name="keywords">` alineadas a la keyword primaria/secundarias del copy fuente.
-- `<link rel="canonical">` absoluto.
-- `<script type="application/ld+json">` (Organization / FAQPage / Service según el tipo de página).
-- **Coherencia**: la keyword primaria del meta debe aparecer en el H1 de la página.
+- `<title>` ≤ 60 caracteres
+- `<meta name="description">` 150–160 caracteres
+- `<meta name="keywords">` alineadas a la keyword primaria del copy fuente
+- `<link rel="canonical">` absoluto
+- `<script type="application/ld+json">` (Organization, FAQPage, Service, CollectionPage, ContactPage según tipo)
+- **Coherencia**: la keyword primaria debe aparecer en el H1 de la página.
 
-### R6. Diseño a partir del Brandbook del cliente, no por defecto
-- Contenedor `1240px` centrado (salvo que el brandbook diga otro valor).
-- Hero 2 columnas side-by-side en desktop (aprox. 54% texto / 42% media), apilado en mobile.
-- Fondos claros ≥ 85% del viewport salvo especificación contraria; oscuro reservado a hero/footer.
-- **Tipografía**: usar las familias del brandbook del cliente. No sustituir por fuentes genéricas sin justificación documentada.
-- CTAs duales cuando el brief lo exija (p.ej. canal B2B + canal B2C).
+El script `seo_pack.py` lee los copys desde `copys_v2/*.md` y genera un diccionario de meta por página que `build.py` inyecta automáticamente.
 
-### R7. Lotes atómicos, cero iteraciones sueltas
-Pipeline indivisible por cambio:
+### R6. Diseño desde el Brandbook, no desde defaults
+- **Contenedor**: `1240px` boxed centrado (salvo brandbook indique otro valor).
+- **Hero**: split 2 columnas side-by-side (54% texto / 42% media), apilado en mobile.
+- **Fondos**: ≥85% claros del viewport; oscuro solo en hero y footer.
+- **Tipografía**: SIEMPRE la del brief/Brandbook del cliente. NO sustituir por Inter/Roboto/Arial sin justificación documentada. Si el brief prohíbe una fuente, la prohibición es ley.
+- **CTAs**: duales cuando el modelo de negocio lo exija (p.ej. canal B2B + canal B2C).
+
+### R7. Lotes atómicos — pipeline completo por cambio
 ```
-editar src → regenerar site/ → validar local (parse+links) → deploy →
-curl HTTP 200 en todas las URLs → capturas dual-viewport → revisión ocular
+editar src → regenerar site/ → validar local → deploy → curl 200 todo → capturas → revisión
 ```
-- Si algo falla: corregir en `src/` y repetir el pipeline **completo**.
-- Los parches uno-a-uno sobre artefactos vivos están prohibidos.
+Si algo falla: corregir en src y repetir el pipeline completo. Prohibido hacer parches uno-a-uno sobre artefactos vivos.
 
-## ✅ Checklist de Aceptación (obligatorio antes de dar por terminado)
-- [ ] Probe FTP respondió 200 antes del primer upload real.
-- [ ] Todas las páginas devuelven HTTP 200 tras el deploy.
-- [ ] El sitio raíz/original del cliente responde 200 e intacto (si aplica).
-- [ ] Logo ≤ 45px de alto medido en DOM; íconos sociales 28px; WhatsApp ícono-solo.
-- [ ] SEO pack presente en cada página y coherente con su H1.
-- [ ] Cero credenciales/secretos en archivos versionados o subidos (usar variables de entorno).
-- [ ] Capturas desktop (1440px) y mobile (375px) revisadas visualmente.
-- [ ] `lessons-learned` del workspace actualizado con cualquier error nuevo descubierto.
+### R8. Fotos temáticas reales — jamás emojis ni placeholders
+- Buscar fotos en `DRIVE/*/assets/`, `DRIVE/*/proyecto_logo_*/`, o `wp-content/uploads/` del cliente.
+- Si no hay fotos reales: generar con IA (tool `generate_image`) con prompt específico del servicio/producto.
+- Cada hero DEBE tener una foto/imagen representativa, no un degradado con texto ni emoji.
+- **NO usar logos de otras empresas** (ej: un Sheraton logo en la página de Seguridad Industrial).
 
+---
+
+## 🔴 Modo E — Pipeline Elementor Canvas (específico)
+
+### `wp_slash()` — LECCIÓN CRÍTICA
+WordPress ejecuta `stripslashes()` en `update_post_meta()`. Sin `wp_slash()`, el JSON de Elementor se corrompe y las páginas salen en blanco.
+```php
+// ❌ INCORRECTO
+update_post_meta($id, '_elementor_data', $json);
+// ✅ CORRECTO
+update_post_meta($id, '_elementor_data', wp_slash($json));
+```
+
+### Post-Write Verification (NotebookLM)
+La REST API puede devolver HTTP 200 pero el payload puede haber sido descartado silenciosamente por filtros de plugins. Después de cada inyección:
+```php
+$stored = get_post_meta($id, '_elementor_data', true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    // Payload corrupto — restaurar desde backup
+}
+```
+
+### Header/Footer inyectados en CADA página
+Los templates de `elementor_library` type header/footer requieren Theme Builder Pro configurado. Para deployments sin Pro, la solución es inyectar directamente en el `_elementor_data` de cada página:
+```php
+$header_elements = json_decode(file_get_contents('header.json'), true);
+$footer_elements = json_decode(file_get_contents('footer.json'), true);
+$current = json_decode(get_post_meta($pid, '_elementor_data', true), true);
+$merged = array_merge($header_elements, $current, $footer_elements);
+update_post_meta($pid, '_elementor_data', wp_slash(json_encode($merged)));
+```
+
+### Compilador: Tailwind → Elementor Flexbox
+- El `compiler_v4.js` transcompila HTML+Tailwind a JSON Elementor con mapeo semántico de propiedades Flexbox.
+- El compilador lee de `assets_originales/` (línea 34 hardcodeada), NO de `stitch_html/`.
+- Archivos necesarios en `assets_originales/`: todas las páginas `.html` + `header-global.html` + `footer-global.html` + `page_manifest.json`.
+- Slugs: limpiar trash de WP antes de crear páginas nuevas para evitar sufijos `-2`.
+
+### Post-Deploy Checklist (5 pasos obligatorios)
+1. ✅ Header/Footer injectados en cada página
+2. ✅ Menú de navegación WordPress creado
+3. ✅ Logo SVG subido y configurado como `custom_logo`
+4. ✅ Botón flotante de WhatsApp instalado (mu-plugin)
+5. ✅ Verificación visual E2E con Playwright
+
+---
+
+## 🔵 Modo S — Pipeline Static HTML (específico)
+
+### Build: src → site
+- `src/tokens.css`: design tokens del Brandbook (`:root { --brand-deep: #... }`)
+- `src/build.py`: partials compartidos (header, footer, social_icons, hero, cards, callouts, cta_final)
+- `src/pages.py`: una función `page()` por ruta, contenido real desde `copys_v2/`
+- `src/assets/`: logo SVG real, fotos temáticas en PNG/JPG
+
+Ejecutar `python3 pages.py` regenera `site/` completo.
+
+### Deploy: FTPS directo
+- `deploy.py` lee hostname ftp, usuario y path remoto del `.env` (secciones 08-09, 18).
+- Si el dominio tiene Cloudflare proxy → usar hostname directo del servidor (ej: `brb.pfs.mybluehost.me`), no el dominio.
+- El path remoto base se determina con `probe_docroot.py` (ver R1).
+
+### Verificación
+- `post_deploy_verify.py`: curl a todas las URLs → capturas Playwright dual-viewport → medición de logo px → reporte
+
+---
+
+## 🖼️ Estándares de Assets Visuales (ambos modos)
+
+### Logo
+- Fuente: `DRIVE/proyecto_logo_{cliente}/..._cropped.svg`
+- Tamaño: 48px de alto en header desktop, 36px en mobile
+- Formato: `<img src="assets/logo-{cliente}.svg" height="48" class="logo-img">`
+- NUNCA placeholder genérico, NUNCA texto plano `<span>`, NUNCA logo improvisado en SVG inline
+
+### Iconos sociales
+- SVG inline, 28px caja × 15px SVG interno
+- CADA red con su color de marca (no monocromático)
+- WhatsApp `#25D366`, Instagram degradado, Facebook `#1877F2`, TikTok `#000`, YouTube `#FF0000`, MercadoLibre `#FFE600`, Threads `#000`, Linktree `#28A745`
+
+### Botón WhatsApp
+- Flotante: círculo 56px `#25D366` fixed bottom-right 24px
+- Inline (hero/CTA): círculo 40px SOLO ícono, sin texto. Acompañado de label externo opcional
+- CTA del hero: SIEMPRE dual (ícono WA + botón secundario con texto)
+
+### Imágenes temáticas
+- Buscar primero en assets reales del cliente
+- Si no hay: generar con IA (herramienta `generate_image`) con prompt descriptivo del servicio/producto
+- Cada página DEBE tener una imagen en su hero
+
+---
+
+## 📦 Scripts del Repositorio
+
+| Script | Tipo | Propósito |
+|---|---|---|
+| `compiler_v4.js` | Node | Transpilador Tailwind → Elementor JSON (Modo E) |
+| `sync_and_inject.js` | Node | Orquestador FTP+HTTP bypass WAF (Modo E) |
+| `create_hf_native.php` | PHP | Header/Footer Elementor CPT nativos (Modo E) |
+| `fix_material_symbols.js` | Node | Purga texto fantasma de CSS fallbacks |
+| `fix_slugs.js` | Node | Normaliza slugs WP |
+| `purge_wp_cache.mjs` | Node | Limpieza caché Elementor |
+| `probe_docroot.py` | Python | Detecta docroot FTP real (Modo S, R1) |
+| `seo_pack.py` | Python | Genera meta+JSON-LD por página (Ambos modos) |
+| `post_deploy_verify.py` | Python | Checklist automatizado con curl+Playwright (Ambos modos) |
+
+---
+
+## ✅ Checklist de Aceptación Final (ambos modos)
+
+- [ ] Modo correcto elegido antes de diseñar (E / S)
+- [ ] Probe FTP devolvió 200
+- [ ] src/ y site/ separados (las fuentes no viven en site/)
+- [ ] Todas las URLs devuelven HTTP 200
+- [ ] Sitio raíz del cliente intacto (200, sin tocar)
+- [ ] Logo real SVG a 48px (±8px) medido en DOM
+- [ ] Iconos sociales 28px con color de cada red
+- [ ] Botón WhatsApp: flotante 56px + inline 40px solo ícono
+- [ ] SEO pack presente en cada página (title + desc + keywords + canonical + JSON-LD)
+- [ ] Keyword primaria del meta = H1 de la página
+- [ ] Capturas desktop 1440px + mobile 375px revisadas visualmente
+- [ ] Fotos temáticas reales en cada hero (no emojis, no placeholders, no logos de otras empresas)
+- [ ] Cero credenciales en archivos versionados o subidos
+- [ ] Skill actualizado en memory-bank si se descubrió un error nuevo
