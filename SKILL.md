@@ -25,7 +25,7 @@ Cada modo tiene sus reglas de dimensiones, SEO, verificación y checklist de ace
 | `notebooklm-mcp` | MCP | Ambos (consulta previa obligatoria) |
 | `novamira-mcp` / `#wp-elementor-mcp` | MCP | Elementor |
 | `obsidian-mcp` | MCP | Ambos |
-| `playwright` (remoto, 192.168.1.x:3000) | MCP | Ambos (verificación visual) |
+| `playwright` (remoto, LAN:3000) | MCP | Ambos (verificación visual) |
 | `design-taste-frontend` | Skill | Ambos (anti-slop) |
 | `floydia_web_brand` | Skill | Ambos (brandbook insumo) |
 
@@ -203,7 +203,7 @@ Ejecutar `python3 pages.py` regenera `site/` completo.
 
 ### Deploy: FTPS directo
 - `deploy.py` lee hostname ftp, usuario y path remoto del `.env` (secciones 08-09, 18).
-- Si el dominio tiene Cloudflare proxy → usar hostname directo del servidor (ej: `brb.pfs.mybluehost.me`), no el dominio.
+- Si el dominio tiene Cloudflare proxy → usar hostname directo del servidor proporcionado por el hosting (ej: `server.example-hosting.com` en lugar del dominio), no el dominio con CDN.
 - El path remoto base se determina con `probe_docroot.py` (ver R1).
 
 ### Verificación
