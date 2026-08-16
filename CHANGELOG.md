@@ -4,6 +4,27 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [20.0.0] - 2026-08-16 — DETERMINISTIC HYBRID PIPELINE (non-frontier models)
+
+### Agregado
+- **Pipeline Híbrido Determinista E1→E4** en `pipeline/` (Python stdlib, cero dependencias):
+  - `extract_ir.py` (E1): HTML Stitch → IR JSON (secciones, headings, imgs, CTAs, meta).
+  - `compile_ir_to_elementor.py` (E2): IR → `_elementor_data` con IDs uuid5 deterministas (7 hex), boxed 1240px (R6), responsive mecánico R10, merge `--header/--footer` con **re-hash recursivo de IDs** (unicidad por construcción) y `page_settings` como array PHP.
+  - `lint_elementor_json.py` (E3): puerta pre-flight E1–E7 (parse, IDs únicos recursivos, elType/widgetType, boxed, responsive, logo R4, integridad) con exit codes contractuales (0/1/2/3).
+  - `asset_matrix.py`: matriz página→archivo→ratio+presupuesto WebP (`scan`) y verificación de cobertura/timestamps (`verify`) contra omisiones silenciosas de generación IA.
+  - `elementor_schema.json`: SSOT de enumeraciones/patrones para el linter.
+- **Reglas nuevas R9–R11**: R9 prohíbe generar/editar `_elementor_data` a mano; R10 inyecta responsive y Tailwind `important: true` por regla mecánica; R11 exige artefacto JSON + exit code por etapa (2 fallos ⇒ escalar al usuario).
+- **Matriz de vectores de falla V1–V4** documentada en SKILL.md (alucinación de esquema, corrupción responsive, ambigüedad, activos/cuotas).
+
+### Cambiado
+- `SKILL.md` → v20.0.0: el LLM orquesta y valida; los scripts transforman. Checklist de aceptación ampliado (lint exit=0, page_settings array PHP, asset_matrix verify exit=0).
+- R8 formaliza el pipeline de activos IA con contingencia de cuota (Gemini web, cuentas alternas) y verificación por matriz.
+
+### Validación
+- 8/8 pruebas PASS: round-trip E1→E2→E3 · idempotencia byte-idéntica (`cmp`) · negativo ID duplicado · negativo responsive · merge header/footer (detectó colisión real de IDs → motivó el re-hash) · asset_matrix scan/verify · `py_compile` ×4.
+
+---
+
 ## [4.6.7] - 2026-04-26 - SECURITY & PIPELINE HARDENING
 
 ### Agregado
