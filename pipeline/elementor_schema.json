@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Elementor _elementor_data — Contrato Mínimo stitch2elementor v20",
+  "description": "Contrato estructural mínimo para payloads _elementor_data generados por el pipeline determinista. El linter lint_elementor_json.py carga este archivo como SSOT de enumeraciones y patrones; NO requiere la librería jsonschema.",
+  "id_pattern": "^[a-f0-9]{7}$",
+  "id_note": "IDs deterministas de 7 chars hex generados por compile_ir_to_elementor.py (uuid5 truncado). Prohibido inventar IDs fuera del compilador.",
+  "allowed_elTypes": ["container", "section", "column", "widget"],
+  "allowed_widgetTypes": [
+    "heading",
+    "text-editor",
+    "image",
+    "button",
+    "icon-list",
+    "divider",
+    "spacer",
+    "html",
+    "image-box",
+    "icon-box"
+  ],
+  "root_container_rules": {
+    "content_width": "boxed",
+    "boxed_width_min_px": 1140,
+    "boxed_width_max_px": 1440,
+    "boxed_width_default_px": 1240,
+    "required_responsive": {
+      "flex_direction_mobile": "column",
+      "width_mobile_percent": 100
+    }
+  },
+  "dimension_rules_R4": {
+    "logo_height_px": {"min": 36, "max": 56, "target": 48},
+    "social_icon_box_px": 28,
+    "social_icon_svg_px": 15,
+    "whatsapp_floating_px": {"min": 42, "max": 56},
+    "whatsapp_inline_px": {"min": 38, "max": 44}
+  },
+  "structure_invariants": [
+    "root_is_array",
+    "unique_ids_recursive",
+    "widget_has_widgetType",
+    "container_children_are_elements_array",
+    "no_empty_elements_key"
+  ]
+}
