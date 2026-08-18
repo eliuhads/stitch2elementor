@@ -4,6 +4,22 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [23.0.0] - 2026-08-18 — NOVAMIRA MCP SSOT, VISUAL QA & SVG DIMENSIONAL HARDENING
+
+### Agregado
+- **Novamira MCP como SSOT Primario**: Adopción formal de `novamira-mcp` (vía `mcp-adapter-execute-ability` con `novamira/run-wp-cli`) como la herramienta rectora #1 para la gestión y purga en WordPress (`wp elementor flush-css` y `wp cache flush`).
+- **Deprecación de MCPs Legacy**: Los servidores `elementor-mcp` y `wp-elementor-mcp` quedan marcados como oficialmente obsoletos.
+- **R19 Blindaje Dimensional de Logotipos & SVGs (Lección 32)**: Prohibición estricta de SVGs con lienzos nativos gigantes (ej. 1985×2066 px); rasterizado previo obligatorio a PNG/WebP (360×375 px) y forzado de dimensiones inline y CSS (`max-height: 38px !important; width: auto !important; max-width: 160px !important;`).
+- **R20 Contraste Forzado & Fallbacks en Micro-degradados (Lección 34)**: Inyección obligatoria de colores de fondo sólidos de respaldo (`bg-[#0F3D24]`), badges ámbar (`#FBBF24`) y texto de alto contraste (`#E2EFE7`) para evitar textos blancos invisibles por clases no compiladas de Tailwind.
+- **R21 Carga Inmediata en Bento Cards (Lección 33)**: Erradicación de `loading="lazy"` en tarjetas de catálogo y líneas de producto en la portada para evitar recuadros blancos en capturas y primeros renders.
+- **R22 Protocolo de QA Visual Realista (Cero Falsos Positivos, Lección 33)**: Prohibición de dar "PASS" basándose únicamente en código HTTP 200 o `overflow-x: false`. Se establece autoScroll previo mandatorio en Playwright Proxmox CT252 e inspección visual de las capturas completas antes de certificar.
+- **Google Colab Pro GPU Offloading**: Procedimiento formal para delegar cómputo pesado de Python (generación masiva, optimización de medios, ML/tensores) a la GPU en la nube (`eliutec.aux.ia1@gmail.com`).
+
+### Cambiado
+- `SKILL.md` → v23.0.0: Matriz ampliada a V1–V10, reglas R0–R22, integración de Novamira MCP y checklist de aceptación enriquecido.
+
+---
+
 ## [22.0.0] - 2026-08-18 — ATOMIC FLEXBOX & NATIVE EDITABLE WIDGETS
 
 ### Agregado

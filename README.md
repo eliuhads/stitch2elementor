@@ -2,7 +2,7 @@
 
 ![stitch2elementor banner](assets/banner.svg)
 
-# ⚡ `stitch2elementor` (v22.0.0)
+# ⚡ `stitch2elementor` (v23.0.0)
 
 ### **The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
 
@@ -10,15 +10,15 @@
 
 [![Floydia Project](https://img.shields.io/badge/Powered%20By-Floydia-00E676.svg?style=for-the-badge&logo=crystal&logoColor=white&labelColor=18181b)](https://floydia.site)
 [![GitHub Stars](https://img.shields.io/github/stars/eliuhads/stitch2elementor?style=for-the-badge&logo=github&color=ffd600&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor/stargazers)
-[![Version](https://img.shields.io/badge/version-22.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-23.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
+[![Novamira MCP](https://img.shields.io/badge/Novamira%20MCP-SSOT%20Ready-00bcd4.svg?style=for-the-badge&logo=wordpress&logoColor=white&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor)
 [![Elementor v4](https://img.shields.io/badge/Elementor-Atomic%20Flexbox%20v4-ff6d00.svg?style=for-the-badge&logo=elementor&logoColor=white&labelColor=18181b)](https://elementor.com)
-[![WordPress](https://img.shields.io/badge/WordPress-Ready-21759b.svg?style=for-the-badge&logo=wordpress&logoColor=white&labelColor=18181b)](https://wordpress.org)
 [![Python Stdlib](https://img.shields.io/badge/Python-3.10%2B%20(Zero--Deps)-3776ab.svg?style=for-the-badge&logo=python&logoColor=white&labelColor=18181b)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-a855f7.svg?style=for-the-badge&labelColor=18181b)](LICENSE)
 
 <br/>
 
-[🌟 Star on GitHub](https://github.com/eliuhads/stitch2elementor) • [🚀 Quick Start](#-quick-start) • [🏛️ Architecture](#-pipeline-architecture) • [🤖 Multi-Agent Setup](#-universal-ai-agent-compatibility) • [🛡️ 18 Anti-Error Rules](#-the-18-battle-tested-anti-error-rules-r0r18)
+[🌟 Star on GitHub](https://github.com/eliuhads/stitch2elementor) • [🚀 Quick Start](#-quick-start) • [🏛️ Architecture](#-pipeline-architecture) • [🤖 Multi-Agent Setup](#-universal-ai-agent-compatibility) • [🛡️ 22 Anti-Error Rules](#-the-22-battle-tested-anti-error-rules-r0r22)
 
 </div>
 
@@ -125,13 +125,13 @@ flowchart TD
 
 ---
 
-## 🛡️ The 18 Battle-Tested Anti-Error Rules (R0–R18)
+## 🛡️ The 22 Battle-Tested Anti-Error Rules (R0–R22)
 
 > [!NOTE]
-> Every rule in this engine was forged through real-world production post-mortems across 22 major architectural iterations, backed by deep research synthesized with **NotebookLM** and persistent **Memory Bank** logs.
+> Every rule in this engine was forged through real-world production post-mortems across 23 major architectural iterations, backed by deep research synthesized with **NotebookLM** and persistent **Memory Bank** logs.
 
 <details>
-<summary><b>🔍 Expand to inspect all 18 Anti-Error Rules</b></summary>
+<summary><b>🔍 Expand to inspect all 22 Anti-Error Rules</b></summary>
 
 <br/>
 
@@ -145,17 +145,21 @@ flowchart TD
 | **R5** | **Native SEO Injection** | Auto-injects canonical link, OpenGraph tags, and structured JSON-LD schemas on every page build. |
 | **R6** | **Brandbook Token Anchor** | Enforces `1240px` boxed layouts, client typography, and palette variables directly from Brandbook. |
 | **R7** | **Atomic Batches** | Deploy complete bundles atomically. Partial, halfway deployments are strictly blocked. |
-| **R8** | **AI Asset Matrix & WebP** | Budget caps (Heroes <130KB, Cards <100KB) with `asset_matrix.py verify` exit=0 quality gate. |
+| **R8** | **AI Asset Matrix & WebP** | Budget caps (Heroes <130KB, Cards <90KB) with `asset_matrix.py verify` exit=0 quality gate. |
 | **R9** | **No Hand-Crafted JSON** | Prohibits free-form LLM JSON synthesis. All payloads must emerge from `compile_ir_to_elementor.py`. |
 | **R10** | **Mechanical Responsive** | Compiler automatically injects `flex_direction_mobile: column` and `width_mobile: 100%`. |
 | **R11** | **Deterministic Contracts** | Every stage outputs a verified JSON artifact + exit code. 2 consecutive fails trigger human escalation. |
 | **R12** | **Base64 Safe Transport** | Empaqueta HTML/JSON con `base64_encode`/`decode` para eliminar el *Escaping Hell* en RPC/PHP. |
 | **R13** | **CSS Decoupling** | Centraliza hojas de estilo maestras en `/uploads/` con hash de versión, eliminando el bloat de BD. |
-| **R14** | **Multi-Level Cache Purge** | Purga obligatoria de `_elementor_css`, `files_manager->clear_cache()`, `wp_cache_flush()` y `post_content`. |
+| **R14** | **Novamira Multi-Level Cache Purge** | Purga obligatoria vía Novamira MCP: `wp elementor flush-css` y `wp cache flush`. |
 | **R15** | **Mobile Specificity** | Reglas `!important` inmutables para `box-sizing` y wrappers en 375px. Rechaza builds con `isOverflow: true`. |
 | **R16** | **Canvas Reset** | Resetea fondos y márgenes residuales de wrappers globales de Elementor. |
 | **R17** | **Atomic Flexbox Containers** | Migración total a `elType: "container"` con Flexbox nativo; elimina secciones/columnas legacy. |
 | **R18** | **Native Editable Widgets** | Mapea semánticamente a widgets visualmente editables (`heading`, `text-editor`, `image`, `button`). |
+| **R19** | **SVG Dimensional Hardening** | Prohíbe SVGs con lienzos gigantes (1985×2066) sin rasterizar a PNG/WebP (360×375) o sin `max-height: 38px !important`. |
+| **R20** | **Forced Contrast & Fallbacks** | Fondos sólidos de respaldo (`bg-[#0F3D24]`), badges ámbar (`#FBBF24`) y texto de alto contraste (`#E2EFE7`). |
+| **R21** | **Immediate Load Bento Cards** | Erradicación de `loading="lazy"` en tarjetas de catálogo de portada para evitar recuadros blancos. |
+| **R22** | **Realistic Visual QA Gate** | Prohibido dar PASS solo por HTTP 200; autoScroll mandatorio e inspección de capturas en Proxmox CT252. |
 
 </details>
 
