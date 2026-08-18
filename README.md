@@ -1,58 +1,77 @@
 <![CDATA[<div align="center">
 
-# ⚡ stitch2elementor (v22.0.0)
+# ⚡ `stitch2elementor`
 
-### *The Universal Deterministic Bridge from Google Stitch AI to WordPress Elementor & Static Web*
+### **The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
 
-[![GitHub Stars](https://img.shields.io/github/stars/eliuhads/stitch2elementor?style=for-the-badge&color=ffd600)](https://github.com/eliuhads/stitch2elementor/stargazers)
-[![Version](https://img.shields.io/badge/version-22.0.0-00e676.svg?style=for-the-badge)](CHANGELOG.md)
-[![Pipeline](https://img.shields.io/badge/pipeline-Deterministic_Hybrid-00b0ff.svg?style=for-the-badge)](pipeline/)
-[![Elementor](https://img.shields.io/badge/Elementor-Atomic_Flexbox_v4-ff6d00.svg?style=for-the-badge)](https://elementor.com)
-[![Universal Agents](https://img.shields.io/badge/Agents-OpenCode%20%7C%20Antigravity%20%7C%20Claude%20%7C%20Cursor%20%7C%20Zed-7c4dff.svg?style=for-the-badge)](#-universal-ai-agent-compatibility)
-[![Python](https://img.shields.io/badge/Python-3.10%2B%20Stdlib%20(Zero--Deps)-3776AB.svg?style=for-the-badge)](https://python.org)
-[![License](https://img.shields.io/badge/license-MIT-white.svg?style=for-the-badge)](LICENSE)
+*Turn any AI coding agent into a zero-hallucination frontend engineer that compiles generative UI designs into production-ready, client-editable Elementor Flexbox Containers and blazing-fast Static HTML.*
 
-<p align="center">
-  <b>Tired of AI agents hallucinating broken Elementor JSONs, escaping strings into oblivion, or locking clients into uneditable code?</b><br>
-  <code>stitch2elementor</code> turns any AI coding agent into a production-grade UI engineer that compiles Google Stitch designs into native, client-editable Elementor Flexbox Containers and lightning-fast Static HTML.
-</p>
+---
 
-[🌟 Star on GitHub](https://github.com/eliuhads/stitch2elementor) • [📖 Architecture](#-architecture--deterministic-hybrid-pipeline) • [⚡ Universal Compatibility](#-universal-ai-agent-compatibility) • [🛡️ The 18 Anti-Error Rules](#-18-battle-tested-anti-error-rules-r0r18) • [🚀 Quick Start](#-quick-start)
+[![GitHub Stars](https://img.shields.io/github/stars/eliuhads/stitch2elementor?style=for-the-badge&logo=github&color=ffd600&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor/stargazers)
+[![Version](https://img.shields.io/badge/version-22.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
+[![Elementor v4](https://img.shields.io/badge/Elementor-Atomic%20Flexbox%20v4-ff6d00.svg?style=for-the-badge&logo=elementor&logoColor=white&labelColor=18181b)](https://elementor.com)
+[![WordPress](https://img.shields.io/badge/WordPress-Ready-21759b.svg?style=for-the-badge&logo=wordpress&logoColor=white&labelColor=18181b)](https://wordpress.org)
+[![Python Stdlib](https://img.shields.io/badge/Python-3.10%2B%20(Zero--Deps)-3776ab.svg?style=for-the-badge&logo=python&logoColor=white&labelColor=18181b)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-a855f7.svg?style=for-the-badge&labelColor=18181b)](LICENSE)
+
+<br/>
+
+[🌟 Star on GitHub](https://github.com/eliuhads/stitch2elementor) • [🚀 Quick Start](#-quick-start) • [🏛️ Architecture](#-pipeline-architecture) • [🤖 Multi-Agent Setup](#-universal-ai-agent-compatibility) • [🛡️ 18 Anti-Error Rules](#-the-18-battle-tested-anti-error-rules-r0r18)
 
 ---
 
 </div>
 
-## 💡 The Story & The Engineering Journey
+## 📌 Overview
 
-Bridging modern generative UI tools like **[Google Stitch](https://stitch.withgoogle.com/)** with production CMS platforms like **WordPress Elementor** has historically been a nightmare for developers and AI agents alike:
+Generative UI tools like **Google Stitch** create stunning HTML5 & Tailwind layouts in seconds. But migrating those designs into real-world CMS platforms like **WordPress Elementor** has always been painful:
 
-* ❌ LLMs freely writing `_elementor_data` JSON hallucinate schemas, generate colliding IDs, and crash the Elementor canvas editor.
-* ❌ Inlined CSS and manual quote-escaping create payload bloat ("Escaping Hell") and silent REST API dropouts.
-* ❌ Unvetted responsive conversions result in horizontal scroll overflows on 375px mobile screens.
+> [!WARNING]
+> ### The Fragile LLM Problem
+> When LLMs freely write `_elementor_data` JSON or inlined styles, they suffer from:
+> 1. **Schema Hallucinations**: Malformed properties, duplicate IDs, and invalid Flexbox trees that break the Elementor Canvas editor.
+> 2. **Escaping Hell**: Corrupted quotes and escaped Unicode characters during API/PHP transport.
+> 3. **Mobile 375px Overflow**: Horizontal scrollbars and bloated un-purged CSS caches.
+> 4. **Client Lock-In**: Code dumped into monolithic raw HTML widgets instead of native, editable headings and buttons.
 
-**`stitch2elementor` is the result of months of deep research, extensive synthesis via NotebookLM, persistent Memory Bank validation, and 22 major architectural iterations deployed in live enterprise production.**
+### 💡 The Deterministic Hybrid Solution
 
-Instead of letting LLMs guess JSON syntax, we decoupled the intelligence:
-> **The AI Agent orchestrates, directs, and audits — while deterministic, zero-dependency Python scripts (stdlib only) extract, compile, and lint the AST.**
+`stitch2elementor` decouples **high-level orchestration** from **AST compilation**:
 
-The result? **100% pixel-accurate, clean, native Elementor pages with 0 hallucination risk.**
+```mermaid
+flowchart LR
+    A[🧠 AI Agent<br/><i>Decides & Orchestrates</i>] -->|Raw HTML| B[⚙️ Python Engine<br/><i>extract_ir.py</i>]
+    B -->|Clean AST IR| C[🏗️ Compiler<br/><i>compile_ir_to_elementor.py</i>]
+    C -->|Flexbox JSON| D{🛡️ Linter Gate<br/><i>lint_elementor_json.py</i>}
+    D -->|✅ Exit Code 0| E[🚀 Safe Production Deploy<br/><i>Base64 RPC + Cache Purge</i>]
+    D -->|❌ Exit Code 1| F[🛑 Block & Fix In Source]
+
+    style A fill:#7c4dff,stroke:#512da8,color:#fff
+    style B fill:#0288d1,stroke:#01579b,color:#fff
+    style C fill:#00b0ff,stroke:#0091ea,color:#000
+    style D fill:#ffd600,stroke:#f57f17,color:#000
+    style E fill:#00e676,stroke:#00c853,color:#000
+    style F fill:#ff1744,stroke:#d50000,color:#fff
+```
+
+> **The AI Agent decides what to build, while deterministic Python scripts (stdlib only) extract, compile, and lint the tree.** Zero hallucination. 100% predictable.
 
 ---
 
 ## 🤖 Universal AI Agent Compatibility
 
-`stitch2elementor` is **100% agnostic and non-exclusive**. It requires no vendor lock-in and runs inside any AI coding assistant or environment that has terminal/workspace execution capabilities:
+`stitch2elementor` is completely tool-agnostic. It works out-of-the-box with any agent or workspace with terminal execution capabilities:
 
-| AI Agent / IDE | Integration Mode | Status |
+| AI Coding Agent | Workspace Path / Integration | Status |
 |---|---|---|
-| **OpenCode** | CLI / Desktop workspace skill & subtools | 🟢 Verified & Native |
-| **Google Antigravity** | Agent skill (`.agents/skills/stitch2elementor/`) | 🟢 Verified & Native |
-| **Claude Code (Anthropic)** | Workspace tool / CLI executor | 🟢 100% Compatible |
-| **Cursor / Windsurf** | `.cursorrules` / System prompt workflow | 🟢 100% Compatible |
-| **Zed Editor** | Task runner / Assistant integration | 🟢 100% Compatible |
-| **Cline / Roo Code** | Custom agent role & MCP pipeline | 🟢 100% Compatible |
-| **Standalone Terminal** | Pure Python 3.10+ CLI without AI | 🟢 100% Usable via CLI |
+| **OpenCode** | `~/.config/opencode/` · Workspace Subtools | `🟢 Verified Native` |
+| **Google Antigravity** | `.agents/skills/stitch2elementor/` | `🟢 Verified Native` |
+| **Claude Code (Anthropic)** | Project root `/pipeline/` via CLI tool calling | `🟢 100% Compatible` |
+| **Cursor / Windsurf** | `.cursorrules` + terminal workflow | `🟢 100% Compatible` |
+| **Zed Editor** | Assistant + Workspace task runner | `🟢 100% Compatible` |
+| **Cline / Roo Code** | Custom system prompt + MCP toolchain | `🟢 100% Compatible` |
+| **Python CLI (Standalone)** | Any shell with Python 3.10+ (No AI required) | `🟢 100% Compatible` |
 
 ---
 
@@ -60,80 +79,91 @@ The result? **100% pixel-accurate, clean, native Elementor pages with 0 hallucin
 
 Choose the optimal deployment path before designing:
 
-```
-                                  ┌──────────────────────────────┐
-                                  │   Google Stitch UI Design    │
-                                  │    (HTML5 + Tailwind CSS)    │
-                                  └──────────────┬───────────────┘
-                                                 │
-                        ┌────────────────────────┴────────────────────────┐
-                        ▼                                                 ▼
-             [ TRACK E: ELEMENTOR ]                            [ TRACK S: STATIC HTML ]
-      WordPress + Elementor Canvas                      High-Performance Edge / Apache
- ──────────────────────────────────────────       ──────────────────────────────────────────
- • Atomic Flexbox Containers (v4)                 • Multi-page pure HTML5/CSS3 build
- • Native editable widgets (H1-H4, Text, Img)     • Decoupled CSS design tokens
- • Base64-safe REST / PHP transport               • Automated FTPS deployment
- • Multi-level server cache purge                 • Dual-viewport Playwright verification
-```
+```mermaid
+flowchart TD
+    subgraph Input["🎨 Input Layer"]
+        UI["Google Stitch UI (HTML5 + Tailwind CSS)"]
+    end
 
----
+    subgraph Tracks["⚙️ Dual-Track Engine"]
+        TrackE["🔴 Track E: WordPress Elementor<br/><i>Atomic Flexbox v4 & Native Widgets</i>"]
+        TrackS["🔵 Track S: Static Edge Web<br/><i>Python Multi-Page Build + FTPS</i>"]
+    end
 
-## 🏛️ Architecture — Deterministic Hybrid Pipeline
+    subgraph Outputs["🚀 Target Production"]
+        WpLive["🌐 Live WordPress Site<br/>• Full Client Visual Editability<br/>• Base64 Transport (R12)<br/>• Decoupled CSS in /uploads/<br/>• Multi-Level Cache Purge"]
+        StaticLive["⚡ Edge / Apache Hosting<br/>• Zero-CMS Lightweight Build<br/>• Micro-Assets & WebP Budget<br/>• Playwright Dual-Viewport QA"]
+    end
 
-```
-HTML (Stitch/Edited) ──► [E1 EXTRACT]   pipeline/extract_ir.py
-                                         DOM AST Parse (stdlib) → ir.json (sections, headings, imgs, ctas)
-                             │
-                             ▼
-                     [E2 COMPILE]        pipeline/compile_ir_to_elementor.py
-                                         IR → _elementor_data · uuid5 deterministic IDs (7 hex)
-                                         · Boxed 1240px container · Mechanical mobile flex injection
-                                         · Header/Footer merge with collision-proof re-hashing
-                             │
-                             ▼
-                     [E3 LINT]           pipeline/lint_elementor_json.py  ──► [ MANDATORY QUALITY GATE ]
-                                         7 validation passes: Schema · UUIDs · Flexbox · Boxed width
-                                         · Responsive properties · Element integrity (Exit code ≠ 0 blocks deploy)
-                             │
-                             ▼
-                     [E4 DEPLOY+QA]      Base64 RPC transport (R12) · Decoupled master CSS (/uploads/)
-                                         · Multi-level cache purge (R14) · Remote Playwright QA (CT252)
+    UI --> TrackE
+    UI --> TrackS
+    TrackE --> WpLive
+    TrackS --> StaticLive
+
+    style UI fill:#1e1e24,stroke:#7c4dff,color:#fff
+    style TrackE fill:#ff6d00,stroke:#e65100,color:#fff
+    style TrackS fill:#0091ea,stroke:#01579b,color:#fff
+    style WpLive fill:#2e7d32,stroke:#1b5e20,color:#fff
+    style StaticLive fill:#00838f,stroke:#006064,color:#fff
 ```
 
 ---
 
-## 🛡️ 18 Battle-Tested Anti-Error Rules (R0–R18)
+## 📊 Feature Comparison
 
-Every rule in this engine was forged from real-world production post-mortems:
-
-| Rule | Title | What it Prevents |
+| Engineering Dimension | ❌ Raw LLM Generation | ✅ `stitch2elementor` (v22) |
 |---|---|---|
-| **R0** | **Mode Selection** | Ambiguity between CMS deployment vs. standalone static build. |
-| **R1** | **FTP Probe Mandatory** | Resolves docroot mismatch (`/` vs `public_html/`) before payload transmission. |
-| **R2** | **Source vs Artifact Split** | Keeps `src/` as single source of truth; `site/` remains completely ephemeral. |
-| **R3** | **Immutable Generated Code** | Prohibits live patches on built files; all fixes flow through `src/` recompilation. |
-| **R4** | **Golden UI Dimensions** | Hard limits on logo size (48px) and action buttons to avoid visually oversized headers. |
-| **R5** | **Native SEO Injection** | Auto-injects canonical links, meta tags, and structured JSON-LD schemas on build. |
-| **R6** | **Brandbook Token Anchor** | 1240px boxed layouts and strict typography mapped directly from brand guidelines. |
-| **R7** | **Atomic Batch Execution** | Changes are compiled in complete batches; prevents broken halfway deployments. |
-| **R8** | **AI Asset Matrix & WebP** | Rigorous asset accounting matrix with budget caps (Hero <130KB, Cards <100KB). |
-| **R9** | **Banned Hand-Crafted JSON** | Prohibits free-form LLM JSON synthesis. All payloads must emerge from the compiler. |
-| **R10** | **Mechanical Responsive Rules**| Enforces `flex_direction_mobile: column` and `width_mobile: 100%` mechanically. |
-| **R11** | **Deterministic Stage Contracts**| Every stage outputs JSON + exit code (0=Pass, 1=Fail). Machine-audited pipeline. |
-| **R12** | **Base64 Payload Transport** | Eliminates character corruptions and *Escaping Hell* across PHP/REST boundaries. |
-| **R13** | **Decoupled Master Stylesheet**| Stores CSS in `/wp-content/uploads/` rather than bloating the database with 20KB inline CSS. |
-| **R14** | **Multi-Level Cache Purge** | Automatically purges `_elementor_css`, Elementor file manager, and WP object cache. |
-| **R15** | **Mobile Breakpoint Specificity**| Mandatory `!important` containment on mobile wrappers to eliminate 375px overflow. |
-| **R16** | **Canvas Reset Isolation** | Neutralizes Elementor's default background artifacts and wrapper margins. |
-| **R17** | **Atomic Flexbox Containers** | Full migration to Elementor v4 `elType: "container"` (eliminates legacy sections). |
-| **R18** | **Native Editable Widgets** | Mappable `heading`, `text-editor`, `image`, and `button` widgets for client editing. |
+| **AST & Schema Structure** | ⚠️ Random missing keys, malformed arrays | 🔒 **100% Validated against Elementor JSON Schema** |
+| **Element IDs** | ⚠️ Random IDs with collisions (breaks builder) | 🔑 **Deterministic `uuid5` (7-hex collision-proof)** |
+| **Elementor Modern Standard** | ❌ Legacy Sections & Columns (`elType: section`) | ⚡ **Atomic Flexbox Containers (`elType: container`)** |
+| **Client Usability** | ⚠️ Monolithic raw HTML dump (uneditable) | ✏️ **Native Widgets (`heading`, `text-editor`, `image`, `button`)** |
+| **Database Footprint** | ❌ 20KB+ inline CSS duplicated per page | 📦 **Decoupled master CSS stylesheet in `/uploads/`** |
+| **Mobile Breakpoints (375px)** | ❌ Frequent horizontal scroll overflow | 📱 **Mechanical `!important` mobile containment rules** |
+| **Transport Safety** | ❌ Broken strings across REST / PHP APIs | 🛡️ **Base64 transport layer (Zero Escaping Hell)** |
+| **Deployment Gate** | ❌ Blind deploy (pray it works) | 🚦 **Mandatory Linter with Exit Codes (0=Pass, 1=Fail)** |
 
 ---
 
-## ⚡ Interactive Agent Menu
+## 🛡️ The 18 Battle-Tested Anti-Error Rules (R0–R18)
 
-When invoked, the agent operates through an intuitive, structured command interface:
+> [!NOTE]
+> Every rule in this engine was forged through real-world production post-mortems across 22 major architectural iterations, backed by deep research synthesized with **NotebookLM** and persistent **Memory Bank** logs.
+
+<details>
+<summary><b>🔍 Expand to inspect all 18 Anti-Error Rules</b></summary>
+
+<br/>
+
+| Rule | Area | Summary & Production Guarantee |
+|:---:|---|---|
+| **R0** | **Mode Selection** | Select Track E (CMS) or Track S (Static) **before** design begins. Never cross-contaminate. |
+| **R1** | **FTP Probe** | Mandatory `probe.html` verification to resolve docroot mismatch (`/` vs `public_html/`) before payload transmission. |
+| **R2** | **Source Separation** | `src/` is the single source of truth. The `site/` folder is completely ephemeral and safe to regenerate. |
+| **R3** | **Immutable Build** | Never patch generated output files directly. Fix source templates in `src/` and re-run compilation. |
+| **R4** | **Golden Dimensions** | Strict caps: Navbar logo `48px (±8px)`, social icons `28px`, WA floating button `56px`. Measured via DOM. |
+| **R5** | **Native SEO Injection** | Auto-injects canonical link, OpenGraph tags, and structured JSON-LD schemas on every page build. |
+| **R6** | **Brandbook Token Anchor** | Enforces `1240px` boxed layouts, client typography, and palette variables directly from Brandbook. |
+| **R7** | **Atomic Batches** | Deploy complete bundles atomically. Partial, halfway deployments are strictly blocked. |
+| **R8** | **AI Asset Matrix & WebP** | Budget caps (Heroes <130KB, Cards <100KB) with `asset_matrix.py verify` exit=0 quality gate. |
+| **R9** | **No Hand-Crafted JSON** | Prohibits free-form LLM JSON synthesis. All payloads must emerge from `compile_ir_to_elementor.py`. |
+| **R10** | **Mechanical Responsive** | Compiler automatically injects `flex_direction_mobile: column` and `width_mobile: 100%`. |
+| **R11** | **Deterministic Contracts** | Every stage outputs a verified JSON artifact + exit code. 2 consecutive fails trigger human escalation. |
+| **R12** | **Base64 Safe Transport** | Empaqueta HTML/JSON con `base64_encode`/`decode` para eliminar el *Escaping Hell* en RPC/PHP. |
+| **R13** | **CSS Decoupling** | Centraliza hojas de estilo maestras en `/uploads/` con hash de versión, eliminando el bloat de BD. |
+| **R14** | **Multi-Level Cache Purge** | Purga obligatoria de `_elementor_css`, `files_manager->clear_cache()`, `wp_cache_flush()` y `post_content`. |
+| **R15** | **Mobile Specificity** | Reglas `!important` inmutables para `box-sizing` y wrappers en 375px. Rechaza builds con `isOverflow: true`. |
+| **R16** | **Canvas Reset** | Resetea fondos y márgenes residuales de wrappers globales de Elementor. |
+| **R17** | **Atomic Flexbox Containers** | Migración total a `elType: "container"` con Flexbox nativo; elimina secciones/columnas legacy. |
+| **R18** | **Native Editable Widgets** | Mapea semánticamente a widgets visualmente editables (`heading`, `text-editor`, `image`, `button`). |
+
+</details>
+
+---
+
+## ⚡ Interactive Command Menu
+
+<details>
+<summary><b>🖥️ View Interactive Agent CLI Menu</b></summary>
 
 ```text
 =====================================================================
@@ -161,60 +191,50 @@ Target Mode:  [E] Elementor Canvas (WP)  |  [S] Static HTML (Python)
 =====================================================================
 ```
 
+</details>
+
 ---
 
 ## 🚀 Quick Start
 
-### 1. Install / Clone
+### 1. Clone Repository
 ```bash
 git clone https://github.com/eliuhads/stitch2elementor.git
 cd stitch2elementor
 ```
 
-### 2. Run the Deterministic Compiler Manually
+### 2. Run Deterministic Compilation (CLI)
 ```bash
-# E1: Extract DOM Intermediate Representation
+# Step E1: Extract Clean Intermediate Representation
 python3 pipeline/extract_ir.py input_stitch.html -o ir.json
 
-# E2: Compile to Elementor Flexbox Containers
+# Step E2: Compile AST to Atomic Flexbox Elementor Tree
 python3 pipeline/compile_ir_to_elementor.py ir.json -o page_elementor.json
 
-# E3: Run the Quality Gate Linter (Exit Code 0 = Ready)
+# Step E3: Run Mandatory Quality Gate Linter
 python3 pipeline/lint_elementor_json.py page_elementor.json
+# Output: Exit Code 0 (PASS) ➔ Ready to deploy!
 ```
 
 ### 3. Agent Integration
-Copy `SKILL.md` and the `pipeline/` directory into your agent workspace (e.g. `.agents/skills/stitch2elementor/` or OpenCode/Cursor tools) and let your agent operate with 100% deterministic safety.
+Copy `SKILL.md` and the `pipeline/` directory into your agent workspace (e.g., `.agents/skills/stitch2elementor/` or OpenCode/Cursor config) and let your agent execute the pipeline autonomously.
 
 ---
 
-## 📊 Comparison: LLM Raw Generation vs. `stitch2elementor`
+## 🤝 Community & Support
 
-| Feature | Raw LLM Generation | `stitch2elementor` Pipeline |
-|---|---|---|
-| **Schema Integrity** | ⚠️ Frequent invalid keys / non-arrays | ✅ 100% Compliant against JSON Schema |
-| **ID Collision** | ❌ High risk (breaks Elementor editor) | ✅ Deterministic `uuid5` hash generation |
-| **Mobile 375px Overflow** | ❌ Frequent horizontal scrolling | ✅ Hardened with mechanical `!important` |
-| **Client Editability** | ⚠️ Often lumps everything into raw HTML | ✅ Native widgets (`heading`, `button`, etc.) |
-| **Database Performance** | ❌ Bloated with 20KB+ inline CSS per page | ✅ Decoupled master stylesheet in uploads |
-| **Deployment Safety** | ❌ Unverified injections | ✅ Pre-flight linter gate with exit codes |
+`stitch2elementor` is an open-source engineering initiative for the modern AI pair-programming era.
 
----
-
-## 🤝 Community, Support & Contributions
-
-`stitch2elementor` is an open-source initiative dedicated to advancing the state of **deterministic Agentic Web Engineering**.
-
-* 🌟 **Leave a Star**: If this repository helped you automate your web workflow, star the repo to support continuous development!
-* 🐛 **Report Issues**: Found a strange edge case in Elementor or Google Stitch? Open an [Issue](https://github.com/eliuhads/stitch2elementor/issues).
-* 💡 **Pull Requests**: Contributions to compiler rules, new widget mappings, and agent integrations are warmly welcomed.
+* 🌟 **Star this Repo**: If this tool saves you hours of UI debugging, please leave a star!
+* 🐛 **Report Issues**: Found a specific Elementor edge-case? Open an [Issue](https://github.com/eliuhads/stitch2elementor/issues).
+* 💡 **Pull Requests**: Compiler optimizations, new widget handlers, and agent presets are welcome!
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for the AI pair-programming revolution.**  
-Maintained by [@eliuhads](https://github.com/eliuhads) • Licensed under [MIT](LICENSE)
+**Crafted with precision for the Agentic Coding ecosystem.**  
+Maintained with ❤️ by [@eliuhads](https://github.com/eliuhads) • Distributed under the [MIT License](LICENSE)
 
 </div>
 ]]>
