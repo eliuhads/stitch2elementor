@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 544 544" width="544" height="544">
+  <title>FLOYDIA Logo (Dark Mode Optimized)</title>
+  
+  <!-- Radiating constellation lines -->
+  <g stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8">
+    <line x1="272" y1="90" x2="272" y2="116"/>
+    <line x1="272" y1="372" x2="272" y2="306"/>
+    <line x1="41" y1="228" x2="197" y2="228"/>
+    <line x1="503" y1="228" x2="345" y2="228"/>
+    <line x1="174" y1="337" x2="224" y2="282"/>
+    <line x1="369" y1="337" x2="320" y2="282"/>
+    <line x1="173" y1="115" x2="218" y2="167"/>
+    <line x1="371" y1="115" x2="326" y2="167"/>
+    <line x1="164" y1="183" x2="222" y2="208"/>
+    <line x1="378" y1="183" x2="322" y2="208"/>
+  </g>
+
+  <!-- 3D Crystal Triangle -->
+  <!-- Left face — bright teal -->
+  <polygon points="272,130 182,292 272,222" fill="#00E676"/>
+  <!-- Right face — dark indigo/slate -->
+  <polygon points="272,130 362,292 272,222" fill="#1e293b"/>
+  <!-- Bottom face — deep cyan/teal -->
+  <polygon points="182,292 362,292 272,222" fill="#0284c7"/>
+
+  <!-- Constellation endpoint nodes (dots) -->
+  <circle cx="272" cy="90" r="8" fill="#00E676"/>
+  <circle cx="272" cy="372" r="8" fill="#00E676"/>
+  <circle cx="41" cy="228" r="8" fill="#38bdf8"/>
+  <circle cx="503" cy="228" r="8" fill="#38bdf8"/>
+  <circle cx="174" cy="337" r="8" fill="#00E676"/>
+  <circle cx="369" cy="337" r="8" fill="#00E676"/>
+  <circle cx="173" cy="115" r="7" fill="#7c4dff"/>
+  <circle cx="371" cy="115" r="7" fill="#7c4dff"/>
+  <circle cx="164" cy="183" r="7" fill="#7c4dff"/>
+  <circle cx="378" cy="183" r="7" fill="#7c4dff"/>
+
+  <!-- FLOYDIA wordmark -->
+  <text x="272" y="488"
+        text-anchor="middle"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900"
+        font-size="64"
+        fill="#f8fafc"
+        letter-spacing="4">FLOYDIA</text>
+</svg>

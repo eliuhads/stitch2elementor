@@ -2,12 +2,13 @@
 
 ![stitch2elementor banner](assets/banner.svg)
 
-# ⚡ stitch2elementor (v22.0.0)
+# ⚡ `stitch2elementor` (v22.0.0)
 
-**The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
+### **The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
 
 *Turn any AI coding agent into a zero-hallucination frontend engineer that compiles generative UI designs into production-ready, client-editable Elementor Flexbox Containers and blazing-fast Static HTML.*
 
+[![Floydia Project](https://img.shields.io/badge/Powered%20By-Floydia-00E676.svg?style=for-the-badge&logo=crystal&logoColor=white&labelColor=18181b)](https://floydia.site)
 [![GitHub Stars](https://img.shields.io/github/stars/eliuhads/stitch2elementor?style=for-the-badge&logo=github&color=ffd600&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor/stargazers)
 [![Version](https://img.shields.io/badge/version-22.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
 [![Elementor v4](https://img.shields.io/badge/Elementor-Atomic%20Flexbox%20v4-ff6d00.svg?style=for-the-badge&logo=elementor&logoColor=white&labelColor=18181b)](https://elementor.com)
@@ -217,13 +218,13 @@ python3 pipeline/lint_elementor_json.py page_elementor.json
 ```
 
 ### 3. Agent Integration
-Copy `SKILL.md` and the `pipeline/` directory into your agent workspace (e.g., `.agents/skills/stitch2elementor/` or OpenCode/Cursor config) and let your agent execute the pipeline autonomously.
+Copy `SKILL.md` and the `pipeline/` directory into your agent workspace (e.g., `.agents/skills/stitch2elementor/` o configuración de OpenCode/Cursor) y permite que tu agente opere con total autonomía determinista.
 
 ---
 
 ## 🤝 Community & Support
 
-`stitch2elementor` is an open-source engineering initiative for the modern AI pair-programming era.
+`stitch2elementor` is an open-source engineering initiative by **[Floydia](https://floydia.site)** for the modern AI pair-programming era.
 
 * 🌟 **Star this Repo**: If this tool saves you hours of UI debugging, please leave a star!
 * 🐛 **Report Issues**: Found a specific Elementor edge-case? Open an [Issue](https://github.com/eliuhads/stitch2elementor/issues).
@@ -233,7 +234,11 @@ Copy `SKILL.md` and the `pipeline/` directory into your agent workspace (e.g., `
 
 <div align="center">
 
+<a href="https://floydia.site">
+  <img src="assets/floydia_logo_dark.svg" width="140" alt="Floydia Logo" />
+</a>
+
 **Crafted with precision for the Agentic Coding ecosystem.**  
-Maintained with ❤️ by [@eliuhads](https://github.com/eliuhads) • Distributed under the [MIT License](LICENSE)
+Created & Maintained by **[Floydia](https://floydia.site)** • [@eliuhads](https://github.com/eliuhads) • Distributed under the [MIT License](LICENSE)
 
 </div>
