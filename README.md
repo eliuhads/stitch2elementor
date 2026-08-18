@@ -1,12 +1,12 @@
-<![CDATA[<div align="center">
+<div align="center">
 
-# ⚡ `stitch2elementor`
+![stitch2elementor banner](assets/banner.svg)
 
-### **The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
+# ⚡ stitch2elementor (v22.0.0)
+
+**The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
 
 *Turn any AI coding agent into a zero-hallucination frontend engineer that compiles generative UI designs into production-ready, client-editable Elementor Flexbox Containers and blazing-fast Static HTML.*
-
----
 
 [![GitHub Stars](https://img.shields.io/github/stars/eliuhads/stitch2elementor?style=for-the-badge&logo=github&color=ffd600&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor/stargazers)
 [![Version](https://img.shields.io/badge/version-22.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
@@ -19,16 +19,16 @@
 
 [🌟 Star on GitHub](https://github.com/eliuhads/stitch2elementor) • [🚀 Quick Start](#-quick-start) • [🏛️ Architecture](#-pipeline-architecture) • [🤖 Multi-Agent Setup](#-universal-ai-agent-compatibility) • [🛡️ 18 Anti-Error Rules](#-the-18-battle-tested-anti-error-rules-r0r18)
 
----
-
 </div>
+
+---
 
 ## 📌 Overview
 
-Generative UI tools like **Google Stitch** create stunning HTML5 & Tailwind layouts in seconds. But migrating those designs into real-world CMS platforms like **WordPress Elementor** has always been painful:
+Generative UI tools like **Google Stitch** create stunning HTML5 & Tailwind layouts in seconds. But migrating those designs into real-world CMS platforms like **WordPress Elementor** has always been fraught with failures:
 
 > [!WARNING]
-> ### The Fragile LLM Problem
+> ### 🛑 The Fragile LLM Problem
 > When LLMs freely write `_elementor_data` JSON or inlined styles, they suffer from:
 > 1. **Schema Hallucinations**: Malformed properties, duplicate IDs, and invalid Flexbox trees that break the Elementor Canvas editor.
 > 2. **Escaping Hell**: Corrupted quotes and escaped Unicode characters during API/PHP transport.
@@ -37,15 +37,15 @@ Generative UI tools like **Google Stitch** create stunning HTML5 & Tailwind layo
 
 ### 💡 The Deterministic Hybrid Solution
 
-`stitch2elementor` decouples **high-level orchestration** from **AST compilation**:
+`stitch2elementor` decouples **high-level AI orchestration** from **AST compilation**:
 
 ```mermaid
 flowchart LR
-    A[🧠 AI Agent<br/><i>Decides & Orchestrates</i>] -->|Raw HTML| B[⚙️ Python Engine<br/><i>extract_ir.py</i>]
-    B -->|Clean AST IR| C[🏗️ Compiler<br/><i>compile_ir_to_elementor.py</i>]
-    C -->|Flexbox JSON| D{🛡️ Linter Gate<br/><i>lint_elementor_json.py</i>}
-    D -->|✅ Exit Code 0| E[🚀 Safe Production Deploy<br/><i>Base64 RPC + Cache Purge</i>]
-    D -->|❌ Exit Code 1| F[🛑 Block & Fix In Source]
+    A[🧠 AI Agent<br/>Decides & Orchestrates] -->|Raw HTML| B[⚙️ Python Engine<br/>extract_ir.py]
+    B -->|Clean AST IR| C[🏗️ Compiler<br/>compile_ir_to_elementor.py]
+    C -->|Flexbox JSON| D{🛡️ Linter Gate<br/>lint_elementor_json.py}
+    D -->|✅ Exit Code 0| E[🚀 Production Deploy<br/>Base64 RPC + Cache Purge]
+    D -->|❌ Exit Code 1| F[🛑 Block & Fix in Source]
 
     style A fill:#7c4dff,stroke:#512da8,color:#fff
     style B fill:#0288d1,stroke:#01579b,color:#fff
@@ -86,8 +86,8 @@ flowchart TD
     end
 
     subgraph Tracks["⚙️ Dual-Track Engine"]
-        TrackE["🔴 Track E: WordPress Elementor<br/><i>Atomic Flexbox v4 & Native Widgets</i>"]
-        TrackS["🔵 Track S: Static Edge Web<br/><i>Python Multi-Page Build + FTPS</i>"]
+        TrackE["🔴 Track E: WordPress Elementor<br/>Atomic Flexbox v4 & Native Widgets"]
+        TrackS["🔵 Track S: Static Edge Web<br/>Python Multi-Page Build + FTPS"]
     end
 
     subgraph Outputs["🚀 Target Production"]
@@ -237,4 +237,3 @@ Copy `SKILL.md` and the `pipeline/` directory into your agent workspace (e.g., `
 Maintained with ❤️ by [@eliuhads](https://github.com/eliuhads) • Distributed under the [MIT License](LICENSE)
 
 </div>
-]]>
