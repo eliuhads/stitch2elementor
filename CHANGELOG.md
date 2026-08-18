@@ -4,6 +4,47 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [22.0.0] - 2026-08-18 — ATOMIC FLEXBOX & NATIVE EDITABLE WIDGETS
+
+### Agregado
+- **Flexbox Containers Mandatorios (R17)**: Migración obligatoria a `elType: "container"` con `container_type: "flex"`, eliminando por completo `elType: "section"` y `elType: "column"` legacy. Estructura requerida con `flex_direction`, `flex_direction_mobile: column`, `justify_content`, `align_items`, `gap` y `_css_classes`.
+- **Mapeo de Widgets Atómicos Nativo-Editable (R18)**: Descomposición semántica de cada elemento HTML en su widget nativo correspondiente para 100% de editabilidad visual en Elementor:
+  - `<h1>`–`<h4>` → `widgetType: "heading"`
+  - `<p>` → `widgetType: "text-editor"`
+  - `<img>` → `widgetType: "image"`
+  - `<a>` (CTAs) → `widgetType: "button"`
+  - Componentes interactivos (terminal, SVG) → `widgetType: "html"`
+- **Directorio `pipeline/`**: Los scripts E1–E3 + `asset_matrix.py` + `elementor_schema.json` ahora viven en `pipeline/` como directorio canónico del repo (independiente de la carpeta `scripts/` legacy v4.x).
+
+### Cambiado
+- `SKILL.md` → v22.0.0: Checklist ampliado con R17 y R18; documentación de `flex_basis`, `flex_grow`, `flex_shrink` para columnas porcentuales.
+- `README.md` → Reescritura profesional completa con arquitectura del pipeline, tabla de reglas R0–R18, estructura del proyecto, menú interactivo, y Quick Start.
+
+### Validación
+- Verificación dual Playwright en Proxmox CT252: Desktop (1440px) y Mobile (375px) con `isOverflow: false` en 100% de páginas con Contenedores Flexbox.
+
+---
+
+## [21.0.0] - 2026-08-17 — ANTI-ESCAPING HELL & MOBILE HARDENING
+
+### Agregado
+- **Transporte Base64 Obligatorio (R12)**: Todo payload HTML/JSON transferido a WordPress mediante JSON-RPC, REST API o PHP scripts se codifica en Base64 (`base64_encode`/`base64_decode`). Prohibido el escaping manual de comillas.
+- **Desacoplamiento de CSS Maestro (R13)**: Prohibido inyectar 20KB+ de CSS inline en `_elementor_data`. Patrón: compilar hoja maestra (`v6-styles.css`) en `/wp-content/uploads/{marca}/` con query-string de versión (`?v=hash`).
+- **Purga Obligatoria Multinivel (R14)**: Tras cada escritura en `_elementor_data`:
+  1. `delete_post_meta($post_id, '_elementor_css')`
+  2. `\Elementor\Plugin::$instance->files_manager->clear_cache()`
+  3. `wp_cache_flush()`
+  4. `wp_update_post(['ID' => $post_id, 'post_content' => ''])`
+- **Especificidad Mandatoria en Mobile (R15)**: `!important` en media queries estructurales (`box-sizing`, `grid-template-columns`, `overflow-x`, `white-space`). Validación Playwright: `document.body.scrollWidth === window.innerWidth` en 375px.
+- **Canvas Reset & Aislamiento (R16)**: Resets globales para `.elementor`, `.elementor-section`, `.elementor-container`, `.elementor-widget-wrap`, `.elementor-widget` con `background-color: transparent !important`.
+- **Vectores de falla V5–V8** documentados con mitigaciones deterministas.
+- **Lección Crítica `_elementor_page_settings`**: Debe inyectarse como array PHP asociativo, NUNCA como JSON string (provoca `Cannot access offset of type string on string` → página en blanco).
+
+### Cambiado
+- `SKILL.md` → v21.0.0: Checklist ampliado con R12–R16 y verificación dual-viewport obligatoria.
+
+---
+
 ## [20.0.0] - 2026-08-16 — DETERMINISTIC HYBRID PIPELINE (non-frontier models)
 
 ### Agregado
