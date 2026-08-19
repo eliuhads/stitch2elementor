@@ -3,12 +3,12 @@ name: stitch2elementor
 description: >
   Pipeline de doble modo (Elementor Canvas / Static HTML) para extracción, diseño y despliegue desde Google Stitch
   hacia WordPress Elementor Canvas (Novamira MCP como SSOT) o sitios estáticos multi-página autocontenidos (build Python + FTPS).
-  v23: Consagración de Novamira MCP (WP-CLI + REST) como SSOT primario, Deprecación de MCPs legacy, Guardrails R0-R22
-  (Blindaje dimensional de logos/SVGs, Contraste forzado en degradados, Carga inmediata en Bento Cards, Protocolo de QA
-  Visual Realista contra falsos positivos con autoScroll en Proxmox CT252), Flexbox Containers v4 y Google Colab Pro GPU Offloading.
+  v25: Etapa E4.5 de purga multinivel verificada (purge_and_verify.py con marcador ALT), schema probing con verificación
+  de frescura en E2 (bloqueo si probe >14 días), linter E13 de editabilidad Track B (rechaza widgets HTML opacos
+  reproducibles con widgets nativos), Guardrails R0-R26, Flexbox Containers v4 y Google Colab Pro GPU Offloading.
 ---
 
-# Skill: stitch2elementor (v23.0.0 — Atomic Flexbox & Deterministic Hybrid Pipeline)
+# Skill: stitch2elementor (v25.0.0 — Verified Purge, Fresh Schema & Native Editability)
 
 Pipeline para convertir interfaces Stitch en sitios web listos para producción:
 - **Modo Elementor**: inyección programática en WordPress Elementor Canvas con Contenedores Flexbox y Widgets Nativos (Novamira MCP como SSOT / FTPS + REST)
@@ -53,18 +53,29 @@ HTML Stitch/Editado ──► [E1 EXTRACT]  scripts/extract_ir.py
                       [E2 COMPILE]    scripts/compile_ir_to_elementor.py
                                       IR → _elementor_data · IDs uuid5 (7 hex) · R6 boxed 1240px
                                       · R10/R15 responsive mecánico · merge --header/--footer con
-                                      re-hash de IDs (unicidad por construcción)
+                                      re-hash de IDs · BLINDAJE v25 (R25): exige elementor_target,
+                                      valida versión real y bloquea si el schema-probe tiene >14 días
                               │
                               ▼
                       [E3 LINT]       scripts/lint_elementor_json.py  →  PUERTA OBLIGATORIA
                                       E1 parse · E2 IDs únicos · E3 elType/widgetType · E4 boxed
-                                      · E5 responsive · E6 logo R4/R19 · E7 integridad elements
+                                      · E5/E11 responsive · E6 logo R4/R19 · E7 integridad
+                                      · E8-E12 guardrails · E13 editabilidad Track B (R26)
                                       exit≠0 ⇒ PROHIBIDO desplegar
                               │
                               ▼
-                      [E4 DEPLOY+QA]  LLM orquesta con Base64 Transport (R12) · Novamira MCP SSOT
-                                      · CSS maestro desacoplado (R13) · Purga multinivel Novamira (R14) ·
-                                      Playwright autoScroll CT252 + Inspección Visual Humana (R22)
+                      [E4 DEPLOY]     LLM orquesta con Transporte Out-of-Band (R23) · Novamira MCP SSOT
+                                      · CSS maestro desacoplado (R13) con marcador ALT único de versión
+                              │
+                              ▼
+                      [E4.5 PURGE]    scripts/purge_and_verify.py  →  PUERTA OBLIGATORIA (R14/R24)
+                                      Purga multinivel Novamira (flush-css → cache flush →
+                                      Endurance_Page_Cache::purge_all) + verificación HTTP del
+                                      marcador ALT · exit≠0 ⇒ repetir purga (máx. 3 intentos)
+                              │
+                              ▼
+                      [E5 QA]         Playwright autoScroll CT252 + Inspección Visual (R22)
+                                      · qa_assertions.js + visual_diff.py
 ```
 
 **Reparto de roles (inmutable)**: el LLM decide *qué* páginas, *qué* contenido y *cuándo* desplegar;
@@ -141,16 +152,27 @@ los scripts deciden *cómo* se transforma y valida. Ningún `_elementor_data` na
 ### R11. 🚦 Exit Codes y Puertas de Calidad
 - Cada script de validación debe retornar `exit code 0`. Si falla, se aborta el despliegue.
 
-### R12. 📦 Transporte Base64 Obligatorio (Anti-Escaping Hell)
-- Enviar cargas útiles codificadas en Base64 para evitar corrupción de comillas o caracteres especiales.
+### R12. 📦 Transporte Base64 (DEPRECADO como primario — Solo Fallback)
+- El transporte Base64 en el contexto del LLM queda deprecado como vía primaria. Se conserva exclusivamente como canal de contingencia si falla el transporte por sistema de archivos.
+
+### R23. 🚀 Despliegue Out-Of-Band vía Filesystem (Cero Overhead de Contexto)
+- **Regla Madre**: El payload JSON viaja por el filesystem (`/tmp/` o `/uploads/s2e_payloads/`); el contexto del LLM solo transporta rutas de archivos y hashes SHA256 (menos de 100 tokens por deploy). El comando ejecutor `s2e_deploy.sh` o el mu-plugin `deploy_elementor.php` aplican `_elementor_data` directamente en disco.
 
 ### R13. ⚡ Desacoplamiento de CSS Maestro
 - Compilar estilos globales en un archivo central (`styles.css`) en `/uploads/` enlazado con parámetro de versión `?v=hash`.
 
-### R14. 🧹 Purga de Caché Multinivel con Novamira MCP
-- Tras todo despliegue en WordPress, ejecutar vía `novamira-mcp`:
-  1. `wp elementor flush-css`
-  2. `wp cache flush`
+### R14. 🧹 Purga de Caché Multinivel con Novamira MCP (v25: 3 niveles + verificación)
+- Tras todo despliegue en WordPress, ejecutar vía `novamira-mcp` EN ESTE ORDEN:
+  1. `novamira/run-wp-cli` → `wp elementor flush-css`
+  2. `novamira/run-wp-cli` → `wp cache flush`
+  3. `novamira/execute-php` →
+     ```php
+     if (class_exists('\\Endurance_Page_Cache')) {
+         \\Endurance_Page_Cache::purge_all();
+     }
+     return 'purged';
+     ```
+- Inmediatamente después, ejecutar la puerta **E4.5**: `scripts/purge_and_verify.py <URL> --marker 'alt="s2e-vN-<slug>"'` (ver R24).
 
 ### R15. 📱 Especificidad Mandatoria en Mobile Breakpoints (Anti-Overflow)
 - Inyectar universalmente:
@@ -195,14 +217,9 @@ los scripts deciden *cómo* se transforma y valida. Ningún `_elementor_data` na
   2. Emplear badges de alto contraste (dorado ámbar `#FBBF24` o esmeralda brillante `#4ADE80`) y textos secundarios claros (`#E2EFE7`) sobre fondos oscuros.
   3. En la Top Trust Bar, forzar `#4ADE80` para textos clave sobre fondo `#0A170F`.
 
-### R21. ⚡ Erradicación de `loading="lazy"` en Bento Cards Críticas (Lección 33)
-- **Problema**: Las imágenes con `loading="lazy"` ubicadas en tarjetas de catálogo o bento grids debajo del pliegue pueden no cargarse a tiempo durante capturas de pantalla de Playwright o en conexiones lentas, mostrando recuadros en blanco.
-- **Regla Obligatoria**:
-  - En las tarjetas principales de productos y servicios de la portada, utilizar carga inmediata:
-    ```html
-    <img src="assets/images/card-deteccion.webp" alt="..." class="w-full aspect-[4/3] object-cover" decoding="async">
-    ```
-  - Reservar `loading="lazy"` exclusivamente para footers o galerías secundarias profundas.
+### R21. ⚡ `loading="lazy"` PERMITIDO (Buena Práctica Web Real)
+- `loading="lazy"` está PERMITIDO y recomendado como estándar de rendimiento web en tarjetas de catálogo y elementos below-the-fold.
+- La garantía de renderizado no recae en eliminar `loading="lazy"` del código fuente, sino en el script de QA (`qa_assertions.js`), el cual realiza un `autoScroll` completo y espera `networkidle` antes de capturar el estado final.
 
 ### R22. 👁️ Protocolo de QA Visual Realista (Cero Falsos Positivos, Lección 33)
 - **Problema**: Informar que un despliegue fue "exitoso" basándose únicamente en que el servidor devolvió código `HTTP 200` y `isOverflow: false` provoca falsos positivos graves (logos gigantes, textos invisibles o imágenes no renderizadas).
@@ -217,6 +234,26 @@ los scripts deciden *cómo* se transforma y valida. Ningún `_elementor_data` na
 
 ---
 
+### 🚨 NUEVAS REGLAS v25 (R24 a R26)
+
+### R24. 🔎 Verificación Post-Purga con Marcador ALT (Etapa E4.5, Lecciones 21/24)
+- **Problema**: `flush-css` + `cache flush` no siempre alcanzan la caché del hosting (Endurance/Bluehost); la página publicada sigue sirviendo la versión vieja y el QA valida un fantasma.
+- **Regla Obligatoria**:
+  1. El deploy inyecta un marcador ALT único de versión en el logo/hero: `alt="s2e-v<N>-<slug>"`.
+  2. Tras la purga de 3 niveles (R14), ejecutar `scripts/purge_and_verify.py <URL> --marker 'alt="s2e-v<N>-<slug>"' [--css-hash <hash>]`.
+  3. exit 0 ⇒ continuar a E5; exit 1 ⇒ repetir purga multinivel y re-verificar (máx. 3 intentos; luego documentar el bloqueo en el journal).
+
+### R25. 🛡️ Schema Probing Fresco en E2 (Anti-Deriva de Versión)
+- El compilador EXIGE `elementor_target` en el IR (o `--elementor-target`) y lo valida contra la versión REAL registrada en `elementor_schema.json`.
+- Si el schema lleva **>14 días** sin re-probeo (`probed_at`), la compilación se BLOQUEA (exit 2). Regenerar con `SCRIPTS/elementor_schema_probe.py` (Novamira MCP → `novamira/execute-php`); escape de emergencia: `--allow-stale-schema`.
+
+### R26. ✏️ Editabilidad Total Track B (Linter E13, Lección 28)
+- Todo widget `html` cuyo contenido sea reproducible con widgets nativos (`heading`, `text-editor`, `image`, `button`, `icon-list`) es RECHAZADO por el linter con sugerencia del widget equivalente.
+- Escape documentado: `--allow-opaque-html` degrada a warning (solo para Track A genuino con divs/svg/nav/forms).
+- El compilador ya emite listas como `text-editor` nativo; extender el mapeo IR→widget antes de recurrir a HTML opaco.
+
+---
+
 ## 🚀 Protocolo de Google Colab Pro GPU Offloading
 
 Para tareas que requieran alto poder de cómputo (procesamiento de lotes de imágenes, generación masiva, pipelines de machine learning o tensores pesados):
@@ -226,17 +263,20 @@ Para tareas que requieran alto poder de cómputo (procesamiento de lotes de imá
 
 ---
 
-## ✅ Checklist de Aceptación Final v23 (Ambos Modos)
+## ✅ Checklist de Aceptación Final v25 (Ambos Modos)
 
 - [ ] **Modo elegido conscientemente antes de construir (E / S)**
 - [ ] **(Modo E) Novamira MCP utilizado como SSOT para purga y sincronización (R14)**
 - [ ] **(Modo E) Flexbox Containers (`elType: "container"`) utilizados en lugar de secciones obsoletas (R17)**
 - [ ] **(Modo E) Widgets Nativos aplicados para componentes editables en Modo B (R18)**
-- [ ] **(Modo E) Transporte en Base64 aplicado en scripts de inyección (R12)**
-- [ ] **(Modo E) Purga multinivel Novamira (`wp elementor flush-css` y `wp cache flush`) ejecutada (R14)**
+- [ ] **(Modo E) Transporte Out-of-Band R23 aplicado (Base64 R12 solo como fallback)**
+- [ ] **(Modo E) Schema fresco: `elementor_schema.json` con probe de ≤14 días (R25)**
+- [ ] **(Modo E) Purga multinivel 3 niveles ejecutada (flush-css → cache flush → Endurance purge) (R14)**
+- [ ] **(Modo E) Puerta E4.5 PASS: `purge_and_verify.py` verificó el marcador ALT (R24)**
+- [ ] **(Modo E) Linter E13 PASS: cero widgets HTML opacos reproducibles (R26)**
 - [ ] **Logotipos con dimensiones estrictas y versión rasterizada nítida PNG/WebP (R19)**
 - [ ] **Contraste verificado con estilos sólidos de respaldo en tarjetas y barras (R20)**
-- [ ] **Bento cards principales sin `loading="lazy"` para render instantáneo (R21)**
+- [ ] **Bento cards principales renderizadas tras autoScroll del QA (R21)**
 - [ ] **Activos WebP optimizados con Pillow LANCZOS (Heroes <130 KB, Cards <90 KB) (R8)**
 - [ ] **QA Visual Playwright en Proxmox CT252 ejecutado con autoScroll e inspección de captura (R22)**
 - [ ] **Cero credenciales en archivos versionados o subidos**
@@ -244,6 +284,11 @@ Para tareas que requieran alto poder de cómputo (procesamiento de lotes de imá
 ---
 
 ## 📝 Changelog
+
+### v25.0.0 (2026-08-19)
+- **R24 / Etapa E4.5 — Purga Multinivel Verificada**: nuevo script `scripts/purge_and_verify.py` (stdlib) que verifica por HTTP el marcador ALT único de despliegue tras la purga de 3 niveles (`wp elementor flush-css` → `wp cache flush` → `Endurance_Page_Cache::purge_all()` vía Novamira MCP). Elimina los falsos PASS por caché fantasma del hosting (Lecciones 21/24).
+- **R25 — Schema Probing Fresco en E2**: `compile_ir_to_elementor.py` bloquea si `elementor_schema.json` lleva >14 días sin re-probeo (`probed_at`); `SCRIPTS/elementor_schema_probe.py` ahora estampa timestamp. Nuevas banderas `--elementor-target` y `--allow-stale-schema`.
+- **R26 — Editabilidad Total Track B (Linter E13)**: `lint_elementor_json.py` rechaza widgets HTML opacos reproducibles con widgets nativos y sugiere el equivalente; bandera de escape `--allow-opaque-html`. El compilador emite listas como `text-editor` nativo (Lección 28).
 
 ### v23.0.0 (2026-08-18)
 - **Consagración de Novamira MCP como SSOT**: Adopción formal de `novamira-mcp` (WP-CLI + REST) como el estándar #1 de gestión en WordPress y deprecación definitiva de los MCPs legacy de Elementor.

@@ -4,6 +4,21 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [25.0.0] - 2026-08-19 — NOVAMIRA-CAPABILITY DRIVEN HARDENING: PURGE E4.5, SCHEMA FRESHNESS & E13 EDITABILITY
+
+### Agregado
+- **R24 / Etapa E4.5 — `purge_and_verify.py`**: Nuevo script de purga multinivel vía Novamira MCP (`wp elementor flush-css` → `wp cache flush` → `Endurance_Page_Cache::purge_all()` en `execute-php`) con verificación posterior por marcador ALT en el HTML servido y hash del CSS regenerado (Lecciones 21/24).
+- **R25 — Frescura del Schema Probed**: `compile_ir_to_elementor.py` ahora lee `probed_at` de `elementor_schema.json` y bloquea la compilación si el schema supera 14 días de antigüedad (escape: `--allow-stale-schema`). Refuerza el blindaje de versión Elementor detectada por `elementor_schema_probe.py`.
+- **R26 / E13 — Editabilidad Total Track B**: `lint_elementor_json.py` rechaza widgets HTML opacos cuando existe widget nativo equivalente migrable (`heading`, `text-editor`, `image`, `button`); fixture `w_list` migrado a `text-editor` (Lección 28).
+
+### Cambiado
+- `SKILL.md` → v25.0.0: reglas R24–R26, etapa E4.5 en el pipeline y capacidades Novamira mapeadas (`execute-php`, `run-wp-cli`, filesystem R23, `create-upload-link`).
+- `pipeline/elementor_schema.json`: regenerado con `probed_at` y claves reales de Elementor 4.2.2.
+
+### Validación
+- compile + lint PASS sobre fixture v25; fixture de regresión E13 falla con exit 1; schema obsoleto bloquea con exit 2; `py_compile` limpio en los 4 scripts del pipeline.
+---
+
 ## [23.0.0] - 2026-08-18 — NOVAMIRA MCP SSOT, VISUAL QA & SVG DIMENSIONAL HARDENING
 
 ### Agregado

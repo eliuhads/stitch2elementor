@@ -2,7 +2,7 @@
 
 ![stitch2elementor banner](assets/banner.svg)
 
-# ⚡ `stitch2elementor` (v23.0.0)
+# ⚡ `stitch2elementor` (v25.0.0)
 
 ### **The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
 
@@ -10,7 +10,7 @@
 
 [![Floydia Project](https://img.shields.io/badge/Powered%20By-Floydia-00E676.svg?style=for-the-badge&logo=crystal&logoColor=white&labelColor=18181b)](https://floydia.site)
 [![GitHub Stars](https://img.shields.io/github/stars/eliuhads/stitch2elementor?style=for-the-badge&logo=github&color=ffd600&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor/stargazers)
-[![Version](https://img.shields.io/badge/version-23.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-25.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
 [![Novamira MCP](https://img.shields.io/badge/Novamira%20MCP-SSOT%20Ready-00bcd4.svg?style=for-the-badge&logo=wordpress&logoColor=white&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor)
 [![Elementor v4](https://img.shields.io/badge/Elementor-Atomic%20Flexbox%20v4-ff6d00.svg?style=for-the-badge&logo=elementor&logoColor=white&labelColor=18181b)](https://elementor.com)
 [![Python Stdlib](https://img.shields.io/badge/Python-3.10%2B%20(Zero--Deps)-3776ab.svg?style=for-the-badge&logo=python&logoColor=white&labelColor=18181b)](https://python.org)
@@ -125,13 +125,13 @@ flowchart TD
 
 ---
 
-## 🛡️ The 22 Battle-Tested Anti-Error Rules (R0–R22)
+## 🛡️ The 26 Battle-Tested Anti-Error Rules (R0–R26)
 
 > [!NOTE]
 > Every rule in this engine was forged through real-world production post-mortems across 23 major architectural iterations, backed by deep research synthesized with **NotebookLM** and persistent **Memory Bank** logs.
 
 <details>
-<summary><b>🔍 Expand to inspect all 22 Anti-Error Rules</b></summary>
+<summary><b>🔍 Expand to inspect all 26 Anti-Error Rules</b></summary>
 
 <br/>
 
@@ -160,6 +160,10 @@ flowchart TD
 | **R20** | **Forced Contrast & Fallbacks** | Fondos sólidos de respaldo (`bg-[#0F3D24]`), badges ámbar (`#FBBF24`) y texto de alto contraste (`#E2EFE7`). |
 | **R21** | **Immediate Load Bento Cards** | Erradicación de `loading="lazy"` en tarjetas de catálogo de portada para evitar recuadros blancos. |
 | **R22** | **Realistic Visual QA Gate** | Prohibido dar PASS solo por HTTP 200; autoScroll mandatorio e inspección de capturas en Proxmox CT252. |
+| **R23** | **Out-of-Band Transport** | Payload `_elementor_data` via filesystem (`wp-content/uploads/s2e_payloads/`) + hash SHA256; el contexto LLM solo transporta rutas. |
+| **R24** | **Multilevel Purge E4.5** | `purge_and_verify.py`: flush-css → cache flush → `Endurance_Page_Cache::purge_all()` vía Novamira, verificado por marcador ALT y hash CSS. |
+| **R25** | **Schema Freshness** | El compilador bloquea si `elementor_schema.json` supera 14 días (`probed_at`); escape `--allow-stale-schema`. |
+| **R26** | **Total Editability E13** | El linter rechaza widgets HTML opacos cuando existe widget nativo migrable (`heading`, `text-editor`, `image`, `button`). |
 
 </details>
 

@@ -16,11 +16,17 @@ válido para Elementor 3.x/4.x (flexbox containers). 100% determinista:
 Uso:
     python3 compile_ir_to_elementor.py ir.json -o page_elementor.json \
         [--header header.json] [--footer footer.json] \
-        [--boxed-width 1240] [--page-settings page_settings.json]
+        [--boxed-width 1240] [--page-settings page_settings.json] \
+        [--elementor-target 4.2] [--allow-stale-schema]
 
 Salida: archivo JSON = array `_elementor_data` listo para wp_slash().
 Con --page-settings escribe además <out>.page_settings.json como ARRAY PHP
 serializable (NUNCA string JSON — Lección 24).
+
+Blindaje de versión (v25): exige 'elementor_target' en el IR (o
+--elementor-target), lo valida contra la versión REAL registrada en
+elementor_schema.json y bloquea si el schema lleva >14 días sin re-probeo
+(regenerar con SCRIPTS/elementor_schema_probe.py vía Novamira MCP).
 
 Stdlib-only. Exit codes: 0 OK · 1 error de entrada · 2 IR inválido
 """
@@ -107,12 +113,11 @@ def w_link(child, path):
 
 
 def w_list(child, path):
-    items = "".join(
-        f'<li><span class="icon-list-text">{i}</span></li>'
-        for i in child.get("items", []))
+    # E13/Lección 28: widget nativo editable en vez de HTML opaco
+    items = "".join(f"<li>{i}</li>" for i in child.get("items", []))
     return {
-        "id": new_id(path), "elType": "widget", "widgetType": "html",
-        "settings": {"html": f"<ul class=\"ws-list\">{items}</ul>"},
+        "id": new_id(path), "elType": "widget", "widgetType": "text-editor",
+        "settings": {"editor": f'<ul class="ws-list">{items}</ul>'},
         "elements": [],
     }
 
@@ -191,7 +196,64 @@ def load_elements(json_path, label):
     return data
 
 
-def compile_ir(ir, boxed_width=1240, header_path=None, footer_path=None):
+SCHEMA_MAX_AGE_DAYS = 14
+
+
+def check_elementor_target_version(ir, target_override="", allow_stale=False):
+    target = target_override or ir.get("elementor_target")
+    if not target:
+        print("ERROR: IR inválido — el documento debe declarar 'elementor_target' (ej: '4.2' o '4.2.2')",
+              file=sys.stderr)
+        sys.exit(2)
+
+    schema_path = Path(__file__).resolve().parent / "elementor_schema.json"
+    installed_version = "4.2.2"
+    s_data = {}
+    if schema_path.exists():
+        try:
+            s_data = json.loads(schema_path.read_text(encoding="utf-8"))
+            installed_version = s_data.get("elementor_version", installed_version)
+        except Exception:
+            pass
+    else:
+        print("ERROR: falta elementor_schema.json — ejecutar primero "
+              "SCRIPTS/elementor_schema_probe.py (Novamira MCP)", file=sys.stderr)
+        sys.exit(2)
+
+    # Frescura del schema: un probe viejo puede ocultar un upgrade de Elementor
+    probed_at = s_data.get("probed_at")
+    if probed_at and not allow_stale:
+        try:
+            from datetime import datetime, timezone
+            age_days = (datetime.now(timezone.utc)
+                        - datetime.fromisoformat(probed_at.replace("Z", "+00:00"))).days
+            if age_days > SCHEMA_MAX_AGE_DAYS:
+                print(f"ERROR: schema obsoleto — último probe hace {age_days} días "
+                      f"({probed_at}, máx. {SCHEMA_MAX_AGE_DAYS}). Regenerar con "
+                      "SCRIPTS/elementor_schema_probe.py o usar --allow-stale-schema",
+                      file=sys.stderr)
+                sys.exit(2)
+        except ValueError:
+            print(f"WARNING: probed_at no parseable ({probed_at!r}); se continúa",
+                  file=sys.stderr)
+    elif not probed_at and not allow_stale:
+        print("WARNING: elementor_schema.json sin 'probed_at' — re-probeo recomendado "
+              "(SCRIPTS/elementor_schema_probe.py)", file=sys.stderr)
+
+    target_major = str(target).strip().split(".")[0]
+    installed_major = str(installed_version).strip().split(".")[0]
+
+    if target_major != installed_major:
+        print(f"ERROR: Incompatibilidad de versión mayor Elementor — target declarado '{target}' "
+              f"pero versión instalada es '{installed_version}' (major mismatch: {target_major} != {installed_major})",
+              file=sys.stderr)
+        sys.exit(2)
+
+
+def compile_ir(ir, boxed_width=1240, header_path=None, footer_path=None,
+               target_override="", allow_stale=False):
+    check_elementor_target_version(ir, target_override, allow_stale=allow_stale)
+
     if not isinstance(ir.get("sections"), list) or not ir["sections"]:
         print("ERROR: IR inválido — falta 'sections' no vacío", file=sys.stderr)
         sys.exit(2)
@@ -224,6 +286,10 @@ def main():
                     help="Ancho boxed px (default 1240, rango R6 1140–1440)")
     ap.add_argument("--page-settings", action="store_true",
                     help="Escribe además <output>.page_settings.json")
+    ap.add_argument("--elementor-target", default="",
+                    help="Override del 'elementor_target' declarado en el IR")
+    ap.add_argument("--allow-stale-schema", action="store_true",
+                    help="Permite compilar con schema de probe >14 días (emergencia)")
     args = ap.parse_args()
 
     if not 1140 <= args.boxed_width <= 1440:
@@ -237,7 +303,9 @@ def main():
         print(f"ERROR leyendo IR: {e}", file=sys.stderr)
         sys.exit(1)
 
-    elements = compile_ir(ir, args.boxed_width, args.header, args.footer)
+    elements = compile_ir(ir, args.boxed_width, args.header, args.footer,
+                          target_override=args.elementor_target,
+                          allow_stale=args.allow_stale_schema)
 
     out = Path(args.output)
     out.write_text(json.dumps(elements, ensure_ascii=False) + "\n",
