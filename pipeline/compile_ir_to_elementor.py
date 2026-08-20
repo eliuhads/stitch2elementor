@@ -55,7 +55,7 @@ def new_id(seed_path):
 # ---------------------------------------------------------------------------
 
 def w_heading(child, path):
-    level = min(max(child.get("level", 2), 1), 4)
+    level = min(max(child.get("level", 2), 1), 6)
     return {
         "id": new_id(path), "elType": "widget", "widgetType": "heading",
         "settings": {
@@ -92,11 +92,13 @@ def w_image(child, path):
 
 
 def w_button(child, path):
+    href = child.get("href", "")
+    is_ext = child.get("is_external", False) or bool(re.match(r"^(https?://|//|wa\.me/)", href, re.IGNORECASE))
     return {
         "id": new_id(path), "elType": "widget", "widgetType": "button",
         "settings": {
             "text": child.get("text", "Ver más"),
-            "link": {"url": child.get("href", ""), "is_external": False},
+            "link": {"url": href, "is_external": is_ext},
         },
         "elements": [],
     }
@@ -105,9 +107,11 @@ def w_button(child, path):
 def w_link(child, path):
     text = child.get("text", "")
     href = child.get("href", "")
+    is_ext = child.get("is_external", False) or bool(re.match(r"^(https?://|//|wa\.me/)", href, re.IGNORECASE))
+    target_attr = ' target="_blank" rel="noopener noreferrer"' if is_ext else ''
     return {
         "id": new_id(path), "elType": "widget", "widgetType": "text-editor",
-        "settings": {"editor": f'<p><a href="{href}">{text}</a></p>'},
+        "settings": {"editor": f'<p><a href="{href}"{target_attr}>{text}</a></p>'},
         "elements": [],
     }
 
@@ -122,6 +126,22 @@ def w_list(child, path):
     }
 
 
+def w_divider(child, path):
+    return {
+        "id": new_id(path), "elType": "widget", "widgetType": "divider",
+        "settings": {"style": "solid", "weight": {"unit": "px", "size": 1}},
+        "elements": [],
+    }
+
+
+def w_quote(child, path):
+    return {
+        "id": new_id(path), "elType": "widget", "widgetType": "text-editor",
+        "settings": {"editor": f'<blockquote><p>{child.get("text", "")}</p></blockquote>'},
+        "elements": [],
+    }
+
+
 WIDGET_MAP = {
     "heading": w_heading,
     "paragraph": w_paragraph,
@@ -129,6 +149,8 @@ WIDGET_MAP = {
     "button": w_button,
     "link": w_link,
     "list": w_list,
+    "divider": w_divider,
+    "quote": w_quote,
 }
 
 
@@ -217,7 +239,7 @@ def check_elementor_target_version(ir, target_override="", allow_stale=False):
             pass
     else:
         print("ERROR: falta elementor_schema.json — ejecutar primero "
-              "SCRIPTS/elementor_schema_probe.py (Novamira MCP)", file=sys.stderr)
+              "scripts/elementor_schema_probe.py (Novamira MCP)", file=sys.stderr)
         sys.exit(2)
 
     # Frescura del schema: un probe viejo puede ocultar un upgrade de Elementor
@@ -230,15 +252,20 @@ def check_elementor_target_version(ir, target_override="", allow_stale=False):
             if age_days > SCHEMA_MAX_AGE_DAYS:
                 print(f"ERROR: schema obsoleto — último probe hace {age_days} días "
                       f"({probed_at}, máx. {SCHEMA_MAX_AGE_DAYS}). Regenerar con "
-                      "SCRIPTS/elementor_schema_probe.py o usar --allow-stale-schema",
+                      "scripts/elementor_schema_probe.py o usar --allow-stale-schema",
                       file=sys.stderr)
                 sys.exit(2)
         except ValueError:
-            print(f"WARNING: probed_at no parseable ({probed_at!r}); se continúa",
+            print(f"ERROR: probed_at no parseable {probed_at!r} — schema NO APTO (R25 v27). "
+                  "Re-probear con scripts/elementor_schema_probe.py o usar --allow-stale-schema.",
                   file=sys.stderr)
+            sys.exit(2)
     elif not probed_at and not allow_stale:
-        print("WARNING: elementor_schema.json sin 'probed_at' — re-probeo recomendado "
-              "(SCRIPTS/elementor_schema_probe.py)", file=sys.stderr)
+        print("ERROR: elementor_schema.json sin probed_at — schema NO APTO (R25 v27). "
+              "Re-probear con scripts/elementor_schema_probe.py vía Novamira MCP "
+              "o usar --allow-stale-schema (escape documentado §10.5 del skill).",
+              file=sys.stderr)
+        sys.exit(2)
 
     target_major = str(target).strip().split(".")[0]
     installed_major = str(installed_version).strip().split(".")[0]
@@ -275,6 +302,26 @@ def default_page_settings():
     return {"hide_title": "yes"}
 
 
+def inject_deploy_marker(elements, marker):
+    """Inyecta el marcador ALT de despliegue en el primer widget image cuyo
+    src/alt sugiera logo o hero (R24). Devuelve True si lo inyectó."""
+    if not marker:
+        return False
+    def walk(el):
+        if not isinstance(el, dict):
+            return False
+        if el.get("elType") == "widget" and el.get("widgetType") == "image":
+            img = el.get("settings", {}).get("image", {})
+            if isinstance(img, dict):
+                haystack = f"{img.get('url', '')} {img.get('alt', '')}".lower()
+                if "logo" in haystack or "hero" in haystack:
+                    img["alt"] = marker
+                    el["settings"]["image"] = img
+                    return True
+        return any(walk(c) for c in el.get("elements", []) if isinstance(c, dict))
+    return any(walk(el) for el in elements if isinstance(el, dict))
+
+
 def main():
     ap = argparse.ArgumentParser(description="IR JSON → _elementor_data (E2)")
     ap.add_argument("input", help="IR JSON de entrada (extract_ir.py)")
@@ -288,6 +335,9 @@ def main():
                     help="Escribe además <output>.page_settings.json")
     ap.add_argument("--elementor-target", default="",
                     help="Override del 'elementor_target' declarado en el IR")
+    ap.add_argument("--deploy-marker", default="",
+                    help="Marcador ALT único de despliegue (ej. s2e-v7-home). Se inyecta "
+                         "en el alt del logo/hero de forma determinista (R24); E4.5 lo verifica por HTTP.")
     ap.add_argument("--allow-stale-schema", action="store_true",
                     help="Permite compilar con schema de probe >14 días (emergencia)")
     args = ap.parse_args()
@@ -306,6 +356,14 @@ def main():
     elements = compile_ir(ir, args.boxed_width, args.header, args.footer,
                           target_override=args.elementor_target,
                           allow_stale=args.allow_stale_schema)
+
+    if args.deploy_marker:
+        if inject_deploy_marker(elements, args.deploy_marker):
+            print(f"OK deploy-marker: alt=\"{args.deploy_marker}\" inyectado en logo/hero (R24)")
+        else:
+            print(f"ERROR: --deploy-marker '{args.deploy_marker}' no encontró widget image "
+                  "de logo/hero. Declara el alt en el IR y recompila.", file=sys.stderr)
+            sys.exit(2)
 
     out = Path(args.output)
     out.write_text(json.dumps(elements, ensure_ascii=False) + "\n",

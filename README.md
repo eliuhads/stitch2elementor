@@ -2,7 +2,7 @@
 
 ![stitch2elementor banner](assets/banner.svg)
 
-# ⚡ `stitch2elementor` (v25.0.0)
+# ⚡ `stitch2elementor` (v27.0.0)
 
 ### **The Universal Deterministic Bridge: Google Stitch AI ➔ WordPress Elementor & Static Web**
 
@@ -10,7 +10,7 @@
 
 [![Floydia Project](https://img.shields.io/badge/Powered%20By-Floydia-00E676.svg?style=for-the-badge&logo=crystal&logoColor=white&labelColor=18181b)](https://floydia.site)
 [![GitHub Stars](https://img.shields.io/github/stars/eliuhads/stitch2elementor?style=for-the-badge&logo=github&color=ffd600&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor/stargazers)
-[![Version](https://img.shields.io/badge/version-25.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-27.0.0-00e676.svg?style=for-the-badge&labelColor=18181b)](CHANGELOG.md)
 [![Novamira MCP](https://img.shields.io/badge/Novamira%20MCP-SSOT%20Ready-00bcd4.svg?style=for-the-badge&logo=wordpress&logoColor=white&labelColor=18181b)](https://github.com/eliuhads/stitch2elementor)
 [![Elementor v4](https://img.shields.io/badge/Elementor-Atomic%20Flexbox%20v4-ff6d00.svg?style=for-the-badge&logo=elementor&logoColor=white&labelColor=18181b)](https://elementor.com)
 [![Python Stdlib](https://img.shields.io/badge/Python-3.10%2B%20(Zero--Deps)-3776ab.svg?style=for-the-badge&logo=python&logoColor=white&labelColor=18181b)](https://python.org)
@@ -18,7 +18,7 @@
 
 <br/>
 
-[🌟 Star on GitHub](https://github.com/eliuhads/stitch2elementor) • [🚀 Quick Start](#-quick-start) • [🏛️ Architecture](#-pipeline-architecture) • [🤖 Multi-Agent Setup](#-universal-ai-agent-compatibility) • [🛡️ 22 Anti-Error Rules](#-the-22-battle-tested-anti-error-rules-r0r22)
+[🌟 Star on GitHub](https://github.com/eliuhads/stitch2elementor) • [🚀 Quick Start](#-quick-start) • [🏛️ Architecture](#-pipeline-architecture) • [🤖 Multi-Agent Setup](#-universal-ai-agent-compatibility) • [🛡️ 27 Anti-Error Rules](#-the-27-battle-tested-anti-error-rules-r0r26)
 
 </div>
 

@@ -33,7 +33,7 @@ from pathlib import Path
 
 # Subárboles cuyo contenido se ignora por completo (no aportan al layout)
 SKIP_SUBTREE = {"script", "style", "noscript", "template"}
-HEADING_TAGS = {"h1", "h2", "h3", "h4"}
+HEADING_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6"}
 SECTION_TAGS = {"header", "footer", "section", "main", "nav"}
 LIST_TAGS = {"ul", "ol"}
 VOID_TAGS = {"img", "br", "hr", "input", "source", "meta", "link", "area",
@@ -146,6 +146,11 @@ def node_to_child(node):
     if t == "p":
         text = node.text()
         return {"type": "paragraph", "text": text} if text else None
+    if t == "hr":
+        return {"type": "divider", "classes": node.classes}
+    if t == "blockquote":
+        text = node.text()
+        return {"type": "quote", "text": text, "classes": node.classes} if text else None
     if t == "img":
         return {"type": "image",
                 "src": node.attrs.get("src", ""),
@@ -153,19 +158,24 @@ def node_to_child(node):
                 "classes": node.classes}
     if t == "a":
         text = node.text()
+        href = node.attrs.get("href", "")
         is_button = any(re.search(r"btn|button|cta", c, re.IGNORECASE)
                         for c in node.classes)
         if not (text or is_button):
             return None
+        is_external = bool(re.match(r"^(https?://|//|wa\.me/|mailto:|tel:)", href, re.IGNORECASE))
         return {"type": "button" if is_button else "link",
-                "href": node.attrs.get("href", ""),
-                "text": text, "classes": node.classes}
+                "href": href,
+                "text": text,
+                "is_external": is_external,
+                "classes": node.classes}
     if t in LIST_TAGS:
         items = [c.text() for c in node.children if c.tag == "li" and c.text()]
         return {"type": "list", "ordered": t == "ol", "items": items} if items else None
     if t == "button":
         text = node.text()
         return {"type": "button", "href": "", "text": text,
+                "is_external": False,
                 "classes": node.classes} if text else None
     return None
 

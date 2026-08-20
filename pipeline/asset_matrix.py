@@ -50,9 +50,14 @@ class ImgAuditor(HTMLParser):
         a = dict(attrs)
         if tag in ("h1", "h2", "h3"):
             self._capture = tag
-        elif tag == "img":
+        elif tag in ("img", "source"):
             classes = a.get("class", "")
-            context = f"{a.get('src','')} {a.get('alt','')} {classes}".lower()
+            src = a.get("src", "")
+            if not src and a.get("srcset"):
+                src = a.get("srcset", "").split(",")[0].strip().split()[0]
+            if not src and tag == "source":
+                return
+            context = f"{src} {a.get('alt','')} {classes}".lower()
             if "hero" in context:
                 ratio = "16:9"
             elif "card" in context or "tile" in context:
@@ -60,7 +65,7 @@ class ImgAuditor(HTMLParser):
             else:
                 ratio = "auto"
             self.images.append({
-                "src": a.get("src", ""),
+                "src": src,
                 "alt": a.get("alt", ""),
                 "heading": self.current_heading,
                 "ratio": ratio,

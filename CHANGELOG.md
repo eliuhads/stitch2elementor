@@ -4,6 +4,24 @@ All notable changes to the `stitch2elementor` skill are documented here.
 
 ---
 
+## [27.0.0] - 2026-08-20 — INTERACTIVE MENU, DETERMINISTIC DEPLOY MARKER & STATIC BUILD S1
+
+### Agregado
+- **Menú Interactivo de 9 Opciones**: Sistema Menu-First de onboarding de 60 segundos, semáforo de puertas (🟢 PASS · 🟡 WARN · 🔴 FAIL), glosario técnico y chuleta de comandos de referencia rápida en `SKILL.md`.
+- **R24 Marcador ALT Determinista (`--deploy-marker`)**: Inyección automática en `compile_ir_to_elementor.py` en el primer widget de imagen logo/hero.
+- **Puerta E14 en Linter (`--expect-marker`)**: Validación estricta en `lint_elementor_json.py` para asegurar que el marcador de versión está presente antes de cualquier despliegue.
+- **Puerta E15 para Estructuras Legacy (`--strict-v4`)**: Detección y bloqueo opcional ante contenedores `section`/`column` legacy.
+- **Modo S Formalizado (`build_static.py` - S1)**: Motor determinista stdlib-only para copia `src/` → `site/`, inyección de marcadores HTML y auditoría de enlaces rotos.
+- **QA Visual E5/S3 (`qa_assertions.js`)**: Runner Playwright modular con autoScroll, soporte SSL y capturas multi-viewport (375px/1440px).
+- **Transporte Out-of-Band R23 (`s2e_deploy.sh` & `deploy_elementor.php`)**: Plantillas con verificación criptográfica SHA256 antes de inyección en BD.
+- **AST Enriquecido (`extract_ir.py` & `compile_ir_to_elementor.py`)**: Soporte completo para `h1` a `h6`, divisores `<hr>` (`w_divider`), citas `<blockquote>` (`w_quote`), detección de enlaces externos (`is_external: True`) y soporte para `<picture>`/`<source>` en `asset_matrix.py`.
+
+### Cambiado
+- **R25 Bloqueo Duro de Schema sin `probed_at`**: La falta de timestamp de probe en `elementor_schema.json` bloquea con `exit 2`.
+- `SKILL.md` actualizado formalmente a v27.0.0.
+
+---
+
 ## [25.0.0] - 2026-08-19 — NOVAMIRA-CAPABILITY DRIVEN HARDENING: PURGE E4.5, SCHEMA FRESHNESS & E13 EDITABILITY
 
 ### Agregado

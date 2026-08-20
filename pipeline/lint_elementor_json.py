@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-lint_elementor_json.py — stitch2elementor v24 · Etapa E3 (LINT pre-flight)
+lint_elementor_json.py — stitch2elementor v27 · Etapa E3 (LINT pre-flight)
 
 Puerta de calidad OBLIGATORIA antes de cualquier deploy. Si exit != 0, el
 payload NO se inyecta en WordPress. Diseñado para que modelos no-frontier
@@ -22,9 +22,12 @@ Validaciones (SSOT: elementor_schema.json + Guardrails Prose->Code):
   E13 Editabilidad Track B (Lección 28): widget HTML opaco cuyo contenido es
       reproducible con widgets nativos (heading/text-editor/image/button/icon-list)
       ⇒ error con sugerencia de widget nativo; --allow-opaque-html lo degrada a warning
+  E14 Marcador de despliegue presente en alts de imagen (--expect-marker, R24)
+  E15 Detección de estructuras legacy section/column (--strict-v4 convierte en ERROR, R17)
 
 Uso:
-    python3 lint_elementor_json.py page_elementor.json [--css styles.css] [--meta meta.json] [--report lint.json]
+    python3 lint_elementor_json.py page_elementor.json [--css styles.css] [--meta meta.json] \
+        [--expect-marker s2e-vN-slug] [--strict-v4] [--report lint.json]
 
 Exit codes: 0 PASS · 1 FAIL (errores) · 2 warnings solamente · 3 mal uso
 """
@@ -57,7 +60,7 @@ def load_schema():
 
 class Linter:
     def __init__(self, schema, css_content="", meta_content=None,
-                 allow_opaque_html=False):
+                 allow_opaque_html=False, expect_marker="", strict_v4=False):
         self.schema = schema
         self.errors = []
         self.warnings = []
@@ -68,6 +71,8 @@ class Linter:
         self.css_content = css_content
         self.meta_content = meta_content or {}
         self.allow_opaque_html = allow_opaque_html
+        self.expect_marker = expect_marker
+        self.strict_v4 = strict_v4
 
     def err(self, code, path, msg):
         self.errors.append({"code": code, "path": path, "msg": msg})
@@ -244,6 +249,28 @@ class Linter:
         else:
             self.err("E13", path, msg)
 
+    # -- E14: marcador de despliegue (R24) ------------------------------
+    def check_deploy_marker(self, elements):
+        if not self.expect_marker:
+            return
+        found = False
+        def walk(el):
+            nonlocal found
+            if found or not isinstance(el, dict):
+                return
+            if el.get("elType") == "widget" and el.get("widgetType") == "image":
+                img = el.get("settings", {}).get("image", {})
+                if isinstance(img, dict) and self.expect_marker in str(img.get("alt", "")):
+                    found = True
+                    return
+            for c in el.get("elements", []):
+                walk(c)
+        for el in elements:
+            walk(el)
+        if not found:
+            self.err("E14", "$", f"marcador de despliegue '{self.expect_marker}' ausente "
+                                 "en alts de imagen — recompilar con --deploy-marker (R24)")
+
     # -- E7: integridad de 'elements' ------------------------------------------
     def check_elements_key(self, el, path):
         if "elements" not in el:
@@ -263,6 +290,16 @@ class Linter:
             return
         self.check_id(el, path)
         self.check_types(el, path)
+
+        # -- E15: estructuras legacy (R17) ----------------------------------
+        if el.get("elType") in ("section", "column"):
+            msg = (f"elType legacy '{el.get('elType')}' — R17 exige Flexbox Containers "
+                   "('container'); migrar o compilar con scripts/")
+            if self.strict_v4:
+                self.err("E15", path, msg)
+            else:
+                self.warn("E15", path, msg)
+
         if el.get("elType") in ("container", "section"):
             self.check_container(el, path, is_root)
         self.check_widget_dims(el, path)
@@ -301,6 +338,8 @@ class Linter:
             
         for i, el in enumerate(elements_data):
             self.walk(el, f"$[{i}]", is_root=True)
+
+        self.check_deploy_marker(elements_data)
             
         if custom_css:
             self.check_compiled_css(custom_css)
@@ -309,10 +348,14 @@ class Linter:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Linter pre-flight _elementor_data (E1 a E12)")
+    ap = argparse.ArgumentParser(description="Linter pre-flight _elementor_data (E1 a E15)")
     ap.add_argument("input", help="JSON _elementor_data a validar")
     ap.add_argument("--css", help="Ruta al archivo CSS compilado a validar (E10)")
     ap.add_argument("--meta", help="Ruta al archivo JSON de metadatos SEO (E12)")
+    ap.add_argument("--expect-marker", default="",
+                    help="E14: exige que algún widget image lleve este marcador en su alt (R24)")
+    ap.add_argument("--strict-v4", action="store_true",
+                    help="E15: convierte en ERROR el uso de elType section/column legacy (R17)")
     ap.add_argument("--report", help="Escribe reporte JSON de hallazgos")
     ap.add_argument("--allow-opaque-html", action="store_true",
                     help="Degrada E13 (HTML opaco reproducible) de error a warning")
@@ -339,7 +382,9 @@ def main():
             pass
 
     linter = Linter(load_schema(), css_content=css_text, meta_content=meta_dict,
-                    allow_opaque_html=args.allow_opaque_html)
+                    allow_opaque_html=args.allow_opaque_html,
+                    expect_marker=args.expect_marker,
+                    strict_v4=args.strict_v4)
     linter.run(data)
 
     result = {

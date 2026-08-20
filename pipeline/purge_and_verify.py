@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-purge_and_verify.py — stitch2elementor v25 · Etapa E4.5 (PURGA MULTINIVEL VERIFICADA)
+purge_and_verify.py — stitch2elementor v27 · Etapa E4.5 (PURGA MULTINIVEL VERIFICADA)
 
 Verificación post-purga del despliegue (Lecciones 21/24). La purga en sí la
 ejecuta el LLM vía Novamira MCP en este orden exacto:
@@ -8,15 +8,16 @@ ejecuta el LLM vía Novamira MCP en este orden exacto:
   1. novamira/run-wp-cli  → wp elementor flush-css
   2. novamira/run-wp-cli  → wp cache flush
   3. novamira/execute-php →
-       if (class_exists('\\Endurance_Page_Cache')) {
-           \\Endurance_Page_Cache::purge_all();
+       if (class_exists('Endurance_Page_Cache')) {
+           Endurance_Page_Cache::purge_all();
+           return 'endurance_purged';
        }
-       return 'purged';
+       return 'endurance_absent';
 
 Este script es la MÁQUINA que decide si la purga surtió efecto: hace GET de
 la página publicada y comprueba:
   - HTTP 200
-  - el marcador ALT único de despliegue está presente (exactamente N veces)
+  - el marcador ALT único de despliegue está presente (al menos una vez: marker_count >= 1)
   - opcionalmente un marcador de versión CSS (?v=hash) enlazado
 
 El marcador ALT lo inyecta el compilador/deploy (ej. alt="s2e-v7-<slug>"),
@@ -28,7 +29,7 @@ Uso:
         --marker 'alt="s2e-v7-home"' [--css-hash abc1234] \
         [--retries 3] [--delay 2] [--report purge_report.json]
 
-Exit codes: 0 PASS · 1 FAIL · 2 mal uso / error de red persistente.
+Exit codes: 0 PASS · 1 FAIL (marcador ausente, HTTP != 200 o error de red persistente) · 2 mal uso de argumentos (argparse).
 Stdlib-only.
 """
 
